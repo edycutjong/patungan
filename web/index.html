@@ -8,7 +8,7 @@
 <meta name="author" content="Edy Cu Tjong" />
 <meta name="theme-color" content="#FAF6EC" />
 <meta property="og:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
-<meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Built for QIE mainnet." />
+<meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Built for QIE mainnet; deployment pending." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Patungan" />
 <meta property="og:url" content="https://patungan-qie.vercel.app/" />
@@ -65,7 +65,7 @@ p { margin: 0 0 14px }
 /* nav */
 .nav { position: sticky; top: 0; z-index: 10; background: rgb(250 246 236 / .92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule) }
 .nav .wrap { display: flex; align-items: center; gap: 22px; min-height: 60px }
-.mark { margin-right: auto; font: 850 24px/1 var(--font-display); font-stretch: 75%; letter-spacing: .03em; text-decoration: none; text-transform: uppercase }
+.mark { margin-right: auto; display: inline-flex; align-items: center; min-height: 44px; font: 850 24px/1 var(--font-display); font-stretch: 75%; letter-spacing: .03em; text-decoration: none; text-transform: uppercase }
 .nav nav { display: flex; gap: 20px; font-size: 15px; font-weight: 600 }
 .nav nav a { text-decoration: none; color: var(--muted) }
 .nav nav a:hover { color: var(--ink) }
@@ -141,7 +141,7 @@ p { margin: 0 0 14px }
 .receipt + .receipt { padding-left: 18px } .receipt:last-child { border-right: 0 }
 .receipt .num { font: 850 clamp(44px, 5vw, 68px)/1 var(--font-display); font-stretch: 75% }
 .receipt p { font-size: 15px; margin: 8px 0 6px }
-.receipt a { font: 400 12.5px var(--font-data); color: var(--muted) }
+.receipt a { display: inline-block; padding: 12px 0; font: 400 12.5px var(--font-data); color: var(--muted) }
 .receipt a, footer a, .mark { transition: color 120ms ease, text-decoration-color 120ms ease }
 .receipt a:hover { color: var(--before); text-decoration-thickness: 2px }
 footer a:hover { color: #FFFFFF; text-decoration-thickness: 2px }
@@ -218,7 +218,7 @@ code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 
 .final .ctas { justify-content: center }
 footer { background: var(--ink); color: rgb(250 246 236 / .78); padding: 28px 0; font-size: 14px }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between }
-footer a { color: var(--bg); display: inline-block; padding: 10px 0 }
+footer a { color: var(--bg); display: inline-flex; align-items: center; min-height: 44px }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 
 @media (max-width: 900px) {
@@ -266,9 +266,9 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div class="load">
       <p class="label">Commerce &amp; Real World · QIE Mainnet Hackathon 3.0</p>
-      <p class="pending"><b>Status:</b> tested on a fork of QIE mainnet · mainnet deployment pending</p>
+      <p class="pending" id="hero-status"><b>Status:</b> tested on a fork of QIE mainnet · mainnet deployment pending</p>
       <h1 id="h1" class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
-      <p class="sub">Rina books the futsal court and shares one link. Each friend pays a seat in QUSDC (USDC on QIE), or in QIE that QIEDEX swaps in the same transaction. <b>The last seat pays the court owner, by their <code>.qie</code> name, in that transaction.</b> If the deadline passes first, <b>every friend takes their QUSDC back.</b></p>
+      <p class="sub">Rina books the futsal court and shares one link; friends pay their seats in QUSDC, QIE's dollar stablecoin, or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
       <div class="ctas">
         <a class="btn" href="https://github.com/edycutjong/patungan">View on GitHub</a>
         <a class="btn" href="/pitch/">Pitch deck</a>
@@ -289,10 +289,9 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
         </div>
         <p class="counter"><b id="filled">3</b><span>/</span>3</p>
       </div>
-      <p class="terbilang"><span class="label">Terbilang · <i>in words</i></span> nol koma dua lima QUSDC per kursi (zero point two five QUSDC per seat)</p>
       <p class="terbilang"><span class="label">Batas waktu · <i>deadline</i></span> all 3 seats were paid before it, so nobody needed a refund</p>
       <div class="roster-wrap">
-        <ol class="roster">
+        <ol class="roster" role="list">
           <li><span class="n">1</span><span class="who">seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li>
           <li><span class="n">2</span><span class="who">seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
           <li><span class="n">3</span><span class="who">seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
@@ -300,7 +299,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
         <div class="stamp" id="stamp" aria-hidden="true">LUNAS<small>PAID IN FULL</small></div>
       </div>
       <p class="paidline">✓ Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
-      <figcaption>Replay of a recorded run on an anvil fork of QIE mainnet (block 11,883,271): <code>test.qie</code> is a real mainnet name; the last seat used 267,557 gas. Source: <code>evidence/local-flow-run.txt</code>.</figcaption>
+      <figcaption>Replay of a run on a QIE mainnet fork (block 11,883,271). <code>test.qie</code> is a real mainnet name. Source: <code>evidence/local-flow-run.txt</code>.</figcaption>
     </figure>
   </div>
 </section>
@@ -313,7 +312,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
     </div>
     <div class="live">
       <p class="label">QIE mainnet, read by this page just now</p>
-      <dl id="live"><dt>Block</dt><dd>reading…</dd><dt>QIE/USD (QIE Oracle)</dt><dd>reading…</dd><dt>QIE for a 0.25 QUSDC seat (QIEDEX)</dt><dd>reading…</dd></dl>
+      <dl id="live"><dt>Block</dt><dd>reading…</dd><dt>QIE price (QIE Oracle, QIE/USDT feed)</dt><dd>reading…</dd><dt>QIE for a 0.25 QUSDC seat (QIEDEX)</dt><dd>reading…</dd></dl>
     </div>
   </div>
 </section>
@@ -322,8 +321,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div class="grid">
       <div class="receipt"><p class="num" data-count="71">71</p><p>contract tests pass; 24 of them read live mainnet state</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">evidence/forge-test-run.txt</a></div>
-      <div class="receipt"><p class="num"><span data-count="5">5</span> / 5</p><p>injected bugs caught by those tests</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">evidence/mutation-run.txt</a></div>
-      <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for the last seat: swap, seat and payout in one transaction</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/local-flow-run.txt">evidence/local-flow-run.txt</a></div>
+      <div class="receipt"><p class="num"><span data-count="5">5</span> / 5</p><p>injected bugs caught by the 47 mock-based tests</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">evidence/mutation-run.txt</a></div>
+      <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for the last seat on a mainnet fork: swap, seat and payout in one transaction</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/local-flow-run.txt">evidence/local-flow-run.txt</a></div>
       <div class="receipt"><p class="num" data-count="4">4</p><p>QIE mainnet components: QUSDC, QIEDEX, Zone <code>.qie</code>, QIE Oracle</p><a href="https://github.com/edycutjong/patungan#the-four-qie-components-it-runs-on">README · components</a></div>
     </div>
   </div>
@@ -339,7 +338,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
         <p class="shot-cap">The app after the last seat, in a browser run on a mainnet fork (<code>evidence/e2e-local/</code>, pool #2).</p>
       </div>
       <div class="term-wrap">
-<pre class="term" id="term" aria-label="Terminal output of script/local-flow.sh"><span class="bar">$ script/local-flow.sh · anvil fork of QIE mainnet</span>fork block 11883271
+<pre class="term" id="term" role="region" tabindex="0" aria-label="Terminal output of script/local-flow.sh"><span class="bar">$ script/local-flow.sh · anvil fork of QIE mainnet</span>fork block 11883271
 deploy Patungan                              gasUsed 3002560
 createPoolByName (.qie resolve + title)      gasUsed 177664
 join (QUSDC, first seat)                     gasUsed 182829
@@ -355,7 +354,7 @@ escrow QUSDC 500000 = totalHeld 500000 (pool 2's two seats)
 native QIE left in contract: 0</pre>
         <p class="shot-cap">A separate run of <code>script/local-flow.sh</code>, lines from <code>evidence/local-flow-run.txt</code>: the payee (owner of <code>test.qie</code>) gains 0.75 QUSDC inside the last seat's own transaction, and no QIE is left behind in the contract.</p>
         <p class="label steps-head">Browser run on a mainnet fork · <i>selected steps from <code>evidence/e2e-local-run.txt</code></i></p>
-        <ol class="steps">
+        <ol class="steps" role="list">
           <li><span>Dave joins pool #2 paying QIE (quote + 1%, one tx)</span><span class="ok">OK</span></li>
           <li><span>Erin pays the last seat in QUSDC (approve, pay) and the LUNAS stamp lands<br />payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
           <li><span>the short pool passes its deadline: Fran gets her money back; the stamp says DIKEMBALIKAN</span><span class="ok">OK</span></li>
@@ -373,7 +372,7 @@ native QIE left in contract: 0</pre>
     <h2 class="display" id="screens-h">Share, pay in QIE, or get it back</h2>
     <div class="strip">
       <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet with the pool link and a ready WhatsApp message" loading="lazy" /></div>
-        <figcaption><b>Bagikan · share</b>The organizer creates the pool and sends one link to the group chat.</figcaption></figure>
+        <figcaption><b>Bagikan · share</b>The organizer creates the pool and sends one link to the group chat. (Captured on a local test run, so the link shows a local address.)</figcaption></figure>
       <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet paying 0.25 QUSDC in QIE with a QIEDEX quote and the Oracle cap" loading="lazy" /></div>
         <figcaption><b>Bayar pakai QIE · pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
       <figure><div class="phone"><img src="/shots/6-dikembalikan.webp" width="390" height="918" alt="Pool past its deadline with a green DIKEMBALIKAN stamp: everyone was refunded" loading="lazy" /></div>
@@ -409,7 +408,7 @@ native QIE left in contract: 0</pre>
       <article class="card c4">
         <p class="label">Batas harga · <i>price guard</i></p>
         <h3>The Oracle sets the ceiling</h3>
-        <p>The QIE/USD feed bounds what the swap may cost. It is a sanity bound, never the price paid.</p>
+        <p>The QIE Oracle's price feed bounds what the swap may cost. It is a sanity bound, never the price paid.</p>
         <span class="chip">QIE Oracle · <code>latestRoundData</code></span>
       </article>
       <article class="card c5">
@@ -435,7 +434,7 @@ native QIE left in contract: 0</pre>
     <p class="label">Tembusan · <i>the carbon copy we keep</i></p>
     <h2 class="display" id="honest-h">What is not true yet, in our own words</h2>
     <ol>
-      <li><div><blockquote>Mainnet transactions: none yet (see Status). Everything above ran on a fork or mocks.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li id="honest-mainnet"><div><blockquote>Mainnet transactions: none yet (see Status). Everything above ran on a fork or mocks.</blockquote><cite>README · Honest limits</cite></div></li>
       <li><div><blockquote>Distinct wallets are not distinct people. Any usage count we publish counts wallets.</blockquote><cite>README · Honest limits</cite></div></li>
       <li><div><blockquote>QUSDC has an issuer-controlled <code>VAULT_ROLE</code>; if the issuer burns escrowed QUSDC, the pool cannot make everyone whole.</blockquote><cite>README · Honest limits</cite></div></li>
     </ol>
@@ -450,7 +449,7 @@ native QIE left in contract: 0</pre>
     </div>
     <div>
       <details open><summary>Is it on QIE mainnet?</summary>
-        <p>Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes by itself once the contract is live.</p></details>
+        <p id="faq-mainnet">Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes by itself once the contract is live.</p></details>
       <details><summary>What if the group doesn't fill?</summary>
         <p>Then nobody is paid. After the deadline each member can take their QUSDC back with <code>claimRefund</code>, and anyone can call <code>refundAll</code> to return everyone's at once (in batches for large pools). The organizer can also cancel early, which opens the same refunds. A seat paid in QIE comes back as QUSDC.</p></details>
       <details><summary>Can the organizer run off with the money?</summary>
@@ -516,7 +515,7 @@ async function live() {
     const hours = Math.max(0, Math.round((Date.now() / 1000 - Number(word(round, 3))) / 3600))
     const rows = [
       ['Block', '#' + BigInt(block).toLocaleString('en-US')],
-      ['QIE/USD (QIE Oracle)', `$${units(word(round, 1), 8, 4)}, updated ${hours} h ago`],
+      ['QIE price (QIE Oracle, QIE/USDT feed)', `${units(word(round, 1), 8, 4)}, updated ${hours} h ago`],
       ['QIE for a 0.25 QUSDC seat (QIEDEX)', `${units(word(quote, 2), 18, 4)} QIE`],
     ]
     dl.replaceChildren(...rows.flatMap(([k, v]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd] }))
@@ -535,6 +534,10 @@ async function deployment() {
     const a = el.querySelector('a')
     a.href = `https://mainnet.qie.digital/address/${main.address}`
     a.textContent = main.address
+    const short = `${main.address.slice(0, 6)}…${main.address.slice(-4)}`
+    document.getElementById('hero-status').innerHTML = `<b>Status:</b> live on QIE mainnet · contract <span class="data">${short}</span>`
+    document.getElementById('faq-mainnet').textContent = `Yes. The contract is ${main.address} on QIE mainnet; every pool, join, payout and refund is on mainnet.qie.digital.`
+    document.getElementById('honest-mainnet').hidden = true
   } catch { /* keep the pending line */ }
 }
 

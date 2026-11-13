@@ -53,9 +53,9 @@ html, body { margin: 0; height: 100%; background: #E9E2D2; overflow: hidden; col
 .label i { font-style: normal; text-transform: none; letter-spacing: .02em; font-weight: 600 }
 .ink .label { color: rgb(250 246 236 / .7) }
 .display { font-family: var(--font-display); font-stretch: 75%; font-weight: 850; text-transform: uppercase; line-height: .92; margin: 0 }
-h1.display { font-size: 112px }
+h1.display { font-size: 112px; text-wrap: balance }
 h2.display { font-size: 92px; max-width: 18ch; margin-bottom: 40px }
-.hl { font-style: italic; color: var(--refund); display: block }
+.hl { font-style: italic; color: var(--refund); display: block; text-wrap: balance }
 .ink .hl { color: #8FD1AC }
 p { margin: 0 }
 .big { font-size: 34px; line-height: 1.4 }
@@ -140,7 +140,12 @@ p { margin: 0 }
 .links { margin-top: 48px; font: 600 30px/1.7 var(--font-body) }
 
 /* chrome */
-.counter-ui { position: fixed; right: 22px; bottom: 16px; font: 400 15px var(--font-data); color: var(--muted); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
+.counter-ui { position: fixed; right: 132px; bottom: 16px; font: 600 15px var(--font-body); color: var(--muted); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
+.navbtn { position: fixed; bottom: 10px; width: 48px; height: 44px; border: 1.5px solid var(--ink); border-radius: 6px; background: rgb(250 246 236 / .92); color: var(--ink); font: 700 20px var(--font-body); cursor: pointer; z-index: 5; transition: transform 120ms ease, background-color 120ms ease }
+.navbtn:hover { transform: translateY(-1px); background: #FFFFFF } .navbtn:focus-visible { outline: 2px solid var(--before); outline-offset: 2px }
+#prev { right: 74px } #next { right: 18px }
+.hint { position: fixed; left: 18px; bottom: 16px; font: 600 14px var(--font-body); color: var(--muted); z-index: 5; transition: opacity 300ms ease }
+body.overview .navbtn, body.overview .hint, body.overview .counter-ui { display: none }
 .speaker-notes { display: none }
 body.presenter .viewport { bottom: 20vh }
 body.presenter .notes-panel { display: block }
@@ -159,7 +164,7 @@ body.overview .slide:hover { outline-color: var(--before) }
   html, body, .slide { -webkit-print-color-adjust: exact; print-color-adjust: exact }
   .viewport { position: static } .deck { position: static; transform: none !important; width: auto; height: auto }
   .slide { position: relative; opacity: 1; visibility: visible; width: 16in; height: 9in; zoom: .48; page-break-after: always; break-after: page; break-inside: avoid; page-break-inside: avoid; transition: none }
-  .counter-ui, .notes-panel, .speaker-notes { display: none !important }
+  .counter-ui, .notes-panel, .speaker-notes, .navbtn, .hint { display: none !important }
 }
 </style>
 </head>
@@ -172,7 +177,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div>
       <p class="label">QIE Mainnet Hackathon 3.0 · <i>Commerce &amp; Real World</i></p>
       <h1 class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
-      <p class="mid" style="margin-top:40px">Patungan: group payments with a deadline, on QIE.</p>
+      <p class="mid" style="margin-top:40px">Patungan: group payments with a deadline, on QIE. The card is a recorded run on a QIE mainnet fork.</p>
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
@@ -199,14 +204,14 @@ body.overview .slide:hover { outline-color: var(--before) }
     </ul>
   </div>
   <div class="foot"><span>Patungan</span></div>
-  <aside class="speaker-notes">Every futsal group, arisan or office collection has one person who pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
+  <aside class="speaker-notes">Many futsal groups, arisans and office collections have one person who pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
 </section>
 
 <section class="slide" data-n="3" aria-label="The last seat pays">
   <div class="cols" style="grid-template-columns: .8fr 1.2fr">
     <div>
       <p class="label">Lembar 01 · <i>sheet 1: the last seat</i></p>
-      <h2 class="display" style="font-size:84px">Seat three fills. test.qie is paid in that same transaction.</h2>
+      <h2 class="display" style="font-size:84px">Seat three fills. <span style="text-transform:none">test.qie</span> is paid in that same transaction.</h2>
       <p class="cap">Recorded on a QIE mainnet fork, block 11,883,271.</p>
     </div>
     <div class="kuitansi">
@@ -230,7 +235,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="step paid"><b>5</b><h3>Payee paid</h3><p><code>PoolPaid</code></p></div>
     <div class="step"><b>6</b><h3>Change back</h3><p>0 QIE left behind.</p></div>
   </div>
-  <p class="gasline"><b>267,557</b>gas, all six moves (paying in QIE)</p>
+  <p class="gasline"><b>267,557</b>gas on a mainnet fork, all six moves (paying in QIE)</p>
   <div class="foot"><span>src/Patungan.sol · evidence/local-flow-run.txt</span></div>
   <aside class="speaker-notes">The swap is invisible to the member. The Oracle is a ceiling, never the price paid: if the pool's quote is too far above fair value, the join reverts instead of overpaying.</aside>
 </section>
@@ -253,8 +258,8 @@ body.overview .slide:hover { outline-color: var(--before) }
       <p class="label">Dikembalikan · <i>refunded</i></p>
       <h2 class="display">Miss the deadline, everyone is paid back</h2>
       <ul class="facts">
-        <li><span>Each member claims their own</span><span class="data">claimRefund · 95,422 gas</span></li>
-        <li><span>Anyone can refund the whole pool</span><span class="data">refundAll, 2 members · 120,539 gas</span></li>
+        <li><span>Each member claims their own</span><span class="data">claimRefund · 95,422 gas (fork)</span></li>
+        <li><span>Anyone can refund the whole pool</span><span class="data">refundAll, 2 members · 120,539 gas (fork)</span></li>
         <li><span>A seat paid in QIE comes back as QUSDC</span><span class="data">same refund</span></li>
       </ul>
     </div>
@@ -270,7 +275,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="num"><b>71</b><p>contract tests pass; 24 read live mainnet state</p></div>
     <div class="num"><b>5/5</b><p>injected bugs caught</p></div>
     <div class="num"><b>11</b><p>browser steps pass on a mainnet fork</p></div>
-    <div class="num"><b>+5.64%</b><p>median swap cost above the Oracle price (564 bps; guard 15%)</p></div>
+    <div class="num"><b>12/12</b><p>QIE joins inside the 15% Oracle guard on a fork (median +5.64%)</p></div>
   </div>
   <div class="foot"><span>evidence/ · forge-test-run.txt · mutation-run.txt · e2e-local-run.txt · bench.md</span></div>
   <aside class="speaker-notes">Seventy-one Foundry tests including fuzz and invariants, a mutation check where every injected bug is caught, and a browser click-through of join, payout and refund on a mainnet fork.</aside>
@@ -324,6 +329,8 @@ body.overview .slide:hover { outline-color: var(--before) }
 
 </div></div>
 <div class="counter-ui" id="count" aria-live="polite">01 / 10</div>
+<button class="navbtn" id="prev" type="button" aria-label="Previous slide">←</button><button class="navbtn" id="next" type="button" aria-label="Next slide">→</button>
+<div class="hint" id="hint">← → keys, the buttons, or click the slide · Esc for all slides</div>
 <div class="notes-panel" id="notes"></div>
 <script>
 (() => {
@@ -352,7 +359,13 @@ body.overview .slide:hover { outline-color: var(--before) }
     document.body.classList.toggle('overview', on)
     if (on) { slides.forEach((s) => s.classList.add('on')); deck.style.transform = '' } else { show(i); fit() }
   }
-  slides.forEach((s, k) => s.addEventListener('click', () => { if (document.body.classList.contains('overview')) { i = k; overview(false) } }))
+  slides.forEach((s, k) => s.addEventListener('click', (e) => {
+    if (document.body.classList.contains('overview')) { i = k; overview(false); return }
+    show(i + (e.clientX < innerWidth / 3 ? -1 : 1))
+  }))
+  document.getElementById('prev').addEventListener('click', () => show(i - 1))
+  document.getElementById('next').addEventListener('click', () => show(i + 1))
+  setTimeout(() => { document.getElementById('hint').style.opacity = '0' }, 6000)
   addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i + 1) }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1) }

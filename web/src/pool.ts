@@ -271,7 +271,7 @@ class PoolPage {
         <div class="amount">${fmtQusdc(d.price)} QUSDC<small>per seat · ${fmtQusdc(total)} QUSDC in total</small></div>
         <div class="counter" aria-label="${d.filled} of ${d.seats} seats paid">${d.filled}<span>/</span>${d.seats}</div>
       </div>
-      <p class="terbilang"><span class="label">Terbilang</span> ${terbilangQusdc(d.price)} per kursi</p>
+      <p class="terbilang"><span class="label">Terbilang · in words</span> ${terbilangQusdc(d.price)} per kursi</p>
       <p class="deadline">closes ${fmtWib(d.deadline)} · ${fmtLeft(d.deadline, d.now)}</p>
       <p class="status" role="status">${esc(statusLine(d, d.now))}</p>
       ${this.stamp(kind, d, payee, land)}
