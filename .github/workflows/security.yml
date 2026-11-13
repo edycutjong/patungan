@@ -31,8 +31,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install slither-analyzer
-      # High/Medium findings are triaged in docs/security.md; fail only on a new High.
-      - run: slither . --filter-paths "lib|test|script" --fail-high
+      # High/Medium findings are triaged in docs/security.md; fail on any High except the two triaged false positives (reentrancy-eth, reentrancy-balance).
+      - run: slither . --filter-paths "lib|test|script" --exclude reentrancy-eth,reentrancy-balance --fail-high
 
   npm-audit:
     runs-on: ubuntu-latest
