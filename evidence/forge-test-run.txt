@@ -38,19 +38,20 @@ Ran 39 tests for test/Patungan.t.sol:PatunganTest
 [PASS] test_refundAll_batches_skipsClaimed_exactlyOnce() (gas: 1869605)
 [PASS] test_refundAll_failedTransfer_restoresBalance_andEmitsRefundFailed() (gas: 1067235)
 [PASS] test_twoPools_issuerBurn_firstComeFirstPaid() (gas: 840281)
-Suite result: ok. 39 passed; 0 failed; 0 skipped; finished in 42.95ms (6.88ms CPU time)
+Suite result: ok. 39 passed; 0 failed; 0 skipped; finished in 48.23ms (7.60ms CPU time)
 Ran 4 tests for test/Patungan.fuzz.t.sol:PatunganFuzzTest
-[PASS] testFuzz_joinWithQIE_spendsQuote_returnsRest(uint16,uint256) (runs: 256, μ: 431863, ~: 432469)
-[PASS] testFuzz_payout_isExactlyPriceTimesSeats(uint96,uint16,uint256) (runs: 256, μ: 1137036, ~: 1050726)
-[PASS] testFuzz_quote_matchesReferenceMath(uint96,uint16,int256) (runs: 256, μ: 228044, ~: 227814)
-[PASS] testFuzz_refunds_returnExactlyWhatWasPaid(uint96,uint16,uint8,uint256) (runs: 256, μ: 1004250, ~: 838283)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 48.45ms (179.48ms CPU time)
+[PASS] testFuzz_joinWithQIE_spendsQuote_returnsRest(uint16,uint256) (runs: 256, μ: 432120, ~: 432469)
+[PASS] testFuzz_payout_isExactlyPriceTimesSeats(uint96,uint16,uint256) (runs: 256, μ: 1186514, ~: 1050942)
+[PASS] testFuzz_quote_matchesReferenceMath(uint96,uint16,int256) (runs: 256, μ: 228084, ~: 227796)
+[PASS] testFuzz_refunds_returnExactlyWhatWasPaid(uint96,uint16,uint8,uint256) (runs: 256, μ: 1027648, ~: 837873)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 48.27ms (188.91ms CPU time)
 Ran 1 test for test/invariant/PatunganInvariant.t.sol:PatunganInvariantTest
 [PASS]
 [PASS] invariant_conservation_perPool
 [PASS] invariant_conservation_totalHeld
 [PASS] invariant_noNativeQieSticks
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.05s (1.05s CPU time)
+ PatunganInvariantTest invariants (runs: 64, calls: 3200, reverts: 0)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.10s (1.10s CPU time)
 Ran 16 tests for test/spike/Spike.fork.t.sol:SpikeForkTest
 [PASS] test_escrow_createByName_unknownName_reverts() (gas: 38360)
 [PASS] test_escrow_joinWithQIE_contractOrigin_forwardsExcess_lastSeatPays() (gas: 633923)
@@ -68,7 +69,7 @@ Ran 16 tests for test/spike/Spike.fork.t.sol:SpikeForkTest
 [PASS] test_zone_inputFormat_lowercaseLabelOnly() (gas: 28305)
 [PASS] test_zone_resolvesRealName() (gas: 19505)
 [PASS] test_zone_unknownName_reverts() (gas: 12476)
-Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.39s (4.86s CPU time)
+Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.49s (5.05s CPU time)
 Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
 [PASS] test_fork_constructor_readsLiveDecimalsAndWqie() (gas: 16495)
 [PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 215046)
@@ -78,5 +79,5 @@ Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
 [PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() (gas: 1237686)
 [PASS] test_fork_quoteQIE_matchesRouterAndOracle() (gas: 259639)
 [PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() (gas: 1520546)
-Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.45s (4.46s CPU time)
-Ran 5 test suites in 2.46s (5.98s CPU time): 68 tests passed, 0 failed, 0 skipped (68 total tests)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.55s (4.70s CPU time)
+Ran 5 test suites in 2.55s (6.23s CPU time): 68 tests passed, 0 failed, 0 skipped (68 total tests)

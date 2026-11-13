@@ -9,7 +9,7 @@ QIEDEX router and WQIE/QUSDC pair, a real `.qie` name, the live QIE Oracle feed)
 |---|---|---|
 | Unit (mocks of QUSDC, QIEDEX, Zone, Oracle) | `test/Patungan.t.sol` | 39 passed |
 | Fuzz: payout = price × seats for any split; refunds return exactly what was paid; Oracle quote math; QIE change | `test/Patungan.fuzz.t.sol` | 4 passed (256 runs each) |
-| Invariants: QUSDC balance = `totalHeld` + direct donations; `totalHeld` = Σ `held`; `held` = Σ `paid` while open/cancelled; `price·filled` = `held` + refunded; a paid pool refunded nobody; payee got exactly the filled pools; no native QIE left | `test/invariant/PatunganInvariant.t.sol` | 3 invariants held (64 runs × 50 calls) |
+| Invariants: QUSDC balance = `totalHeld` + direct donations; `totalHeld` = Σ `held`; `held` = Σ `paid` while open/cancelled; `price·filled` = `held` + refunded; a paid pool refunded nobody; payee got exactly the filled pools; no native QIE left | `test/invariant/PatunganInvariant.t.sol` | 3 invariants held (64 runs, 3,200 calls; summary line in the run file) |
 | Patungan on a QIE mainnet fork | `test/fork/Patungan.fork.t.sol` | 8 passed |
 | Day-one spike on a QIE mainnet fork | `test/spike/Spike.fork.t.sol` | 16 passed |
 
@@ -47,7 +47,8 @@ join paying QIE (one tx) · last seat paid in QUSDC (approve, pay): the payee's 
 tx and the LUNAS stamp landed · organizer cancels a pool with a member, then "Refund everyone" → DIKEMBALIKAN · a pool
 passes its deadline → "CLOSED, refunds available" → "Get my money back" → DIKEMBALIKAN · home lists every pool with its state.
 
-Seen during development of the click-through (that failing run was not stored): with no gas limit from the page, the
+Observed once while building the click-through, and not reproducible from a file in this repo (the failing run was not
+stored): with no gas limit from the page, the
 `joinWithQIE` transaction was sent with a limit equal to its gas used and reverted out of gas; the router's refund to
 Patungan and Patungan's refund to the member are nested calls. The page now sends its own estimate + 25%
 (`web/src/pool.ts`, `send`).
