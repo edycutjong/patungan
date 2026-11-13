@@ -61,6 +61,19 @@ NOW=$(cast block --rpc-url "$RPC" latest -f timestamp)
 AGE=$((NOW - UPDATED))
 echo "oracle age ${AGE}s (max ${MAX_ORACLE_AGE}s)"
 [ "$AGE" -le "$MAX_ORACLE_AGE" ] || { echo "oracle is stale: a QIE join would revert; wait for an update" >&2; exit 1; }
+# maxDevBps is an immutable: refuse to deploy a guard that today's demo-seat quote already breaks (every QIE join would revert
+# PriceDeviation until the pool or the feed moved). Same math as Patungan._fairQie: ceil(amount * 10^(8+18-6) / answer).
+ANSWER=$(echo "$ROUND" | sed -n 2p | awk '{print $1}')
+QIN=$(echo "$QUOTE" | tr -d '[],' | awk '{print $1}')
+python3 - "$QIN" "$ANSWER" "$MAX_DEV_BPS" <<'PY' || exit 1
+import sys
+qin, answer, bps = (int(x) for x in sys.argv[1:4])
+fair = -(-250000 * 10**20 // answer)
+ceiling = fair * (10_000 + bps) // 10_000
+print(f"guard check for 0.25 QUSDC: router {qin} wei, Oracle fair {fair}, ceiling at {bps} bps {ceiling} ({(qin * 10_000) // fair - 10_000:+d} bps vs Oracle)")
+if qin > ceiling:
+    sys.exit(f"QIEDEX's quote is over the {bps} bps guard right now: QIE joins would revert PriceDeviation. Wait, or deploy with a larger MAX_DEV_BPS (cap 2000).")
+PY
 
 echo "== build + deploy"
 forge build >/dev/null

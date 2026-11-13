@@ -45,8 +45,9 @@ def setup():
     d = now() + 86400
     send(ORG, PAT, "createPoolByName(string,address,uint96,uint16,uint40,string)", "test", owner, "250000", "2", str(now() + 660), "Tiket konser")  # 5: will expire
     send(ORG, PAT, "createPool(address,uint96,uint16,uint40,string)", owner, "250000", "3", str(d), "Kado ulang tahun")  # 6: cancel with a member
+    send(ORG, PAT, "createPool(address,uint96,uint16,uint40,string)", owner, "250000", "5", str(d), "Double tap")  # 7: double tap + over-guard
     nxt = int(cast("call", PAT, "nextId()(uint256)").split()[0])
-    return nxt - 1, nxt
+    return nxt - 2, nxt - 1, nxt
 
 
 SHIM = """
@@ -80,7 +81,7 @@ def step(name):
 
 
 with sync_playwright() as pw:
-    EXP, CAN = setup()
+    EXP, CAN, DBL = setup()
     try:
         b, which = pw.chromium.launch(), "Playwright Chromium"
     except Exception:
@@ -180,8 +181,41 @@ with sync_playwright() as pw:
     step("home lists every pool with its state")
     p = page_as(b)
     p.goto(APP)
-    expect(p.locator(".pools li")).to_have_count(CAN, timeout=15000)
+    expect(p.locator(".pools li")).to_have_count(DBL, timeout=15000)
     expect(p.locator(".mini.paid")).to_have_count(2)
     p.screenshot(path=OUT / "0-home.png", full_page=True)
+    p.close()
+
+    step("a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)")
+    dbl = DBL
+    p = page_as(b, DAVE)
+    p.goto(f"{APP}/p/local/{dbl}")
+    p.get_by_role("button", name="Join").click()
+    p.get_by_role("tab", name="Pay with QIE").click()
+    p.get_by_role("button", name="in QIE").dblclick()
+    expect(p.locator(".msg")).to_contain_text("Seat paid in QIE", timeout=20000)
+    time.sleep(3)
+    cast("rpc", "evm_mine")
+    seats = int(cast("call", PAT, "seatsOf(uint256,address)(uint16)", str(dbl), DAVE).split()[0])
+    assert seats == 1, f"double tap bought {seats} seats"
+    print(f"  pool #{dbl}: Dave holds {seats} seat after a double tap")
+    p.close()
+
+    step("a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button")
+    ORACLE = "0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17"
+    owner = cast("call", ORACLE, "owner()(address)")
+    answer = int(cast("call", ORACLE, "latestRoundData()(uint80,int256,uint256,uint256,uint80)").split("\n")[1].split()[0])
+    cast("rpc", "anvil_setBalance", owner, "0x56BC75E2D63100000")
+    cast("rpc", "anvil_impersonateAccount", owner)
+    send(owner, ORACLE, "updateAnswer(int256)", str(answer * 2))  # Oracle says QIE doubled: QIEDEX now charges far over the guard
+    p = page_as(b, DAVE)
+    p.goto(f"{APP}/p/local/{dbl}")
+    p.get_by_role("button", name="Join").click()
+    p.get_by_role("tab", name="Pay with QIE").click()
+    expect(p.locator(".tabbody .quote")).to_contain_text("QIE payment is paused", timeout=15000)
+    expect(p.get_by_role("button", name="in QIE")).to_have_count(0)
+    p.screenshot(path=OUT / "9-qie-paused-over-guard.png", full_page=True)
+    p.close()
+    send(owner, ORACLE, "updateAnswer(int256)", str(answer))
     b.close()
 print("E2E OK: every step passed")
