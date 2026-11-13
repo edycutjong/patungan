@@ -79,6 +79,7 @@ class PoolPage {
   private activity: Activity = { joins: new Map(), refunds: new Map() }
   private logsFailed = false
   private scanning = false
+  private rescanQueued = false
   private lastScanned?: bigint
   private account?: Address
   private lastKind?: PoolKind
@@ -157,7 +158,10 @@ class PoolPage {
 
   /** Tx links come from logs, loaded after first paint; nothing the first paint needs depends on them. */
   private async loadActivity() {
-    if (this.scanning) return // never stack scans on the public RPCs
+    if (this.scanning) {
+      this.rescanQueued = true // never stack scans on the public RPCs; run once more when this one ends
+      return
+    }
     this.scanning = true
     try {
       const args = { id: this.id }
@@ -196,6 +200,10 @@ class PoolPage {
       this.paint()
     } finally {
       this.scanning = false
+      if (this.rescanQueued) {
+        this.rescanQueued = false
+        void this.loadActivity()
+      }
     }
   }
 
@@ -424,6 +432,7 @@ class PoolPage {
     }
     let n = 1
     let tab: 'qie' | 'qusdc' = 'qie'
+    let gen = 0 // only the newest render may attach handlers (stepper clicks can overlap slow reads)
     s.innerHTML = '<p class="quote">Reading your wallet…</p>'
     if (!s.open) s.showModal()
     // F9: QIE is the default only when the wallet can't already cover one seat in QUSDC
@@ -434,6 +443,7 @@ class PoolPage {
       if (bal >= d.price) tab = 'qusdc'
     }
     const render = async () => {
+      const my = ++gen
       const amount = d.price * BigInt(n)
       s.innerHTML = `<form method="dialog" class="sheetform">
         <h2>Join · ${esc(d.title)}</h2>
@@ -486,6 +496,7 @@ class PoolPage {
               functionName: 'latestRoundData',
             }),
           ])
+          if (my !== gen) return
           const value = qieMaxValue(qieIn, maxAllowed)
           body.innerHTML = `<p class="quote"><b>≈ ${fmtQie(qieIn)} QIE</b> (QIEDEX quote) · your max ${fmtQie(value)} QIE: 1% over this quote.
             The QIE Oracle guard (${this.maxDevBps / 100}%) is the hard cap: ${fmtQie(maxAllowed)} QIE. Oracle price updated ${ageHours(round[3], d.now)} h ago.</p>
@@ -498,7 +509,9 @@ class PoolPage {
             })
         } catch (e) {
           const rev = e instanceof BaseError ? (e.walk((x) => x instanceof ContractFunctionRevertedError) as ContractFunctionRevertedError | null) : null
-          body.innerHTML = `<p class="quote">${esc(revertSentence(rev?.data?.errorName, this.maxDevBps))}</p>`
+          if (my !== gen) return
+          const why = rev ? revertSentence(rev.data?.errorName, this.maxDevBps) : "QIE's RPCs aren't answering right now. Close this and try again in a moment."
+          body.innerHTML = `<p class="quote">${esc(why)}</p>`
         }
       } else {
         const acct = this.account
@@ -511,9 +524,10 @@ class PoolPage {
               this.client.readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'allowance', args: [acct, this.dep.address] }),
             ])
         } catch {
-          body.innerHTML = `<p class="quote">QIE's RPCs aren't answering right now. Close this and try again in a moment.</p>`
+          if (my === gen) body.innerHTML = `<p class="quote">QIE's RPCs aren't answering right now. Close this and try again in a moment.</p>`
           return
         }
+        if (my !== gen) return
         const needApprove = allowance < amount
         body.innerHTML = `<p class="quote">${acct ? `This wallet holds ${fmtQusdc(bal)} QUSDC.` : 'Connect a wallet that holds QUSDC.'} Two steps: approve, then pay.</p>
           <button type="button" class="cta${needApprove ? '' : ' ghost'}" data-pay="approve"${needApprove ? '' : ' disabled'}>1 · Approve ${fmtQusdc(amount)} QUSDC</button>
@@ -535,7 +549,6 @@ class PoolPage {
           void run((a) => this.send(a, 'join', [this.id, n], `Seat${n > 1 ? 's' : ''} paid in QUSDC`))
       }
     }
-    if (!s.open) s.showModal()
     await render()
   }
 }
