@@ -7,6 +7,7 @@ import {
   ContractFunctionRevertedError,
   UserRejectedRequestError,
   erc20Abi,
+  maxUint256,
   type Address,
   type Hash,
 } from 'viem'
@@ -17,7 +18,7 @@ import {
   fmtQusdc,
   fmtWib,
   poolKind,
-  qieMaxValue,
+  qieOffer,
   revertSentence,
   shortAddr,
   statusLine,
@@ -31,6 +32,8 @@ import { connect, hasWallet, metamaskDeepLink, walletFor } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
+const QUOTE_FRESH_S = 120 // chain seconds: an older rendered QIE quote is re-read before paying
+const QUOTE_TTL_S = 300 // joinWithQIE expiry = the quote's block time + 5 min
 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
@@ -51,6 +54,7 @@ interface PoolData {
   members: { addr: Address; seats: number; owed: bigint }[]
   refundable: boolean
   /** Chain time: the latest block's timestamp plus the seconds elapsed since it was read (never the device clock). */
+  blockNumber: bigint
   blockTs: number
   fetchedAt: number
   now: number
@@ -86,6 +90,8 @@ class PoolPage {
   private lastKind?: PoolKind
   private maxDevBps = 1500
   private busy = false
+  private guardRead = false
+  private appliedBlock = -1n // a slower, older refresh never paints over a newer one
   private msg = ''
   private sheet!: HTMLDialogElement
   private polls = 0
@@ -103,9 +109,7 @@ class PoolPage {
     this.sheet = document.createElement('dialog')
     this.sheet.className = 'joinsheet'
     document.body.append(this.sheet)
-    this.maxDevBps = Number(
-      await this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'maxDevBps' }),
-    )
+    await this.ensureGuard().catch(() => undefined) // a failed read is retried by the QIE tab; polling starts anyway
     if (hasWallet()) {
       const accts = (await window.ethereum!.request({ method: 'eth_accounts' }).catch(() => [])) as Address[]
       this.account = accts[0]
@@ -123,19 +127,25 @@ class PoolPage {
   }
 
   // ------------------------------------------------------------------ reads
+  /** The deployed Oracle guard (an immutable), read once. */
+  private async ensureGuard() {
+    if (this.guardRead) return
+    this.maxDevBps = Number(
+      await this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'maxDevBps' }),
+    )
+    this.guardRead = true
+  }
+
   private async read(): Promise<PoolData | undefined> {
     const c = this.client
-    const [[pool, title, payeeName, memberCount, refunded, refundable], block] = await Promise.all([
-      c.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'getPool', args: [this.id] }),
-      c.getBlock(),
+    // Every read is pinned to one block, so the pool, its members and the clock always agree.
+    const block = await c.getBlock()
+    const at = { address: this.dep.address, abi: patunganAbi, blockNumber: block.number } as const
+    const [[pool, title, payeeName, memberCount, refunded, refundable], [addrs, seats, owed]] = await Promise.all([
+      c.readContract({ ...at, functionName: 'getPool', args: [this.id] }),
+      c.readContract({ ...at, functionName: 'getMembers', args: [this.id, 0n, maxUint256] }), // the contract clamps the range
     ])
     if (pool.organizer === '0x0000000000000000000000000000000000000000') return undefined
-    const [addrs, seats, owed] = await c.readContract({
-      address: this.dep.address,
-      abi: patunganAbi,
-      functionName: 'getMembers',
-      args: [this.id, 0n, memberCount],
-    })
     return {
       organizer: pool.organizer,
       payee: pool.payee,
@@ -151,6 +161,7 @@ class PoolPage {
       refunded: Number(refunded),
       members: addrs.map((a, i) => ({ addr: a, seats: seats[i], owed: owed[i] })),
       refundable,
+      blockNumber: block.number,
       blockTs: Number(block.timestamp),
       fetchedAt: Date.now() / 1000,
       now: Number(block.timestamp),
@@ -215,6 +226,8 @@ class PoolPage {
         this.root.innerHTML = `<section class="notice"><h1>Pool #${this.id} not found</h1><p>Pool #${this.id} doesn't exist on this Patungan deployment. <a href="/">Home</a></p></section>`
         return
       }
+      if (d.blockNumber < this.appliedBlock) return
+      this.appliedBlock = d.blockNumber
       this.data = d
       this.paint()
     } catch (e) {
@@ -374,7 +387,7 @@ class PoolPage {
       if (mine && mine.owed > 0n) b.push(`<button class="cta" data-act="claim"${dis}>Get my money back · ${fmtQusdc(mine.owed)} QUSDC</button>`)
       b.push(`<button class="cta ghost" data-act="refund-all"${dis}>Refund everyone (${d.memberCount - d.refunded} left)</button>`)
     }
-    if (!hasWallet() && b.length) b.push(`<a class="cta ghost" href="${metamaskDeepLink(location.href)}">Open in wallet app</a>`)
+    if (!hasWallet() && b.length) b.push(`<a class="cta ghost" href="${esc(metamaskDeepLink(location.href))}">Open in wallet app</a>`)
     return b.join('')
   }
 
@@ -385,11 +398,8 @@ class PoolPage {
   }
 
   // ------------------------------------------------------------------ writes
+  /** Always the account the wallet returns now (connect() also switches/adds chain 1990), never a cached one. */
   private async ensureAccount(): Promise<Address> {
-    if (this.account) {
-      await connect() // also switches/adds chain 1990
-      return this.account
-    }
     const { account } = await connect()
     this.account = account
     return account
@@ -470,7 +480,7 @@ class PoolPage {
       s.innerHTML = `<form method="dialog">
         <h2>Join this pool</h2>
         <p>Paying needs a wallet on QIE mainnet. Two ways:</p>
-        <ol class="ways"><li><a href="${metamaskDeepLink(location.href)}">Open this page in your wallet app</a> (from WhatsApp, tap here).</li>
+        <ol class="ways"><li><a href="${esc(metamaskDeepLink(location.href))}">Open this page in your wallet app</a> (from WhatsApp, tap here).</li>
         <li>Install QIE Wallet or MetaMask, then open this link again.</li></ol>
         <button class="cta ghost">Close</button></form>`
       s.showModal()
@@ -490,7 +500,8 @@ class PoolPage {
     }
     const render = async () => {
       const my = ++gen
-      const amount = d.price * BigInt(n)
+      const seats = n // the handlers below pay for the seat count this render showed, even if the stepper moves later
+      const amount = d.price * BigInt(seats)
       s.innerHTML = `<form method="dialog" class="sheetform">
         <h2>Join · ${esc(d.title)}</h2>
         <div class="stepper"><span class="label">Seats</span>
@@ -521,37 +532,68 @@ class PoolPage {
       })
       const body = s.querySelector<HTMLElement>('.tabbody')!
       const sheetMsg = (m: string) => (s.querySelector<HTMLElement>('.sheetmsg')!.innerHTML = m)
-      const run = async (fn: (a: Address) => Promise<void>) => {
+      // One write at a time: the lock is taken before the wallet prompt, and every control in the sheet is disabled
+      // until the write settles, so a double tap can't start a second purchase.
+      const lock = (on: boolean) => s.querySelectorAll<HTMLButtonElement>('[data-pay], [data-n], [data-tab]').forEach((b) => (b.disabled = on))
+      const run = async (fn: (a: Address) => Promise<'requote' | void>) => {
+        if (this.busy) return
+        this.busy = true
+        lock(true)
         try {
           const a = await this.ensureAccount()
-          await fn(a)
+          if ((await fn(a)) === 'requote') {
+            this.busy = false
+            await render()
+            sheetMsg('That price was more than 2 minutes old, so here is a fresh one. Check your max, then tap Pay again.')
+            return
+          }
           s.close()
         } catch (e) {
           this.fail(e)
-          sheetMsg(this.msg)
+          if (my === gen) {
+            lock(false)
+            sheetMsg(this.msg)
+          }
+        } finally {
+          this.busy = false
         }
       }
       if (tab === 'qie') {
         try {
-          const [[qieIn, , maxAllowed], round] = await Promise.all([
-            this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'quoteQIE', args: [this.id, n] }),
+          await this.ensureGuard()
+          const [[qieIn, , maxAllowed], round, qb] = await Promise.all([
+            this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'quoteQIE', args: [this.id, seats] }),
             this.client.readContract({
               address: ADDR.oracle,
               abi: [{ type: 'function', name: 'latestRoundData', stateMutability: 'view', inputs: [], outputs: [
                 { type: 'uint80' }, { type: 'int256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'uint80' }] }] as const,
               functionName: 'latestRoundData',
             }),
+            this.client.getBlock(),
           ])
           if (my !== gen) return
-          const value = qieMaxValue(qieIn, maxAllowed)
-          body.innerHTML = `<p class="quote"><b>≈ ${fmtQie(qieIn)} QIE</b> (QIEDEX quote) · your max ${fmtQie(value)} QIE: 1% over this quote.
-            The QIE Oracle guard (${this.maxDevBps / 100}%) is the hard cap: ${fmtQie(maxAllowed)} QIE. Oracle price updated ${ageHours(round[3], d.now)} h ago.</p>
+          const quoteTs = Number(qb.timestamp) // chain time, not the device clock
+          const oracleLine = `Oracle price updated ${ageHours(round[3], quoteTs)} h ago.`
+          const offer = qieOffer(qieIn, maxAllowed)
+          if (!offer.ok) {
+            // The contract would revert PriceDeviation: no button that can only fail. QUSDC stays one tab away.
+            body.innerHTML = `<p class="quote">${esc(revertSentence('PriceDeviation', this.maxDevBps))}</p>
+              <p class="note">QIEDEX quote ≈ ${fmtQie(qieIn)} QIE; the QIE Oracle guard (${this.maxDevBps / 100}%) allows at most ${fmtQie(maxAllowed)} QIE. ${oracleLine}</p>`
+            return
+          }
+          const maxLine = offer.capped
+            ? `your max ${fmtQie(offer.value)} QIE: the Oracle guard's cap, less than 1% over this quote.`
+            : `your max ${fmtQie(offer.value)} QIE: 1% over this quote.`
+          body.innerHTML = `<p class="quote"><b>≈ ${fmtQie(qieIn)} QIE</b> (QIEDEX quote) · ${maxLine}
+            The QIE Oracle guard (${this.maxDevBps / 100}%) is the hard cap: ${fmtQie(maxAllowed)} QIE. ${oracleLine}</p>
             <button type="button" class="cta" data-pay="qie">Pay ${fmtQusdc(amount)} QUSDC in QIE · 1 transaction</button>
             <p class="note">Unused QIE comes back in the same transaction.</p>`
           s.querySelector<HTMLButtonElement>('[data-pay]')!.onclick = () =>
             void run(async (a) => {
-              const expiry = BigInt(Number((await this.client.getBlock()).timestamp) + 300) // chain time, not the device clock
-              await this.send(a, 'joinWithQIE', [this.id, n, expiry], `Seat${n > 1 ? 's' : ''} paid in QIE`, value)
+              const now = Number((await this.client.getBlock()).timestamp)
+              if (now > quoteTs + QUOTE_FRESH_S) return 'requote'
+              const expiry = BigInt(quoteTs + QUOTE_TTL_S) // the quote the member saw expires, not the click
+              await this.send(a, 'joinWithQIE', [this.id, seats, expiry], `Seat${seats > 1 ? 's' : ''} paid in QIE`, offer.value)
             })
         } catch (e) {
           const rev = e instanceof BaseError ? (e.walk((x) => x instanceof ContractFunctionRevertedError) as ContractFunctionRevertedError | null) : null
@@ -580,19 +622,28 @@ class PoolPage {
           <button type="button" class="cta${needApprove ? ' ghost' : ''}" data-pay="join"${needApprove ? ' disabled' : ''}>2 · Pay ${fmtQusdc(amount)} QUSDC</button>`
         s.querySelector<HTMLButtonElement>('[data-pay="approve"]')!.onclick = () =>
           void (async () => {
+            if (this.busy) return
+            this.busy = true
+            lock(true)
             try {
               const a = await this.ensureAccount()
               sheetMsg('Confirm the approval in your wallet…')
               const hash = await walletFor(a).writeContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'approve', args: [this.dep.address, amount] })
               await this.client.waitForTransactionReceipt({ hash })
+              this.busy = false
               void render()
             } catch (e) {
               this.fail(e)
-              sheetMsg(this.msg)
+              if (my === gen) {
+                lock(false)
+                sheetMsg(this.msg)
+              }
+            } finally {
+              this.busy = false
             }
           })()
         s.querySelector<HTMLButtonElement>('[data-pay="join"]')!.onclick = () =>
-          void run((a) => this.send(a, 'join', [this.id, n], `Seat${n > 1 ? 's' : ''} paid in QUSDC`))
+          void run((a) => this.send(a, 'join', [this.id, seats], `Seat${seats > 1 ? 's' : ''} paid in QUSDC`))
       }
     }
     await render()

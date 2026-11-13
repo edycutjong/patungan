@@ -82,6 +82,18 @@ export function qieMaxValue(qieIn: bigint, maxAllowed: bigint): bigint {
   return withTolerance < maxAllowed ? withTolerance : maxAllowed
 }
 
+/**
+ * What the QIE tab may offer. A router quote above the Oracle ceiling can never succeed (the contract reverts
+ * PriceDeviation), so there is no offer. Otherwise the max is quote + 1%, and `capped` says the Oracle ceiling cut
+ * that 1% short (the copy must not then say "1% over this quote").
+ */
+export type QieOffer = { ok: false } | { ok: true; value: bigint; capped: boolean }
+export function qieOffer(qieIn: bigint, maxAllowed: bigint): QieOffer {
+  if (qieIn > maxAllowed) return { ok: false }
+  const value = qieMaxValue(qieIn, maxAllowed)
+  return { ok: true, value, capped: value < (qieIn * 101n) / 100n }
+}
+
 const WIB_OFFSET = 7 * 3600
 
 /** "Wed 20:00 WIB" for a unix deadline (Indonesia Western Time, UTC+7, no DST). */
@@ -136,6 +148,8 @@ export function revertSentence(errorName: string | undefined, maxDevBps: number,
     TooManySeats: 'There are not that many seats left. Pick fewer seats.',
     ValueTooLow: 'Send a little more QIE: the price moved.',
     QuoteExpired: 'The price quote expired. Tap again for a fresh one.',
+    Insolvent:
+      "New seats are paused: this contract holds less QUSDC than it owes its members (QUSDC's issuer can burn tokens). Nothing was sent. Members already in can still take their refunds when refunds open.",
     SwapShort: 'The swap or the return of the unused QIE failed, so nothing moved except the network fee. Try again.',
     ForwardFailed: 'The swap or the return of the unused QIE failed, so nothing moved except the network fee. Try again.',
     PriceDeviation: `QIEDEX's price is more than ${pct}% off the QIE Oracle right now, so the QIE payment is paused to protect you. Pay with QUSDC, or try later.`,

@@ -6,6 +6,7 @@ import {
   fmtWib,
   poolKind,
   qieMaxValue,
+  qieOffer,
   revertSentence,
   statusLine,
   terbilang,
@@ -28,6 +29,17 @@ describe('amounts', () => {
   it('caps the QIE value at the Oracle ceiling', () => {
     expect(qieMaxValue(100n, 1_000n)).toBe(101n)
     expect(qieMaxValue(100n, 100n)).toBe(100n)
+  })
+  it('offers no QIE payment when the quote is above the Oracle ceiling', () => {
+    expect(qieOffer(1_001n, 1_000n)).toEqual({ ok: false })
+  })
+  it('flags a max the Oracle ceiling cut short of quote + 1%', () => {
+    expect(qieOffer(100n, 1_000n)).toEqual({ ok: true, value: 101n, capped: false })
+    expect(qieOffer(1_000n, 1_000n)).toEqual({ ok: true, value: 1_000n, capped: true })
+    expect(qieOffer(995n, 1_000n)).toEqual({ ok: true, value: 1_000n, capped: true })
+  })
+  it('has a sentence for the insolvency pause', () => {
+    expect(revertSentence('Insolvent', 1500)).toMatch(/paused/)
   })
 })
 

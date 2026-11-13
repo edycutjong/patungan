@@ -963,6 +963,11 @@ export const patunganAbi = [
   },
   {
     "type": "error",
+    "name": "Insolvent",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "NotOrganizer",
     "inputs": []
   },
