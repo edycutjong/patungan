@@ -34,4 +34,4 @@
 Paid vs Oracle over 12 QIE joins: median +606 bps, min +590, max +621 bps (the deployed guard is 1,500 bps).
 After the refunds: isSolvent = true, totalHeld = 0 (expect true / 0).
 
-Fork state moves run to run (live pair reserves, Oracle updates). Run on a FRESH anvil fork: a fork whose clock was pushed forward with evm_increaseTime can make QIE joins revert (stale Oracle read). Reproduce: header of script/bench.py.
+Fork state moves run to run (live pair reserves, Oracle updates). Run on a FRESH anvil fork: a fork whose clock was pushed forward with evm_increaseTime can make QIE joins revert (cause not isolated). Reproduce: header of script/bench.py.
