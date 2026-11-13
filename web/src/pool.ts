@@ -48,11 +48,17 @@ interface PoolData {
   memberCount: number
   refunded: number
   members: { addr: Address; seats: number; owed: bigint }[]
+  refundable: boolean
+  /** Chain time: the latest block's timestamp plus the seconds elapsed since it was read (never the device clock). */
+  blockTs: number
+  fetchedAt: number
   now: number
 }
 
+const LOG_CHUNK = 10_000n // blocks per eth_getLogs call; the mainnet RPC limit is measured in the P1c bench
+
 interface Activity {
-  joins: Map<string, { qie: boolean; tx: Hash }[]>
+  joins: Map<string, { n: number; qie: boolean; tx: Hash }[]>
   paidTx?: Hash
   refunds: Map<string, Hash>
 }
@@ -71,6 +77,7 @@ class PoolPage {
   private client
   private data?: PoolData
   private activity: Activity = { joins: new Map(), refunds: new Map() }
+  private logsFailed = false
   private account?: Address
   private lastKind?: PoolKind
   private maxDevBps = 1500
@@ -114,7 +121,7 @@ class PoolPage {
   // ------------------------------------------------------------------ reads
   private async read(): Promise<PoolData | undefined> {
     const c = this.client
-    const [[pool, title, payeeName, memberCount, refunded], block] = await Promise.all([
+    const [[pool, title, payeeName, memberCount, refunded, refundable], block] = await Promise.all([
       c.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'getPool', args: [this.id] }),
       c.getBlock(),
     ])
@@ -139,7 +146,10 @@ class PoolPage {
       memberCount: Number(memberCount),
       refunded: Number(refunded),
       members: addrs.map((a, i) => ({ addr: a, seats: seats[i], owed: owed[i] })),
-      now: Math.max(Number(block.timestamp), Math.floor(Date.now() / 1000) - 60),
+      refundable,
+      blockTs: Number(block.timestamp),
+      fetchedAt: Date.now() / 1000,
+      now: Number(block.timestamp),
     }
   }
 
@@ -147,23 +157,36 @@ class PoolPage {
   private async loadActivity() {
     try {
       const args = { id: this.id }
-      const opts = { address: this.dep.address, abi: patunganAbi, fromBlock: BigInt(this.dep.deployBlock) } as const
-      const [joined, paidLogs, refunded] = await Promise.all([
-        this.client.getContractEvents({ ...opts, eventName: 'Joined', args }),
-        this.client.getContractEvents({ ...opts, eventName: 'PoolPaid', args }),
-        this.client.getContractEvents({ ...opts, eventName: 'Refunded', args }),
-      ])
+      const latest = await this.client.getBlockNumber()
+      const joined = []
+      const paidLogs = []
+      const refunded = []
+      // bounded ranges: public RPCs cap eth_getLogs spans
+      for (let from = BigInt(this.dep.deployBlock); from <= latest; from += LOG_CHUNK) {
+        const range = { address: this.dep.address, abi: patunganAbi, fromBlock: from, toBlock: from + LOG_CHUNK - 1n < latest ? from + LOG_CHUNK - 1n : latest } as const
+        const [j, p, r] = await Promise.all([
+          this.client.getContractEvents({ ...range, eventName: 'Joined', args }),
+          this.client.getContractEvents({ ...range, eventName: 'PoolPaid', args }),
+          this.client.getContractEvents({ ...range, eventName: 'Refunded', args }),
+        ])
+        joined.push(...j)
+        paidLogs.push(...p)
+        refunded.push(...r)
+      }
       const a: Activity = { joins: new Map(), refunds: new Map() }
       for (const l of joined) {
         const m = l.args.member!.toLowerCase()
-        a.joins.set(m, [...(a.joins.get(m) ?? []), { qie: !!l.args.paidWithQIE, tx: l.transactionHash }])
+        a.joins.set(m, [...(a.joins.get(m) ?? []), { n: Number(l.args.n), qie: !!l.args.paidWithQIE, tx: l.transactionHash }])
       }
       a.paidTx = paidLogs[0]?.transactionHash
       for (const l of refunded) a.refunds.set(l.args.member!.toLowerCase(), l.transactionHash)
       this.activity = a
+      this.logsFailed = false
       this.paint()
     } catch {
-      // logs are optional: the roster and state come from getPool/getMembers
+      // logs are optional: the roster and state come from getPool/getMembers; say so instead of failing silently
+      this.logsFailed = true
+      this.paint()
     }
   }
 
@@ -187,6 +210,7 @@ class PoolPage {
     const d = this.data
     const card = this.root.querySelector<HTMLElement>('#card')
     if (!d || !card) return
+    d.now = Math.floor(d.blockTs + Math.max(0, Date.now() / 1000 - d.fetchedAt))
     const kind = poolKind(d, d.now)
     const land = this.lastKind !== undefined && this.lastKind !== kind && (kind === 'paid' || kind === 'refunded')
     this.lastKind = kind
@@ -214,6 +238,7 @@ class PoolPage {
       <p class="status" role="status">${esc(statusLine(d, d.now))}</p>
       ${this.stamp(kind, d, payee, land)}
       <ol class="roster">${this.rows(d, kind, me, builders)}</ol>
+      ${this.logsFailed ? '<p class="data">Transaction links unavailable right now (the RPC refused the log query). Seats and state above are read directly from the contract.</p>' : ''}
       <div class="actions">${this.actions(kind, d, me)}</div>
       <p class="msg" aria-live="polite">${this.msg}</p>
       <footer class="data">
@@ -252,16 +277,21 @@ class PoolPage {
     const refundPhase = kind === 'refunds-open' || kind === 'partly-refunded' || kind === 'refunded'
     for (const m of d.members) {
       const key = m.addr.toLowerCase()
-      const joins = this.activity.joins.get(key) ?? []
-      const qie = joins.some((j) => j.qie)
       const refunded = refundPhase && m.owed === 0n
+      // one row per seat; with logs loaded, each seat carries its own join tx and its own "paid in QIE" tag
+      const joins = this.activity.joins.get(key) ?? []
+      const perSeat: ({ qie: boolean; tx: Hash; first: boolean } | undefined)[] = joins.flatMap((j) =>
+        Array.from({ length: j.n }, (_, i) => ({ qie: j.qie, tx: j.tx, first: i === 0 })),
+      )
       for (let s = 0; s < m.seats; s++) {
         n++
+        const seat = perSeat[s]
         const tick = refunded ? 'REFUNDED' : kind === 'paid' ? 'PAID' : 'HELD'
+        const link = refunded ? (s === 0 ? this.txLink(this.activity.refunds.get(key), 'refund tx') : '') : seat?.first ? this.txLink(seat.tx) : ''
         out.push(`<li class="${refunded ? 'refunded' : ''}">
           <span class="n">${n}</span>
-          <span class="who"><span class="data">${shortAddr(m.addr)}</span>${key === me ? ' <b>(you)</b>' : ''}${qie ? '<span class="tag">paid in QIE</span>' : ''}${builders.has(key) ? '<span class="tag builder">builder wallet</span>' : ''}
-            ${s === 0 ? this.txLink(refunded ? this.activity.refunds.get(key) : joins[0]?.tx) : ''}</span>
+          <span class="who"><span class="data">${shortAddr(m.addr)}</span>${key === me ? ' <b>(you)</b>' : ''}${seat?.qie ? '<span class="tag">paid in QIE</span>' : ''}${builders.has(key) ? '<span class="tag builder">builder wallet</span>' : ''}
+            ${link}</span>
           <span class="tick">${tick}</span></li>`)
       }
     }
@@ -385,6 +415,13 @@ class PoolPage {
     }
     let n = 1
     let tab: 'qie' | 'qusdc' = 'qie'
+    // F9: QIE is the default only when the wallet can't already cover one seat in QUSDC
+    if (this.account) {
+      const bal = await this.client
+        .readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'balanceOf', args: [this.account] })
+        .catch(() => 0n)
+      if (bal >= d.price) tab = 'qusdc'
+    }
     const render = async () => {
       const amount = d.price * BigInt(n)
       s.innerHTML = `<form method="dialog" class="sheetform">
@@ -445,8 +482,7 @@ class PoolPage {
             <p class="note">Unused QIE comes back in the same transaction.</p>`
           s.querySelector<HTMLButtonElement>('[data-pay]')!.onclick = () =>
             void run(async (a) => {
-              const blockTs = Number((await this.client.getBlock()).timestamp)
-              const expiry = BigInt(Math.max(blockTs, Math.floor(Date.now() / 1000)) + 300)
+              const expiry = BigInt(Number((await this.client.getBlock()).timestamp) + 300) // chain time, not the device clock
               await this.send(a, 'joinWithQIE', [this.id, n, expiry], `Seat${n > 1 ? 's' : ''} paid in QIE`, value)
             })
         } catch (e) {

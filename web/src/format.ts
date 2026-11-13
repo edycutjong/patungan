@@ -62,12 +62,14 @@ export interface PoolFacts {
   deadline: bigint
   memberCount: number
   refunded: number
+  /** The contract's own isRefundable(); when present it decides open vs closed (chain time, not the device clock). */
+  refundable?: boolean
 }
 
 /** The state the page shows, in the order design.md §5 fixes: no stamp until it is earned. */
 export function poolKind(p: PoolFacts, nowSec: number): PoolKind {
   if (p.status === Status.Paid) return 'paid'
-  const closed = p.status === Status.Cancelled || nowSec >= Number(p.deadline)
+  const closed = p.refundable ?? (p.status === Status.Cancelled || nowSec >= Number(p.deadline))
   if (!closed) return 'open'
   if (p.memberCount === 0) return p.status === Status.Cancelled ? 'cancelled' : 'closed-empty'
   if (p.refunded >= p.memberCount) return 'refunded'

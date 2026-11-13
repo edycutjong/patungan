@@ -63,6 +63,10 @@ describe('pool state', () => {
     expect(poolKind({ ...base, status: 2 }, 0)).toBe('refunds-open')
     expect(poolKind({ ...base, filled: 0, memberCount: 0 }, 1_000_000)).toBe('closed-empty')
   })
+  it("trusts the contract's refundable flag over a skewed clock", () => {
+    expect(poolKind({ ...base, refundable: false }, 5_000_000)).toBe('open')
+    expect(poolKind({ ...base, refundable: true }, 0)).toBe('refunds-open')
+  })
   it('writes the English status line', () => {
     const line = statusLine({ ...base, price: 2_000_000n, filled: 4 }, 0)
     expect(line).toContain('4 of 5 seats paid')
