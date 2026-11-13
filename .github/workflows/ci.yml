@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: forge test (unit + QIE mainnet fork)
+    runs-on: ubuntu-latest
+    env:
+      FOUNDRY_PROFILE: ci
+      # Public QIE mainnet RPC; the fork tests read real QUSDC / QIEDEX / Zone / Oracle state.
+      QIE_RPC_URL: https://rpc1mainnet.qie.digital/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: forge --version
+      - run: forge fmt --check
+      - run: forge build --sizes
+      - run: forge test -vv
+
+  web:
+    name: web build + unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
