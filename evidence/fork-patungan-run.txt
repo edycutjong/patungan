@@ -1,0 +1,15 @@
+Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
+[PASS] test_fork_constructor_readsLiveDecimalsAndWqie() (gas: 16495)
+[PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 215046)
+[PASS] test_fork_createPoolByName_unknownName_revertsPayeeNotFound() (gas: 47321)
+[PASS] test_fork_createPoolByName_wrongExpected_revertsPayeeChanged() (gas: 51071)
+[PASS] test_fork_deadlineRefund_claimAndBatch() (gas: 1438384)
+[PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() (gas: 1237686)
+[PASS] test_fork_quoteQIE_matchesRouterAndOracle() (gas: 259639)
+Logs:
+  2 seats: router QIE in 3410456540609096430
+  2 seats: oracle fair QIE 3232771928005134677
+  router premium over oracle (bps) 549
+[PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() (gas: 1520512)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.72s (4.75s CPU time)
+Ran 1 test suite in 2.73s (2.72s CPU time): 8 tests passed, 0 failed, 0 skipped (8 total tests)

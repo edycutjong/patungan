@@ -35,7 +35,7 @@ refund balance not zeroed (double refund) · last seat never pays · Oracle guar
 
 Same run: the payee (owner of the real name `test.qie`) received 750,000 QUSDC units (3 × 0.25 QUSDC) in the last-seat
 transaction; after the refunds the escrow held 500,000 units = `totalHeld` (the open pool's two seats); 0 native QIE in the contract.
-Router premium over the Oracle at test time: `test_fork_quoteQIE_matchesRouterAndOracle` logs it (549 bps on the 2026-11-14 run,
+Router premium over the Oracle at test time: 549 bps (`fork-patungan-run.txt`, `test_fork_quoteQIE_matchesRouterAndOracle`),
 inside the 1,500 bps deploy default).
 
 ## Browser click-through: `script/e2e-local.py` → `e2e-local-run.txt`, screenshots in `e2e-local/`
