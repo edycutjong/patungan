@@ -26,7 +26,7 @@ All four are live on QIE mainnet (chain id 1990, explorer https://mainnet.qie.di
 | QUSDC | the escrow token (`transferFrom` in, transfer out) | `0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5` |
 | QIEDEX router (+ WQIE/QUSDC pair `0x73a3ccf7da7e473ed2e9994ae764f0e30f4e4dfe`) | swaps the member's QIE to QUSDC inside `joinWithQIE` | `0x08cd2e72e156D8563B4351eb4065C262A9f553Ef` |
 | Zone `.qie` names | resolves the payee name (`domainOwnerByName`) | `0x9aab56e7727af53A3131985BFB16d845319b7bdc` |
-| QIE Oracle (QIE/USD feed) | bounds what the swap may cost against the Oracle's fair value; `view` reads only | `0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17` |
+| QIE Oracle (QIE/USDT feed, read as USD) | bounds what the swap may cost against the Oracle's fair value; `view` reads only | `0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17` |
 
 The QIEDEX router's source is not verified on the explorer; Patungan calls it through the standard V2 router interface and bounds the result with the Oracle.
 
