@@ -1,0 +1,5 @@
+fork block 11879716
+deploy SpikeEscrow gasUsed 1282715
+createByName (.qie resolve) gasUsed 97042
+join with QUSDC, seat 1 of 2 gasUsed 81934
+joinWithQIE, last seat (swap + forward + payout) gasUsed 204743
