@@ -19,3 +19,4 @@ coverage/
 # misc
 __pycache__/
 .DS_Store
+web/public/deployments.local.json
