@@ -35,8 +35,10 @@ Paid vs Oracle over 12 QIE joins: median +564 bps, min +549, max +580 bps (the d
 After the refunds: isSolvent = true, totalHeld = 0 (expect true / 0).
 
 Fork state moves run to run (live pair reserves, Oracle updates). Reproduce: see the header of script/bench.py.
-This run (2026-11-14, P1d) used a fresh fork and the contract with the join-time solvency check. On a fresh fork the refunded
-members start with no QUSDC, so each refund writes a new balance slot: refundAll for 13 members read 466,774 here. A second run
-on the same, now used fork (wallets already holding QUSDC; `bench-run-used-fork.txt`) read 255,420 for refundAll and 78,010 for
-claimRefund, the same as the run before this change, and 74,838 for the QUSDC join against 74,681 before (the solvency check
-costs 157 gas there). Real members who hold no QUSDC see the fresh-fork figures above.
+This run (2026-11-14) used a fresh fork and the contract with the join-time solvency check. On a fresh fork the refunded
+members start with no QUSDC: refundAll for 13 members read 466,774 here. A second run on the same, now used fork (wallets
+already holding QUSDC; `bench-run-used-fork.txt`) read 255,420 for refundAll and 78,010 for claimRefund, the same as the run
+before this change, and 74,838 for the QUSDC join against 74,681 before (+157 gas). The refund gap is consistent with each
+refund writing a previously empty balance slot: claimRefund differs by exactly 17,100 gas between the two forks, the extra
+cost of a zero→nonzero storage write over a nonzero→nonzero one. A member who holds no QUSDC before their refund would see the
+fresh-fork figures above.

@@ -1,6 +1,6 @@
 # Patungan
 
-Group payments with a deadline, on QIE mainnet. Patungan is a QUSDC escrow. An organizer opens a pool (seats × price, a
+Group payments with a deadline, built for QIE mainnet. Patungan is a QUSDC escrow. An organizer opens a pool (seats × price, a
 deadline, and a payee given as a `.qie` name or an address), and members join paying QUSDC, or QIE that the contract swaps to
 QUSDC through QIEDEX in the same transaction. The last seat pays the payee in the same transaction. If the deadline passes
 first, or the organizer cancels, every member can take their QUSDC back.
