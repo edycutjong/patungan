@@ -34,7 +34,7 @@ import { connect, hasWallet, metamaskDeepLink, walletFor } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
-const QUOTE_FRESH_S = 120 // chain seconds: an older rendered QIE quote is re-read before paying
+const QUOTE_FRESH_S = 60 // chain seconds: an older rendered QIE quote is re-read before paying (leaves ≥ 4 min of the 5 min expiry)
 const QUOTE_TTL_S = 300 // joinWithQIE expiry = the quote's block time + 5 min
 
 const esc = (s: string) =>
@@ -481,9 +481,8 @@ class PoolPage {
 
   // ------------------------------------------------------------------ join sheet
   private async openSheet() {
-    const d = this.data
-    if (!d) return
-    const left = d.seats - d.filled
+    const d0 = this.data
+    if (!d0) return
     const s = this.sheet
     if (!hasWallet()) {
       s.innerHTML = `<form method="dialog">
@@ -504,21 +503,31 @@ class PoolPage {
     // handlers on, or close a later one (e.g. a late QIE quote landing on a reopened sheet's Approve button).
     const session = ++this.sheetSession
     const active = () => s.open && session === this.sheetSession
-    if (!d.solvent) {
-      s.innerHTML = `<form method="dialog"><h2>Join this pool</h2><p>${esc(revertSentence('Insolvent', this.maxDevBps))}</p>
-        <button class="cta ghost">Close</button></form>`
-      return
-    }
+    // Each render reads the page's latest poll, so a pool that filled, closed, was cancelled or went short while the sheet
+    // was open shows the reason instead of a Pay button the contract would reject.
+    const closedReason = (x: PoolData) =>
+      !x.solvent ? revertSentence('Insolvent', this.maxDevBps)
+        : canJoin(poolKind(x, x.now), x.now, x.deadline, x.solvent) && x.filled < x.seats ? undefined
+          : revertSentence('PoolNotOpen', this.maxDevBps)
+    const showClosed = (why: string) =>
+      (s.innerHTML = `<form method="dialog"><h2>Join this pool</h2><p>${esc(why)}</p><button class="cta ghost">Close</button></form>`)
+    const why0 = closedReason(d0)
+    if (why0) return void showClosed(why0)
     // F9: QIE is the default only when the wallet can't already cover one seat in QUSDC
     if (this.account) {
       const bal = await this.client
         .readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'balanceOf', args: [this.account] })
         .catch(() => 0n)
-      if (bal >= d.price) tab = 'qusdc'
+      if (bal >= d0.price) tab = 'qusdc'
     }
     if (!active()) return
     const render = async () => {
       if (!active()) return
+      const d = this.data ?? d0
+      const why = closedReason(d)
+      if (why) return void showClosed(why)
+      const left = d.seats - d.filled
+      n = Math.min(n, left)
       const my = ++gen
       const current = () => active() && my === gen
       const seats = n // the handlers below pay for the seat count this render showed, even if the stepper moves later
@@ -552,10 +561,22 @@ class PoolPage {
         }
       })
       const body = s.querySelector<HTMLElement>('.tabbody')!
-      const sheetMsg = (m: string) => (s.querySelector<HTMLElement>('.sheetmsg')!.innerHTML = m)
+      const sheetMsg = (m: string) => {
+        const el = s.querySelector<HTMLElement>('.sheetmsg')
+        if (el) el.innerHTML = m
+      }
       // One write at a time: the lock is taken before the wallet prompt, and every control in the sheet is disabled
       // until the write settles, so a double tap can't start a second purchase.
-      const lock = (on: boolean) => s.querySelectorAll<HTMLButtonElement>('[data-pay], [data-n], [data-tab]').forEach((b) => (b.disabled = on))
+      const lock = (on: boolean) =>
+        s.querySelectorAll<HTMLButtonElement>('[data-pay], [data-n], [data-tab]').forEach((b) => {
+          if (on) {
+            b.dataset.was = b.disabled ? '1' : '0' // unlocking restores this, e.g. "2 · Pay" stays off until approved
+            b.disabled = true
+          } else if (b.dataset.was !== undefined) {
+            b.disabled = b.dataset.was === '1'
+            delete b.dataset.was
+          }
+        })
       const run = async (fn: (a: Address) => Promise<'requote' | void>) => {
         if (this.busy) return
         this.busy = true
@@ -563,11 +584,12 @@ class PoolPage {
         try {
           const a = await this.ensureAccount()
           if (!current()) return // closed while the wallet was connecting: start nothing
+          const latest = this.data ?? d0
+          if (closedReason(latest) || latest.seats - latest.filled < seats) return void (await render()) // shows why
           if ((await fn(a)) === 'requote') {
-            this.busy = false
             if (!current()) return
-            await render()
-            sheetMsg('That price was more than 2 minutes old, so here is a fresh one. Check your max, then tap Pay again.')
+            await render() // still holding the lock: the finally below releases it after the fresh quote is up
+            if (current()) sheetMsg('That price was more than a minute old, so here is a fresh one. Check your max, then tap Pay again.')
             return
           }
           if (current()) s.close()
