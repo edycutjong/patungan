@@ -105,3 +105,32 @@ footer { margin-top: 18px; line-height: 1.6 }
 .mini.refunded { color: var(--refund) }
 dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 15px }
 dt { color: var(--muted) }
+
+/* create form (S3), share sheet, verify (S4), gas drip (F13) */
+.sub { font: 600 16px var(--font-body); letter-spacing: 0; text-transform: none; color: var(--muted) }
+.createform { display: grid; gap: 14px }
+.field { display: grid; gap: 4px }
+.field input { font: 400 17px var(--font-body); color: var(--ink); background: #fff; border: 1.5px solid var(--ink); border-radius: 8px; min-height: 48px; padding: 8px 10px; width: 100% }
+.field input:focus-visible { outline: 2px solid var(--before); outline-offset: 1px }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.err { color: var(--after); font-size: 14px; min-height: 0 }
+.err:not(:empty) { font-weight: 600 }
+.resolve { font-size: 14px; color: var(--muted) }
+.sharetext { white-space: pre-wrap; overflow-wrap: anywhere; font: 400 14px/1.45 var(--font-body); background: var(--copy); padding: 10px 12px; border: 1px dashed var(--rule); margin: 8px 0 }
+.homecta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 16px 0 }
+.homecta .cta { padding: 0 20px }
+.verify .vaddr { overflow-wrap: anywhere; margin-bottom: 6px }
+.vbadge { font: 700 15px var(--font-body); padding: 2px 8px; border-radius: 4px; border: 1.5px solid currentColor }
+.vbadge.ok { color: var(--refund) }
+.vbadge.no { color: var(--muted) }
+.notes, .events { padding-left: 20px; display: grid; gap: 6px; font-size: 15px }
+.events { list-style: none; padding: 0; border-top: 1.5px solid var(--ink) }
+.events li { border-bottom: 1px solid var(--rule); padding: 8px 0; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline }
+.drip { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-top: 6px }
+.drip input { font: 400 14px var(--font-data); color: var(--ink); background: #fff; border: 1.5px solid var(--ink); border-radius: 8px; min-height: 48px; padding: 6px 10px; width: 100% }
+.drip .cta { min-height: 48px; font-size: 15px }
+@media (max-width: 420px) { .two { grid-template-columns: 1fr } .drip { grid-template-columns: 1fr } }
+
+.createform .actions { position: static; background: none; padding: 6px 0 }
+.verify h3.label, .verify dl { margin-bottom: 8px }
+.verify h3.label { margin-top: 20px }

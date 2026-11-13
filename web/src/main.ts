@@ -10,13 +10,21 @@ import { oracleAbi, routerAbi } from './abi'
 import { fmtQusdc, poolKind } from './format'
 import { ageHours } from './names'
 import { patunganAbi } from './patungan-abi'
+import { renderCreate } from './create'
 import { renderPool } from './pool'
+import { renderVerify } from './verify'
 
 const app = document.querySelector<HTMLElement>('#app')!
 const route = location.pathname.match(/^\/p\/([a-z0-9-]+)\/(\d+)\/?$/i)
 
+const path = location.pathname.replace(/\/+$/, '')
+
 if (route) {
   void renderPool(app, route[1], BigInt(route[2]))
+} else if (path === '/new') {
+  void renderCreate(app)
+} else if (path === '/verify') {
+  void renderVerify(app)
 } else {
   void home()
 }
@@ -36,6 +44,7 @@ async function home() {
   app.innerHTML = `<section class="home">
     <h1>Patungan</h1>
     <p class="lede">Group payments with a deadline, on QIE mainnet. The last seat pays the seller; a missed deadline refunds everyone.</p>
+    <p class="homecta"><a class="cta" href="/new">Buat patungan · Start a pool</a> <a class="link" href="/verify">Verify the contract →</a></p>
     <h2 class="label">Pools</h2><ul class="pools" id="pools"><li class="data">Reading…</li></ul>
     <h2 class="label">QIE mainnet, live</h2><dl id="status"></dl></section>`
   void pools()

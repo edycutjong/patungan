@@ -1,0 +1,10 @@
+- /new with no wallet: the form renders, creating says to open a wallet app
+- /new as the organizer: live .qie resolve, and field errors before any tx
+- create by .qie name → share sheet with WhatsApp text and link
+  pool #9 on chain: payee = test.qie owner, title Futsal Kamis
+- create by plain address (createPool), payee label is the short address
+- organizer gas drip: 0.02 QIE to a member address; members don't see it
+  recipient +20000000000000000 wei (0.02 QIE)
+- /verify: contract, four components, solvency, latest events
+- home has the create button
+E2E CREATE OK: every step passed

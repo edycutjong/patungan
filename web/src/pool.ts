@@ -24,6 +24,7 @@ import {
   terbilangQusdc,
   type PoolKind,
 } from './format'
+import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
 import { patunganAbi } from './patungan-abi'
 import { connect, hasWallet, metamaskDeepLink, walletFor } from './wallet'
@@ -265,6 +266,47 @@ class PoolPage {
     card.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) => {
       b.onclick = () => void this.act(b.dataset.act!)
     })
+    this.paintDrip(card, kind, d, me)
+  }
+
+  /**
+   * F13, organizer only while the pool is open: send 0.02 QIE (gas only, never seat money) to a member's address.
+   * It lives outside #card so the 4 s repaint never wipes what is being typed.
+   */
+  private paintDrip(card: HTMLElement, kind: PoolKind, d: PoolData, me: string | undefined) {
+    const box = this.root.querySelector<HTMLElement>('#drip')
+    const want = kind === 'open' && d.now < Number(d.deadline) && !!me && me === d.organizer.toLowerCase()
+    if (!want) return void box?.remove()
+    if (box) return
+    const el = document.createElement('div')
+    el.id = 'drip'
+    el.className = 'sheet dripbox'
+    el.innerHTML = `<p class="label">Kirim gas <i>· Send 0.02 QIE for gas</i></p>
+      <p class="note">For a member who has no QIE for the network fee. It is gas only: the seat money is the member's own, in QIE or QUSDC.</p>
+      <div class="drip"><input aria-label="Member address" placeholder="0x… member address" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="cta ghost" type="button">Send 0.02 QIE</button></div><p class="msg" aria-live="polite"></p>`
+    card.insertAdjacentElement('afterend', el)
+    const input = el.querySelector('input')!
+    const btn = el.querySelector('button')!
+    const out = el.querySelector<HTMLElement>('.msg')!
+    btn.onclick = async () => {
+      const to = input.value.trim()
+      if (!isAddress(to))
+        return void (out.textContent = isBadChecksum(to) ? "That address doesn't pass its checksum (the capital letters are off). Copy it again." : 'Paste the member\'s 0x address (42 characters).')
+      btn.disabled = true
+      try {
+        const account = await this.ensureAccount()
+        out.textContent = 'Confirm in your wallet…'
+        const hash = await walletFor(account).sendTransaction({ to: to as Address, value: GAS_DRIP_WEI })
+        out.innerHTML = `Sent, waiting for a QIE block… ${this.txLink(hash)}`
+        const r = await this.client.waitForTransactionReceipt({ hash })
+        out.innerHTML = r.status === 'success' ? `✓ Sent 0.02 QIE for gas to ${shortAddr(to)}. ${this.txLink(hash)}` : 'The transfer reverted.'
+      } catch (e) {
+        out.textContent = e instanceof BaseError && e.walk((x) => x instanceof UserRejectedRequestError) ? 'You cancelled in the wallet. Nothing was sent.' : 'Could not send the QIE. Nothing moved except, if it was mined, the network fee.'
+      } finally {
+        btn.disabled = false
+      }
+    }
   }
 
   private txLink(hash?: Hash, text?: string) {
