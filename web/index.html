@@ -94,7 +94,7 @@ p { margin: 0 0 14px }
 .load > * { animation: rise 520ms cubic-bezier(.2, .7, .2, 1) both }
 .load > :nth-child(2) { animation-delay: 80ms } .load > :nth-child(3) { animation-delay: 160ms }
 .load > :nth-child(4) { animation-delay: 240ms } .load > :nth-child(5) { animation-delay: 320ms }
-@keyframes rise { from { opacity: 0; transform: translateY(10px) } }
+@keyframes rise { from { transform: translateY(10px) } }
 .load.settled > * { animation: none }
 
 /* the kuitansi card (hero replay of the fork run) */
@@ -117,7 +117,7 @@ p { margin: 0 0 14px }
 .roster li.empty { color: var(--muted); font-style: italic }
 .roster li.empty .tick { visibility: hidden }
 .stamp { position: absolute; left: 47%; top: 22px; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 14px 4px; font: 850 46px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: transparent; color: var(--after); text-align: center; pointer-events: none }
-.stamp small { display: block; font: 600 12px var(--font-body); letter-spacing: .08em }
+.stamp small { display: block; font: 700 12px var(--font-body); letter-spacing: .08em }
 .stamp.kembali { color: var(--refund) }
 .stamp.hide { opacity: 0 }
 .stamp.land { animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
@@ -130,7 +130,9 @@ p { margin: 0 0 14px }
 .status .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px }
 .status p { margin: 6px 0 0; font-size: 15.5px }
 .live dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 6px 0 0; font-size: 15px }
-.live dt { color: var(--muted) } .live dd { margin: 0; font-weight: 600 }
+.live dt { color: var(--ink) }
+.status .label { color: var(--ink) }
+.shot-cap code, .label code { color: var(--ink) } .live dd { margin: 0; font-weight: 600 }
 
 /* receipts */
 .receipts { padding: 64px 0 40px }
