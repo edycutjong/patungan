@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  canJoin,
   fmtLeft,
   fmtQie,
   fmtQusdc,
@@ -37,6 +38,12 @@ describe('amounts', () => {
     expect(qieOffer(100n, 1_000n)).toEqual({ ok: true, value: 101n, capped: false })
     expect(qieOffer(1_000n, 1_000n)).toEqual({ ok: true, value: 1_000n, capped: true })
     expect(qieOffer(995n, 1_000n)).toEqual({ ok: true, value: 1_000n, capped: true })
+  })
+  it('offers Join only for an open, solvent pool before its deadline', () => {
+    expect(canJoin('open', 100, 200n, true)).toBe(true)
+    expect(canJoin('open', 100, 200n, false)).toBe(false)
+    expect(canJoin('open', 200, 200n, true)).toBe(false)
+    expect(canJoin('paid', 100, 200n, true)).toBe(false)
   })
   it('has a sentence for the insolvency pause', () => {
     expect(revertSentence('Insolvent', 1500)).toMatch(/paused/)

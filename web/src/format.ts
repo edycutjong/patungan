@@ -76,6 +76,12 @@ export function poolKind(p: PoolFacts, nowSec: number): PoolKind {
   return p.refunded === 0 ? 'refunds-open' : 'partly-refunded'
 }
 
+/** Whether the page may offer Join: an open pool before its deadline, while the escrow holds what it owes (the contract
+ * reverts Insolvent otherwise, so a Join button then could only fail). */
+export function canJoin(kind: PoolKind, nowSec: number, deadline: bigint, solvent: boolean): boolean {
+  return kind === 'open' && nowSec < Number(deadline) && solvent
+}
+
 /** The member's maximum for joinWithQIE: the live router quote + 1%, never above the Oracle ceiling. */
 export function qieMaxValue(qieIn: bigint, maxAllowed: bigint): bigint {
   const withTolerance = (qieIn * 101n) / 100n

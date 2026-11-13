@@ -18,6 +18,7 @@ import {
   fmtQusdc,
   fmtWib,
   poolKind,
+  canJoin,
   qieOffer,
   revertSentence,
   shortAddr,
@@ -27,6 +28,7 @@ import {
 } from './format'
 import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
+import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
 import { connect, hasWallet, metamaskDeepLink, walletFor } from './wallet'
 
@@ -55,6 +57,7 @@ interface PoolData {
   refundable: boolean
   /** Chain time: the latest block's timestamp plus the seconds elapsed since it was read (never the device clock). */
   blockNumber: bigint
+  solvent: boolean // isSolvent() at the same block: joins revert Insolvent while false
   blockTs: number
   fetchedAt: number
   now: number
@@ -92,6 +95,7 @@ class PoolPage {
   private busy = false
   private guardRead = false
   private appliedBlock = -1n // a slower, older refresh never paints over a newer one
+  private sheetSession = 0 // bumped on every open and close: work started for an earlier sheet never touches a later one
   private msg = ''
   private sheet!: HTMLDialogElement
   private polls = 0
@@ -108,6 +112,7 @@ class PoolPage {
     this.root.innerHTML = `<article class="kuitansi" aria-busy="true"><div class="perf"></div><div class="sheet" id="card">${skeleton()}</div></article>`
     this.sheet = document.createElement('dialog')
     this.sheet.className = 'joinsheet'
+    this.sheet.addEventListener('close', () => void ++this.sheetSession)
     document.body.append(this.sheet)
     await this.ensureGuard().catch(() => undefined) // a failed read is retried by the QIE tab; polling starts anyway
     if (hasWallet()) {
@@ -141,9 +146,10 @@ class PoolPage {
     // Every read is pinned to one block, so the pool, its members and the clock always agree.
     const block = await c.getBlock()
     const at = { address: this.dep.address, abi: patunganAbi, blockNumber: block.number } as const
-    const [[pool, title, payeeName, memberCount, refunded, refundable], [addrs, seats, owed]] = await Promise.all([
+    const [[pool, title, payeeName, memberCount, refunded, refundable], [addrs, seats, owed], solvent] = await Promise.all([
       c.readContract({ ...at, functionName: 'getPool', args: [this.id] }),
       c.readContract({ ...at, functionName: 'getMembers', args: [this.id, 0n, maxUint256] }), // the contract clamps the range
+      c.readContract({ ...at, functionName: 'isSolvent' }),
     ])
     if (pool.organizer === '0x0000000000000000000000000000000000000000') return undefined
     return {
@@ -162,6 +168,7 @@ class PoolPage {
       members: addrs.map((a, i) => ({ addr: a, seats: seats[i], owed: owed[i] })),
       refundable,
       blockNumber: block.number,
+      solvent,
       blockTs: Number(block.timestamp),
       fetchedAt: Date.now() / 1000,
       now: Number(block.timestamp),
@@ -380,7 +387,9 @@ class PoolPage {
     const mine = me ? d.members.find((m) => m.addr.toLowerCase() === me) : undefined
     const b: string[] = []
     if (kind === 'open' && d.now < Number(d.deadline)) {
-      b.push(`<button class="cta" data-act="open-sheet"${dis}>Join · pay ${fmtQusdc(d.price)} QUSDC per seat</button>`)
+      if (canJoin(kind, d.now, d.deadline, d.solvent))
+        b.push(`<button class="cta" data-act="open-sheet"${dis}>Join · pay ${fmtQusdc(d.price)} QUSDC per seat</button>`)
+      else b.push(`<p class="note">${esc(revertSentence('Insolvent', this.maxDevBps))}</p>`)
       if (me && me === d.organizer.toLowerCase()) b.push(`<button class="cta ghost" data-act="cancel"${dis}>Cancel pool (refunds open at once)</button>`)
     }
     if (kind === 'refunds-open' || kind === 'partly-refunded') {
@@ -491,6 +500,15 @@ class PoolPage {
     let gen = 0 // only the newest render may attach handlers (stepper clicks can overlap slow reads)
     s.innerHTML = '<p class="quote">Reading your wallet…</p>'
     if (!s.open) s.showModal()
+    // A read or a wallet prompt still pending from an earlier opening of this dialog must never write into, bind
+    // handlers on, or close a later one (e.g. a late QIE quote landing on a reopened sheet's Approve button).
+    const session = ++this.sheetSession
+    const active = () => s.open && session === this.sheetSession
+    if (!d.solvent) {
+      s.innerHTML = `<form method="dialog"><h2>Join this pool</h2><p>${esc(revertSentence('Insolvent', this.maxDevBps))}</p>
+        <button class="cta ghost">Close</button></form>`
+      return
+    }
     // F9: QIE is the default only when the wallet can't already cover one seat in QUSDC
     if (this.account) {
       const bal = await this.client
@@ -498,8 +516,11 @@ class PoolPage {
         .catch(() => 0n)
       if (bal >= d.price) tab = 'qusdc'
     }
+    if (!active()) return
     const render = async () => {
+      if (!active()) return
       const my = ++gen
+      const current = () => active() && my === gen
       const seats = n // the handlers below pay for the seat count this render showed, even if the stepper moves later
       const amount = d.price * BigInt(seats)
       s.innerHTML = `<form method="dialog" class="sheetform">
@@ -541,16 +562,18 @@ class PoolPage {
         lock(true)
         try {
           const a = await this.ensureAccount()
+          if (!current()) return // closed while the wallet was connecting: start nothing
           if ((await fn(a)) === 'requote') {
             this.busy = false
+            if (!current()) return
             await render()
             sheetMsg('That price was more than 2 minutes old, so here is a fresh one. Check your max, then tap Pay again.')
             return
           }
-          s.close()
+          if (current()) s.close()
         } catch (e) {
           this.fail(e)
-          if (my === gen) {
+          if (current()) {
             lock(false)
             sheetMsg(this.msg)
           }
@@ -561,17 +584,14 @@ class PoolPage {
       if (tab === 'qie') {
         try {
           await this.ensureGuard()
-          const [[qieIn, , maxAllowed], round, qb] = await Promise.all([
-            this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'quoteQIE', args: [this.id, seats] }),
-            this.client.readContract({
-              address: ADDR.oracle,
-              abi: [{ type: 'function', name: 'latestRoundData', stateMutability: 'view', inputs: [], outputs: [
-                { type: 'uint80' }, { type: 'int256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'uint80' }] }] as const,
-              functionName: 'latestRoundData',
-            }),
-            this.client.getBlock(),
+          // One block for the quote, the Oracle round it was checked against, and the quote's age.
+          const qb = await this.client.getBlock()
+          if (!current()) return
+          const [[qieIn, , maxAllowed], round] = await Promise.all([
+            this.client.readContract({ address: this.dep.address, abi: patunganAbi, functionName: 'quoteQIE', args: [this.id, seats], blockNumber: qb.number }),
+            this.client.readContract({ address: ADDR.oracle, abi: oracleAbi, functionName: 'latestRoundData', blockNumber: qb.number }),
           ])
-          if (my !== gen) return
+          if (!current()) return
           const quoteTs = Number(qb.timestamp) // chain time, not the device clock
           const oracleLine = `Oracle price updated ${ageHours(round[3], quoteTs)} h ago.`
           const offer = qieOffer(qieIn, maxAllowed)
@@ -588,7 +608,7 @@ class PoolPage {
             The QIE Oracle guard (${this.maxDevBps / 100}%) is the hard cap: ${fmtQie(maxAllowed)} QIE. ${oracleLine}</p>
             <button type="button" class="cta" data-pay="qie">Pay ${fmtQusdc(amount)} QUSDC in QIE · 1 transaction</button>
             <p class="note">Unused QIE comes back in the same transaction.</p>`
-          s.querySelector<HTMLButtonElement>('[data-pay]')!.onclick = () =>
+          body.querySelector<HTMLButtonElement>('[data-pay="qie"]')!.onclick = () =>
             void run(async (a) => {
               const now = Number((await this.client.getBlock()).timestamp)
               if (now > quoteTs + QUOTE_FRESH_S) return 'requote'
@@ -597,7 +617,7 @@ class PoolPage {
             })
         } catch (e) {
           const rev = e instanceof BaseError ? (e.walk((x) => x instanceof ContractFunctionRevertedError) as ContractFunctionRevertedError | null) : null
-          if (my !== gen) return
+          if (!current()) return
           const why = rev ? revertSentence(rev.data?.errorName, this.maxDevBps) : "QIE's RPCs aren't answering right now. Close this and try again in a moment."
           body.innerHTML = `<p class="quote">${esc(why)}</p>`
         }
@@ -612,29 +632,30 @@ class PoolPage {
               this.client.readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'allowance', args: [acct, this.dep.address] }),
             ])
         } catch {
-          if (my === gen) body.innerHTML = `<p class="quote">QIE's RPCs aren't answering right now. Close this and try again in a moment.</p>`
+          if (current()) body.innerHTML = `<p class="quote">QIE's RPCs aren't answering right now. Close this and try again in a moment.</p>`
           return
         }
-        if (my !== gen) return
+        if (!current()) return
         const needApprove = allowance < amount
         body.innerHTML = `<p class="quote">${acct ? `This wallet holds ${fmtQusdc(bal)} QUSDC.` : 'Connect a wallet that holds QUSDC.'} Two steps: approve, then pay.</p>
           <button type="button" class="cta${needApprove ? '' : ' ghost'}" data-pay="approve"${needApprove ? '' : ' disabled'}>1 · Approve ${fmtQusdc(amount)} QUSDC</button>
           <button type="button" class="cta${needApprove ? ' ghost' : ''}" data-pay="join"${needApprove ? ' disabled' : ''}>2 · Pay ${fmtQusdc(amount)} QUSDC</button>`
-        s.querySelector<HTMLButtonElement>('[data-pay="approve"]')!.onclick = () =>
+        body.querySelector<HTMLButtonElement>('[data-pay="approve"]')!.onclick = () =>
           void (async () => {
             if (this.busy) return
             this.busy = true
             lock(true)
             try {
               const a = await this.ensureAccount()
+              if (!current()) return
               sheetMsg('Confirm the approval in your wallet…')
               const hash = await walletFor(a).writeContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'approve', args: [this.dep.address, amount] })
               await this.client.waitForTransactionReceipt({ hash })
               this.busy = false
-              void render()
+              if (current()) void render()
             } catch (e) {
               this.fail(e)
-              if (my === gen) {
+              if (current()) {
                 lock(false)
                 sheetMsg(this.msg)
               }
@@ -642,7 +663,7 @@ class PoolPage {
               this.busy = false
             }
           })()
-        s.querySelector<HTMLButtonElement>('[data-pay="join"]')!.onclick = () =>
+        body.querySelector<HTMLButtonElement>('[data-pay="join"]')!.onclick = () =>
           void run((a) => this.send(a, 'join', [this.id, seats], `Seat${seats > 1 ? 's' : ''} paid in QUSDC`))
       }
     }
