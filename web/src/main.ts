@@ -1,35 +1,94 @@
+import '@fontsource-variable/anybody/wdth.css'
+import '@fontsource/plus-jakarta-sans/400.css'
+import '@fontsource/plus-jakarta-sans/600.css'
+import '@fontsource/plus-jakarta-sans/700.css'
+import '@fontsource/red-hat-mono/400.css'
+import './styles.css'
 import { formatUnits } from 'viem'
-import { ADDR, client } from './chain'
-import { oracleAbi, routerAbi, zoneAbi } from './abi'
+import { ADDR, client, clientFor, loadDeployments } from './chain'
+import { oracleAbi, routerAbi } from './abi'
+import { fmtQusdc, poolKind } from './format'
 import { ageHours } from './names'
+import { patunganAbi } from './patungan-abi'
+import { renderPool } from './pool'
 
-const SEAT = 250_000n // 0.25 QUSDC, 6 decimals
+const app = document.querySelector<HTMLElement>('#app')!
+const route = location.pathname.match(/^\/p\/([a-z0-9-]+)\/(\d+)\/?$/i)
 
-function row(label: string, value: string) {
-  const dl = document.querySelector<HTMLDListElement>('#status')!
-  const dt = document.createElement('dt')
-  const dd = document.createElement('dd')
-  dt.textContent = label
-  dd.textContent = value
-  dl.append(dt, dd)
+if (route) {
+  void renderPool(app, route[1], BigInt(route[2]))
+} else {
+  void home()
 }
 
-async function main() {
-  const [block, round, qieIn, payee] = await Promise.all([
-    client.getBlockNumber(),
-    client.readContract({ address: ADDR.oracle, abi: oracleAbi, functionName: 'latestRoundData' }),
-    client.readContract({
-      address: ADDR.router,
-      abi: routerAbi,
-      functionName: 'getAmountsIn',
-      args: [SEAT, [ADDR.wqie, ADDR.qusdc]],
-    }),
-    client.readContract({ address: ADDR.zone, abi: zoneAbi, functionName: 'domainOwnerByName', args: ['test', 'qie'] }),
-  ])
-  row('QIE mainnet block', block.toString())
-  row('QIE/USD (QIE Oracle)', `$${formatUnits(round[1], 8)}, updated ${ageHours(round[3], Date.now() / 1000)} h ago`)
-  row('QIE for a 0.25 QUSDC seat (QIEDEX quote)', formatUnits(qieIn[0], 18))
-  row('test.qie resolves to', payee)
+const STAMP: Record<string, string> = {
+  paid: 'LUNAS',
+  refunded: 'DIKEMBALIKAN',
+  cancelled: 'DIBATALKAN',
+  open: 'OPEN',
+  'refunds-open': 'CLOSED · refunds available',
+  'partly-refunded': 'CLOSED · refunding',
+  'closed-empty': 'CLOSED',
 }
 
-main().catch((e) => row('error', String(e?.shortMessage ?? e)))
+/** Home (S5, minimal until P4): live QIE component reads + every pool on each known deployment, newest first. */
+async function home() {
+  app.innerHTML = `<section class="home">
+    <h1>Patungan</h1>
+    <p class="lede">Group payments with a deadline, on QIE mainnet. The last seat pays the seller; a missed deadline refunds everyone.</p>
+    <h2 class="label">Pools</h2><ul class="pools" id="pools"><li class="data">Reading…</li></ul>
+    <h2 class="label">QIE mainnet, live</h2><dl id="status"></dl></section>`
+  void pools()
+  const row = (label: string, value: string) => {
+    const dl = document.querySelector('#status')!
+    const dt = document.createElement('dt')
+    const dd = document.createElement('dd')
+    dt.textContent = label
+    dd.textContent = value
+    dl.append(dt, dd)
+  }
+  try {
+    const [block, round, qieIn] = await Promise.all([
+      client.getBlockNumber(),
+      client.readContract({ address: ADDR.oracle, abi: oracleAbi, functionName: 'latestRoundData' }),
+      client.readContract({
+        address: ADDR.router,
+        abi: routerAbi,
+        functionName: 'getAmountsIn',
+        args: [250_000n, [ADDR.wqie, ADDR.qusdc]],
+      }),
+    ])
+    row('QIE mainnet block', block.toString())
+    row('QIE/USD (QIE Oracle)', `$${formatUnits(round[1], 8)}, updated ${ageHours(round[3], Date.now() / 1000)} h ago`)
+    row('QIE for a 0.25 QUSDC seat (QIEDEX quote)', formatUnits(qieIn[0], 18))
+  } catch (e) {
+    row('QIE mainnet', `not answering (${String((e as Error).message).slice(0, 80)})`)
+  }
+}
+
+async function pools() {
+  const ul = document.querySelector('#pools')!
+  const items: string[] = []
+  for (const dep of await loadDeployments()) {
+    try {
+      const c = clientFor(dep)
+      const [next, block] = await Promise.all([
+        c.readContract({ address: dep.address, abi: patunganAbi, functionName: 'nextId' }),
+        c.getBlock(),
+      ])
+      for (let id = next; id >= 1n && next - id < 10n; id--) {
+        const [p, title, , mc, rc] = await c.readContract({ address: dep.address, abi: patunganAbi, functionName: 'getPool', args: [id] })
+        const kind = poolKind(
+          { status: p.status, seats: p.seats, filled: p.filled, deadline: BigInt(p.deadline), memberCount: Number(mc), refunded: Number(rc) },
+          Number(block.timestamp),
+        )
+        const t = title.replace(/[&<>"']/g, '')
+        items.push(`<li><a href="/p/${dep.id}/${id}"><b>${t || `Pool #${id}`}</b> <span class="data">${p.filled}/${p.seats} · ${fmtQusdc(p.price)} QUSDC</span>
+          <span class="mini ${kind}">${STAMP[kind]}</span></a> <span class="data">${dep.rpc ? 'local fork' : dep.label}</span></li>`)
+      }
+    } catch {
+      items.push(`<li class="data">${dep.label}: not answering</li>`)
+    }
+  }
+  ul.innerHTML = items.join('') || '<li class="data">No pools yet. The mainnet contract is not deployed yet.</li>'
+}
