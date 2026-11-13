@@ -11,4 +11,6 @@ browser: installed Google Chrome 157.0.8103.51
 - a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)
   pool #7: Dave holds 1 seat after a double tap
 - a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button
+- a late QIE quote from a closed sheet never lands on the reopened sheet (Approve stays an approval)
+  Approve made an approval (250000 units) and no join (seats 1 -> 1)
 E2E OK: every step passed

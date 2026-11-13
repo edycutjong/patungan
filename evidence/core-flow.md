@@ -14,8 +14,8 @@ QIEDEX router and WQIE/QUSDC pair, a real `.qie` name, the live QIE Oracle feed)
 | Day-one spike on a QIE mainnet fork | `test/spike/Spike.fork.t.sol` | 16 passed |
 
 `forge test` reports 71 tests (it counts the invariant contract as one); `forge-test-run.txt` lists each.
-Web: `npm test` (vitest) 32 passed in 3 files (`web-test-run.txt`): pool states, amounts, terbilang, WIB deadline, revert sentences,
-the QIE offer (no offer above the Oracle guard), create-form checks, `.qie` name parsing.
+Web: `npm test` (vitest) 33 passed in 3 files (`web-test-run.txt`): pool states, amounts, terbilang, WIB deadline, revert sentences,
+the QIE offer (no offer above the Oracle guard), when Join may be offered (open, before the deadline, solvent), create-form checks, `.qie` name parsing.
 
 ## Deliberate bugs: `script/mutation-check.sh` → `mutation-run.txt`
 Five bugs injected one at a time into `src/Patungan.sol`; the local suite fails on each (5 of 5 caught):
@@ -53,7 +53,9 @@ tx and the LUNAS stamp landed · organizer cancels a pool with a member, then "R
 passes its deadline → "CLOSED, refunds available" → "Get my money back" → DIKEMBALIKAN · home lists every pool with its state ·
 a double tap on the QIE Pay button buys exactly one seat (checked on chain with `seatsOf`; with the sheet's lock removed the same
 step bought 2 seats, `e2e-lock-mutation-run.txt`) · with the Oracle pushed so QIEDEX's quote is far over the guard, the QIE tab shows the reason and no Pay
-button (`9-qie-paused-over-guard.png`).
+button (`9-qie-paused-over-guard.png`) · a QIE quote held back while the sheet is closed and reopened on the QUSDC tab, then
+released: "1 · Approve" still makes an approval (allowance 250,000) and no join. On the earlier page code the same step's
+Approve click bought a second seat through `joinWithQIE` with the stale quote (`e2e-stale-sheet-mutation-run.txt`).
 
 Observed once while building the click-through, and not reproducible from a file in this repo (the failing run was not
 stored): with no gas limit from the page, the

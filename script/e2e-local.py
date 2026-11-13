@@ -217,5 +217,42 @@ with sync_playwright() as pw:
     p.screenshot(path=OUT / "9-qie-paused-over-guard.png", full_page=True)
     p.close()
     send(owner, ORACLE, "updateAnswer(int256)", str(answer))
+
+    step("a late QIE quote from a closed sheet never lands on the reopened sheet (Approve stays an approval)")
+    QUOTE_SEL = "e1b0f403"  # quoteQIE(uint256,uint16)
+    held, hold = [], {"on": True}
+
+    def hold_quote(route):
+        if hold["on"] and QUOTE_SEL in (route.request.post_data or ""):
+            held.append(route)  # answered later, after the sheet was closed and reopened
+        else:
+            route.continue_()
+
+    p = page_as(b, DAVE)
+    p.route(lambda u: u.startswith(RPC), hold_quote)
+    p.goto(f"{APP}/p/local/{dbl}")
+    p.get_by_role("button", name="Join").click()
+    p.get_by_role("tab", name="Pay with QIE").click()
+    for _ in range(100):
+        if held:
+            break
+        p.wait_for_timeout(100)
+    assert held, "the QIE quote request was never sent"
+    p.get_by_role("button", name="Close").click()
+    p.get_by_role("button", name="Join").click()
+    p.get_by_role("tab", name="Pay with QUSDC").click()
+    expect(p.get_by_role("button", name="1 · Approve")).to_be_enabled(timeout=15000)
+    seats_before = int(cast("call", PAT, "seatsOf(uint256,address)(uint16)", str(dbl), DAVE).split()[0])
+    hold["on"] = False
+    for r in held:
+        r.continue_()
+    p.wait_for_timeout(2000)  # let the stale continuation run
+    p.get_by_role("button", name="1 · Approve").click()
+    expect(p.get_by_role("button", name="2 · Pay")).to_be_enabled(timeout=20000)
+    allowance = int(cast("call", QUSDC, "allowance(address,address)(uint256)", DAVE, PAT).split()[0])
+    seats_after = int(cast("call", PAT, "seatsOf(uint256,address)(uint16)", str(dbl), DAVE).split()[0])
+    assert allowance >= 250000 and seats_after == seats_before, (allowance, seats_before, seats_after)
+    print(f"  Approve made an approval ({allowance} units) and no join (seats {seats_before} -> {seats_after})")
+    p.close()
     b.close()
 print("E2E OK: every step passed")
