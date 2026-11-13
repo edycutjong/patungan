@@ -85,7 +85,7 @@ async function latestEvents(dep: Deployment): Promise<{ rows: EventRow[]; source
     const logs = await c.getLogs({ address: dep.address, fromBlock: from < BigInt(dep.deployBlock) ? BigInt(dep.deployBlock) : from, toBlock: to })
     rows.push(...toRows(logs as never))
   }
-  return { rows: rows.slice(0, 20), source: `QIE RPC (newest ${FALLBACK_CHUNKS * 10_000} blocks)` }
+  return { rows: rows.slice(0, 20), source: `${dep.rpc ? 'local fork RPC' : 'QIE RPC'} (newest ${FALLBACK_CHUNKS * 10_000} blocks)` }
 }
 
 function toRows(logs: { address: Address; topics: Hex[]; data: Hex; transactionHash: Hex; blockNumber: bigint }[]): EventRow[] {
@@ -119,7 +119,7 @@ export async function renderVerify(root: HTMLElement) {
       <li>Distinct wallets are not distinct people: a roster counts wallets, not humans.</li>
       <li>Wallets the builders control are labelled "builder wallet" on every roster and never counted as users.</li>
       <li>The QIE Oracle is a sanity bound on the swap, not the price paid. The price paid is QIEDEX's.</li>
-      <li>QUSDC is issued by QIE with a mint/burn role that sits outside Patungan. Patungan itself has no owner, pause, upgrade or withdraw.</li>
+      <li>QUSDC has an issuer-controlled VAULT_ROLE that sits outside Patungan and can burn QUSDC (README, honest limits). Patungan itself has no owner, pause, upgrade or withdraw.</li>
     </ul></section>`
   const body = root.querySelector<HTMLElement>('#vbody')!
   const comp = (label: string, addr: string) =>
