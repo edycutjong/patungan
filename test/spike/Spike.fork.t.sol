@@ -124,6 +124,19 @@ contract SpikeForkTest is QieMainnet {
         (,,,, uint16 filled, bool paid) = escrow.pools(id);
         assertEq(filled, 2);
         assertTrue(paid);
+
+        // a paid pool takes no more joins and pays out only once
+        vm.startPrank(carol);
+        router.swapETHForExactTokens{value: 10 ether}(PRICE, _path(), carol, block.timestamp);
+        qusdc.approve(address(escrow), PRICE);
+        vm.expectRevert(SpikeEscrow.NotOpen.selector);
+        escrow.join(id);
+        vm.stopPrank();
+        // and a paid pool is never refundable, even after its deadline
+        vm.warp(block.timestamp + 2 days);
+        vm.prank(alice);
+        vm.expectRevert(SpikeEscrow.NotRefundable.selector);
+        escrow.refund(id);
     }
 
     /// G1 contract-origin path: the ESCROW is msg.sender to the router, receives the unspent QIE in receive(),
@@ -138,9 +151,7 @@ contract SpikeForkTest is QieMainnet {
         uint256 payeeBefore = qusdc.balanceOf(NAME_OWNER);
 
         vm.prank(bob);
-        uint256 g = gasleft();
-        escrow.joinWithQIE{value: sent}(id);
-        console2.log("joinWithQIE (last seat, swap + payout) gas", g - gasleft());
+        escrow.joinWithQIE{value: sent}(id); // tx-level gasUsed for this call: script/fork-gas.sh
 
         assertEq(bobBefore - bob.balance, quoted, "member paid exactly the router's input; excess forwarded back");
         assertEq(address(escrow).balance, 0, "escrow keeps no QIE");
@@ -175,6 +186,9 @@ contract SpikeForkTest is QieMainnet {
         vm.prank(alice);
         vm.expectRevert(SpikeEscrow.NotRefundable.selector);
         escrow.refund(id); // no double refund
+        vm.prank(bob);
+        vm.expectRevert(SpikeEscrow.NotRefundable.selector);
+        escrow.refund(id); // nor for the member who paid in QIE
     }
 
     function test_escrow_oracleStale_revertsQiePath() public {

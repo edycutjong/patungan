@@ -9,7 +9,7 @@ import {IQieZone} from "../../src/interfaces/IQieZone.sol";
 import {IAggregatorV3} from "../../src/interfaces/IAggregatorV3.sol";
 
 /// @notice Day-one spike: the smallest escrow that touches all four QIE components from a contract.
-/// Not the product contract (that is src/Patungan.sol). One seat per join, no meta, no batch refunds.
+/// Not the product contract (that will be src/Patungan.sol, written in the next phase). One seat per join, no meta, no batch refunds.
 /// It exists to prove, against real mainnet state on a fork, that:
 ///   - QUSDC transferFrom into escrow, release to the payee and refund all work;
 ///   - a CONTRACT can call QIEDEX swapETHForExactTokens, receive the unspent QIE back and forward it;
