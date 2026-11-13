@@ -10,9 +10,11 @@ same transaction. If the deadline passes first, every member can take their mone
 ## Layout
 
 - `src/interfaces/`: the QIE component interfaces (QIEDEX router, Zone `.qie` names, QIE Oracle). The product contract goes in `src/`.
+- `test/utils/`: QIE mainnet addresses and the fork helper.
 - `test/spike/`: fork tests against real QIE mainnet state, plus the test-only spike escrow.
 - `script/`: `fork-gas.sh` (transaction gas on an anvil fork) and `mainnet-probe.sh` (read-only mainnet checks).
 - `web/`: frontend scaffold (Vite + TypeScript + viem). For now it is a read-only status page for the QIE components.
+- `.github/workflows/ci.yml`: CI runs forge fmt + build + the fork tests, and the web tests + build.
 - `evidence/`: the spike's raw run outputs and the summary that cites them.
 
 ## Run

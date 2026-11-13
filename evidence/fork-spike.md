@@ -10,6 +10,10 @@ git submodule update --init --recursive
 forge test --match-path 'test/spike/*' -vv      # QIE_RPC_URL is optional; the suite also passed against rpc2..rpc5mainnet
 ```
 
+The tests fork the **latest** block, so a re-run logs a different block, Oracle age and quote. The numbers below come from the
+stored run at block 11879734. `test_oracle_latestRoundData_isLiveAndFresh` also fails if the live feed is ever more than 48 h old
+when the suite runs, which is the same condition that disables the QIE path.
+
 Raw output: [`fork-spike-run.txt`](fork-spike-run.txt). Test file: [`test/spike/Spike.fork.t.sol`](../test/spike/Spike.fork.t.sol).
 Spike contract: [`test/spike/SpikeEscrow.sol`](../test/spike/SpikeEscrow.sol). This is a test-only contract. The product
 contract (`src/Patungan.sol`) is not written yet.
@@ -32,10 +36,10 @@ contract (`src/Patungan.sol`) is not written yet.
 | QIE/USD from the Oracle | 0.15466603 (age 26,533 s ≈ 7.4 h at block 11879734) | `fork-spike-run.txt` |
 | QIE in for one 0.25 QUSDC seat (router `getAmountsIn`) | 1.705131047102392564 QIE | `fork-spike-run.txt` |
 | Oracle-fair QIE for the same seat | 1.616385964002567339 QIE | `fork-spike-run.txt` |
-| Router premium over the Oracle | 549 bps, inside the 1,500 bps guard. With the Oracle mocked to 2× the price, the guard reverts `PriceDeviation` before any swap. | `fork-spike-run.txt` |
+| Router premium over the Oracle | 549 bps, inside the 1,500 bps guard. With the Oracle mocked to 2× the price, `joinWithQIE` reverts `PriceDeviation`. The check runs before the swap call (`SpikeEscrow.sol`, `joinWithQIE`). | `fork-spike-run.txt` |
 
 Transaction gasUsed, from real transactions on an anvil fork at block 11879716 ([`script/fork-gas.sh`](../script/fork-gas.sh); output in
-[`fork-gas-run.txt`](fork-gas-run.txt); addresses impersonated, no keys):
+[`fork-gas-run.txt`](fork-gas-run.txt); addresses impersonated, no keys; gas follows anvil's EVM rules, not a mainnet receipt):
 
 | Transaction | gasUsed |
 |---|---|
