@@ -27,3 +27,51 @@ export const client = createPublicClient({
 
 export const explorerTx = (hash: string) => `${qieMainnet.blockExplorers.default.url}/tx/${hash}`
 export const explorerAddress = (addr: string) => `${qieMainnet.blockExplorers.default.url}/address/${addr}`
+
+/** One Patungan deployment. `/p/<id>/<pool>` keeps reading the contract it was created on after any redeploy. */
+export interface Deployment {
+  id: string
+  label: string
+  address: Address
+  deployBlock: number
+  chainId: number
+  /** Only for local anvil forks; mainnet deployments use the 5-RPC fallback. */
+  rpc?: string
+  /** Addresses the builder controls: labelled "builder wallet" on every roster, never counted as users. */
+  builderWallets?: Address[]
+}
+
+let manifest: Promise<Deployment[]> | undefined
+
+/** Reads public/deployments.json (mainnet); the dev server also reads deployments.local.json (anvil fork). */
+export function loadDeployments(): Promise<Deployment[]> {
+  manifest ??= (async () => {
+    const files = import.meta.env.DEV ? ['/deployments.json', '/deployments.local.json'] : ['/deployments.json']
+    const lists = await Promise.all(
+      files.map((f) =>
+        fetch(f)
+          .then((r) => (r.ok ? r.json() : { deployments: [] }))
+          .then((j: { deployments?: Deployment[] }) => j.deployments ?? [])
+          .catch(() => [] as Deployment[]),
+      ),
+    )
+    return lists.flat()
+  })()
+  return manifest
+}
+
+const clients = new Map<string, ReturnType<typeof createPublicClient>>()
+
+/** A public client for a deployment: its own RPC for a local fork, else the mainnet failover client. */
+export function clientFor(dep: Deployment) {
+  if (!dep.rpc) return client
+  let c = clients.get(dep.rpc)
+  if (!c) {
+    c = createPublicClient({ chain: qieMainnet, transport: http(dep.rpc) })
+    clients.set(dep.rpc, c)
+  }
+  return c
+}
+
+/** A local fork has no public explorer; links are only rendered for mainnet deployments. */
+export const hasExplorer = (dep: Deployment) => !dep.rpc
