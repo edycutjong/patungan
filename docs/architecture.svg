@@ -26,7 +26,6 @@
 <path d="M395 170 L395 100"/><path d="M395 100 L395 168" stroke-dasharray="5 4"/>
 <path d="M640 65 L490 65"/><path d="M490 235 L640 205"/>
 <path d="M395 260 L395 340"/><path d="M490 380 L640 380"/>
-<path d="M830 200 L880 200 L880 60 L830 60" stroke="none"/>
 </g>
 <g fill="#475569" font-size="12">
 <text x="190" y="188">1 join (QUSDC)</text><text x="186" y="236">1 joinWithQIE</text>
@@ -36,5 +35,6 @@
 <text x="402" y="305">escrow held</text>
 <text x="500" y="372">5 refund</text>
 </g>
-<text x="30" y="445" fill="#475569" font-size="12">Zone .qie names resolve the payee at create time (domainOwnerByName). The last seat's join pays the payee in the same transaction; a pool past its deadline refunds every member.</text>
+<text x="30" y="438" fill="#475569" font-size="12">Zone .qie names resolve the payee at create time (domainOwnerByName). The last seat's join pays the payee in the same transaction;</text>
+<text x="30" y="456" fill="#475569" font-size="12">a pool past its deadline refunds every member.</text>
 </svg>
