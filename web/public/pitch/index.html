@@ -51,7 +51,7 @@ html, body { margin: 0; height: 100%; background: #E9E2D2; overflow: hidden; col
 .label i { font-style: normal; text-transform: none; letter-spacing: .02em; font-weight: 600 }
 .ink .label { color: rgb(250 246 236 / .7) }
 .display { font-family: var(--font-display); font-stretch: 75%; font-weight: 850; text-transform: uppercase; line-height: .92; margin: 0 }
-h1.display { font-size: 132px }
+h1.display { font-size: 112px }
 h2.display { font-size: 92px; max-width: 18ch; margin-bottom: 40px }
 .hl { font-style: italic; color: var(--refund); display: block }
 .ink .hl { color: #8FD1AC }
@@ -61,7 +61,7 @@ p { margin: 0 }
 .data { font-family: var(--font-data) }
 .cap { font-size: 21px; color: var(--muted); line-height: 1.45 }
 .ink .cap { color: rgb(250 246 236 / .72) }
-.foot { position: absolute; left: 120px; right: 120px; bottom: 44px; display: flex; justify-content: space-between; font: 400 18px var(--font-data); color: var(--muted) }
+.foot { position: absolute; left: 120px; right: 220px; bottom: 26px; display: flex; justify-content: space-between; font: 600 18px var(--font-body); color: var(--muted) }
 .ink .foot { color: rgb(250 246 236 / .6) }
 .cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 90px; align-items: center; height: 100% }
 
@@ -69,6 +69,7 @@ p { margin: 0 }
 .kuitansi { position: relative; background: #FFFDF7; border: 1.5px solid var(--rule); border-radius: 6px; padding: 0 40px 34px; box-shadow: 0 30px 60px -34px rgb(29 42 71 / .45); color: var(--ink) }
 .perf { height: 26px; margin: 0 -40px 24px; background: radial-gradient(circle at 13px 13px, var(--bg) 5.5px, transparent 6px) 0 0 / 26px 26px repeat-x; border-bottom: 1.5px dashed var(--rule) }
 .k-title { font: 850 60px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 6px 0 20px }
+.gloss { font: 600 24px var(--font-body); text-transform: none; color: var(--muted); margin-left: 10px }
 .k-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px }
 .payee { font-weight: 700; font-size: 34px; margin: 4px 0 16px }
 .amount { border: 2px solid var(--ink); padding: 10px 16px; display: inline-block; font-size: 34px; font-weight: 700 }
@@ -82,8 +83,8 @@ p { margin: 0 }
 .tick { font: 700 20px var(--font-body); letter-spacing: .1em; color: var(--before) }
 .belum { color: var(--muted); font-style: italic }
 .roster-wrap { position: relative }
-.stamp { position: absolute; left: 34%; top: 26px; transform: rotate(-6deg); border: 5px double currentColor; padding: 10px 30px 6px; font: 850 104px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .9; filter: url(#ink); color: var(--after); text-align: center }
-.stamp small { display: block; font: 600 24px var(--font-body); letter-spacing: .1em }
+.stamp { position: absolute; left: 41%; top: 30px; transform: rotate(-6deg); border: 5px double currentColor; padding: 8px 24px 6px; font: 850 84px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .9; filter: url(#ink); color: var(--after); text-align: center }
+.stamp small { display: block; font: 600 20px var(--font-body); letter-spacing: .1em }
 .slide.on .stamp.lands { animation: land 200ms 450ms cubic-bezier(.3, 1.4, .6, 1) both }
 @keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .9 } }
 .paidline { font-weight: 700; font-size: 30px; margin-top: 22px }
@@ -134,7 +135,7 @@ p { margin: 0 }
 .miles li b { font-weight: 700 }
 .close { display: grid; grid-template-columns: 1fr 400px; gap: 100px; align-items: center; height: 100% }
 .qr { width: 400px; height: 400px; display: block; border-radius: 8px }
-.links { margin-top: 48px; font: 400 30px/1.7 var(--font-data) }
+.links { margin-top: 48px; font: 600 30px/1.7 var(--font-body) }
 
 /* chrome */
 .counter-ui { position: fixed; right: 22px; bottom: 16px; font: 400 15px var(--font-data); color: var(--muted); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
@@ -174,12 +175,12 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="kuitansi">
       <div class="perf"></div>
       <p class="label">Kuitansi patungan · <i>group payment</i></p>
-      <p class="k-title">Futsal Kamis</p>
+      <p class="k-title">Futsal Kamis <span class="gloss">Thursday futsal</span></p>
       <div class="k-row"><div><p class="label" style="margin:0">Untuk pembayaran · <i>pays</i></p><p class="payee">test.qie</p><p class="amount">0.25 QUSDC<small>per seat · 0.75 in total</small></p></div><p class="counter">3<span>/</span>3</p></div>
       <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">LUNAS<small>PAID IN FULL</small></div></div>
     </div>
   </div>
-  <div class="foot"><span>patungan-qie.vercel.app</span><span>v0.1.0 · built 2026-11-14</span></div>
+  <div class="foot"><span>patungan-qie.vercel.app · v0.1.0 · built 2026-11-14</span></div>
   <aside class="speaker-notes">Patungan is the Indonesian word for chipping in. One link per group: friends pay seats, and the pool either pays the venue in the last seat's transaction or gives every friend their money back.</aside>
 </section>
 
@@ -202,16 +203,15 @@ body.overview .slide:hover { outline-color: var(--before) }
 <section class="slide" data-n="3" aria-label="The last seat pays">
   <div class="cols" style="grid-template-columns: .8fr 1.2fr">
     <div>
-      <p class="label">Lembar 01 · <i>the last seat</i></p>
+      <p class="label">Lembar 01 · <i>sheet 1: the last seat</i></p>
       <h2 class="display" style="font-size:84px">Seat three fills. test.qie is paid in that same transaction.</h2>
-      <p class="cap">Anvil fork of QIE mainnet, block 11,883,271: the real QUSDC, QIEDEX, Zone and Oracle contracts.</p>
+      <p class="cap">Recorded on a QIE mainnet fork, block 11,883,271.</p>
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
-      <div class="k-row"><div><p class="k-title" style="margin-bottom:6px">Futsal Kamis</p><p class="payee">→ test.qie</p></div><p class="counter">3<span>/</span>3</p></div>
+      <div class="k-row"><div><p class="k-title" style="margin-bottom:6px">Futsal Kamis <span class="gloss">Thursday futsal</span></p><p class="payee">→ test.qie</p></div><p class="counter">3<span>/</span>3</p></div>
       <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">LUNAS<small>PAID IN FULL</small></div></div>
       <p class="paidline">Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
-      <p class="cap data" style="margin-top:14px">joinWithQIE (last seat -&gt; payee paid) · gasUsed 267557</p>
     </div>
   </div>
   <div class="foot"><span>evidence/local-flow-run.txt</span></div>
@@ -228,7 +228,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="step paid"><b>5</b><h3>Payee paid</h3><p><code>PoolPaid</code></p></div>
     <div class="step"><b>6</b><h3>Change back</h3><p>0 QIE left behind.</p></div>
   </div>
-  <p class="gasline"><b>267,557</b>gas, all six moves</p>
+  <p class="gasline"><b>267,557</b>gas, all six moves (paying in QIE)</p>
   <div class="foot"><span>src/Patungan.sol · evidence/local-flow-run.txt</span></div>
   <aside class="speaker-notes">The swap is invisible to the member. The Oracle is a ceiling, never the price paid: if the pool's quote is too far above fair value, the join reverts instead of overpaying.</aside>
 </section>
@@ -268,7 +268,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="num"><b>71</b><p>contract tests pass; 24 read live mainnet state</p></div>
     <div class="num"><b>5/5</b><p>injected bugs caught</p></div>
     <div class="num"><b>11</b><p>browser steps pass on a mainnet fork</p></div>
-    <div class="num"><b>+564</b><p>bps median QIE cost over the Oracle, guard 1,500</p></div>
+    <div class="num"><b>+5.64%</b><p>median swap cost above the Oracle price (564 bps; guard 15%)</p></div>
   </div>
   <div class="foot"><span>evidence/ · forge-test-run.txt · mutation-run.txt · e2e-local-run.txt · bench.md</span></div>
   <aside class="speaker-notes">Seventy-one Foundry tests including fuzz and invariants, a mutation check where every injected bug is caught, and a browser click-through of join, payout and refund on a mainnet fork.</aside>
@@ -282,7 +282,7 @@ body.overview .slide:hover { outline-color: var(--before) }
       <p class="mid" style="margin-top:24px">real members so far.</p>
     </div>
     <ul class="honest-list">
-      <li><b>Builder wallets</b>Demo pools come from builder wallets, labelled as such. Not users.</li>
+      <li><b>Builder wallets</b>Demo pools will come from builder wallets, labelled as such. Not users.</li>
       <li><b>Wallets are not people</b>Any count we publish counts wallets.</li>
       <li><b>Next</b>One real group pays a real booking on mainnet.</li>
     </ul>
@@ -294,7 +294,7 @@ body.overview .slide:hover { outline-color: var(--before) }
 <section class="slide v" data-n="9" aria-label="Roadmap">
   <h2 class="display" style="max-width:none">To the 90-day milestones</h2>
   <div class="road">
-    <div><h3>Dec 1–5</h3><p>Demo week: the live flow on mainnet.</p></div>
+    <div><h3>Dec 1–5</h3><p>Demo week: the live flow, on mainnet once deployed.</p></div>
     <div><h3>Dec 10</h3><p>Winners announced.</p></div>
     <div><h3>To Mar 10, 2027</h3>
       <ul class="miles">
@@ -304,8 +304,8 @@ body.overview .slide:hover { outline-color: var(--before) }
       </ul>
     </div>
   </div>
-  <div class="foot"><span>milestones named in the hackathon's prize terms</span></div>
-  <aside class="speaker-notes">The organizers pay the second half of each prize after 90-day traction milestones. Our plan maps to the ones they name: recurring users, merchants, transaction volume and wallet growth.</aside>
+  <div class="foot"><span>milestones named in the hackathon's prize terms · Mar 10 = Dec 10 + 90 days</span></div>
+  <aside class="speaker-notes">The organizers pay the second half of the main prizes after 90-day traction milestones. Our plan maps to the ones they name: recurring users, merchants, transaction volume and wallet growth.</aside>
 </section>
 
 <section class="slide pink" data-n="10" aria-label="Close">
@@ -317,7 +317,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div><svg class="qr" role="img" aria-label="QR code for https://patungan-qie.vercel.app/" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#fffdf7" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#1d2a47" d="M2 2.5h7m1 0h1m1 0h1m1 0h2m4 0h3m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h2m2 0h1m3 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m1 0h1m5 0h3m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m6 0h2m1 0h1m-19 1h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h5m-29 1h1m2 0h1m1 0h1m1 0h2m5 0h2m1 0h1m2 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m1 0h4m2 0h2m2 0h1m9 0h4m-29 1h2m1 0h3m5 0h1m1 0h1m2 0h7m4 0h1m-28 1h1m3 0h4m1 0h2m1 0h2m3 0h1m2 0h1m1 0h2m-24 1h3m2 0h1m3 0h1m2 0h1m1 0h4m2 0h4m4 0h1m-29 1h1m4 0h3m1 0h2m2 0h2m1 0h1m1 0h1m1 0h4m2 0h3m-29 1h2m5 0h1m2 0h6m1 0h3m3 0h1m-23 1h1m3 0h2m1 0h4m1 0h1m1 0h3m2 0h4m1 0h1m1 0h1m-27 1h1m1 0h2m4 0h4m2 0h1m2 0h1m1 0h1m1 0h1m2 0h4m-29 1h1m4 0h2m1 0h2m2 0h1m4 0h1m3 0h1m3 0h4m-28 1h3m1 0h1m2 0h1m4 0h2m1 0h2m4 0h1m1 0h1m2 0h1m-28 1h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m2 0h5m3 0h1m-21 1h1m3 0h1m1 0h1m1 0h2m2 0h1m3 0h1m2 0h2m-29 1h7m1 0h1m2 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m1 0h1m-29 1h1m5 0h1m2 0h3m1 0h3m1 0h1m2 0h1m3 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h2m2 0h6m1 0h1m-28 1h1m1 0h3m1 0h1m4 0h4m2 0h2m1 0h2m2 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h1m3 0h4m1 0h1m-29 1h1m5 0h1m1 0h8m1 0h5m1 0h1m1 0h1m1 0h1m-28 1h7m2 0h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h2"/></svg><p class="cap" style="margin-top:14px;text-align:center">Scan to open the app</p></div>
   </div>
   <div class="foot"><span>Patungan · MIT</span></div>
-  <aside class="speaker-notes">Thank you. The QR opens the live app; the repo has the contract, the tests and every evidence file quoted in this deck.</aside>
+  <aside class="speaker-notes">Thank you. The QR opens the app (staging until the mainnet deploy); the repo has the contract, the tests and every evidence file quoted in this deck.</aside>
 </section>
 
 </div></div>
