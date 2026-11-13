@@ -1,21 +1,27 @@
 # Patungan
 
-Group payments with a deadline, on QIE mainnet. Patungan is being built as a QUSDC escrow. An organizer opens a pool (seats ×
-price), and members join paying QUSDC, or QIE that the contract swaps to QUSDC through QIEDEX. The last seat pays the seller in the
-same transaction. If the deadline passes first, every member can take their money back.
+Group payments with a deadline, on QIE mainnet. Patungan is a QUSDC escrow. An organizer opens a pool (seats × price, a
+deadline, and a payee given as a `.qie` name or an address), and members join paying QUSDC, or QIE that the contract swaps to
+QUSDC through QIEDEX in the same transaction. The last seat pays the payee in the same transaction. If the deadline passes
+first, or the organizer cancels, every member can take their QUSDC back.
 
-> **Status: work in progress.** The product contract (`src/Patungan.sol`) is not written yet. The day-one spike proves this
-> flow on a fork of QIE mainnet with a test-only escrow: [`evidence/fork-spike.md`](evidence/fork-spike.md).
+> **Status: mainnet deployment pending.** The contract (`src/Patungan.sol`) and the web app are built and tested on mocks and
+> on a local fork of QIE mainnet (real QUSDC, QIEDEX, Zone `.qie` names and QIE Oracle state). No Patungan contract is on
+> mainnet yet, so there are no mainnet transaction hashes here. Evidence: [`evidence/core-flow.md`](evidence/core-flow.md).
 
 ## Layout
 
-- `src/interfaces/`: the QIE component interfaces (QIEDEX router, Zone `.qie` names, QIE Oracle). The product contract goes in `src/`.
-- `test/utils/`: QIE mainnet addresses and the fork helper.
-- `test/spike/`: fork tests against real QIE mainnet state, plus the test-only spike escrow.
-- `script/`: `fork-gas.sh` (transaction gas on an anvil fork) and `mainnet-probe.sh` (read-only mainnet checks).
-- `web/`: frontend scaffold (Vite + TypeScript + viem). For now it is a read-only status page for the QIE components.
-- `.github/workflows/ci.yml`: CI runs forge fmt + build + the fork tests, and the web tests + build.
-- `evidence/`: the spike's raw run outputs and the summary that cites them.
+- `src/Patungan.sol`: the escrow (one contract holds every pool). `src/interfaces/`: the QIE component interfaces (QIEDEX
+  router, Zone `.qie` names, QIE Oracle).
+- `test/`: unit tests on mocks (`Patungan.t.sol`), fuzz, invariants, `fork/` (Patungan against live QIE mainnet state),
+  `spike/` (the day-one fork spike with a test-only escrow), `mocks/`, `utils/` (QIE mainnet addresses, fork helper).
+- `script/`: `deploy-mainnet.sh` (preflight, deploy, Blockscout verify), `seed-demo.py` (builder demo pools), `local-flow.sh`
+  (deploy + seed on an anvil fork), `bench.py` (gas and swap cost from receipts), `mutation-check.sh`, `e2e-local.py` and
+  `e2e-create.py` (browser click-throughs), `export-abi.sh`, `fork-gas.sh`, `mainnet-probe.sh` (read-only mainnet checks).
+- `web/`: the app (Vite + TypeScript + viem): pool page with join (QIE or QUSDC), refunds and cancel, `/new` to create a pool,
+  `/verify` for the contract and its QIE components.
+- `.github/workflows/ci.yml`: forge fmt + build + all tests (unit, fuzz, invariants, mainnet fork), and the web tests + build.
+- `evidence/`: raw run outputs (tests, mutation check, gas, bench, browser runs) and the summaries that cite them.
 
 ## Run
 

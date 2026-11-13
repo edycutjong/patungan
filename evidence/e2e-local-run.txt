@@ -8,4 +8,7 @@ browser: installed Google Chrome 157.0.8103.51
 - the short pool passes its deadline: Fran gets her money back; the stamp says DIKEMBALIKAN
 - pool #3, refunded in full by local-flow.sh, reads DIKEMBALIKAN
 - home lists every pool with its state
+- a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)
+  pool #7: Dave holds 1 seat after a double tap
+- a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button
 E2E OK: every step passed

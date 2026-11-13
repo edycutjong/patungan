@@ -1,5 +1,6 @@
-CAUGHT    refund-not-zeroed  -> 18 failing tests  (a refunded member could claim again (double refund))
+CAUGHT    refund-not-zeroed  -> 20 failing tests  (a refunded member could claim again (double refund))
 CAUGHT    no-last-seat-payout  -> 26 failing tests  (the last seat would never pay the payee)
 CAUGHT    guard-off-by-2x  -> 4 failing tests  (the Oracle guard would let QIEDEX charge up to twice the bound)
-CAUGHT    payout-keeps-totalHeld  -> 10 failing tests  (a paid pool would still count as escrowed (accounting drift))
-caught 4 of 4 mutations
+CAUGHT    payout-keeps-totalHeld  -> 18 failing tests  (a paid pool would still count as escrowed (accounting drift))
+CAUGHT    no-insolvency-gate  -> 2 failing tests  (after an issuer burn, a new member's deposit would fill the hole and leave them short)
+caught 5 of 5 mutations
