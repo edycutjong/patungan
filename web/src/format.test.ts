@@ -87,6 +87,7 @@ describe('time', () => {
     expect(fmtLeft(100n, 100)).toBe('closed')
     expect(fmtLeft(3_000n, 0)).toBe('50 min left')
     expect(fmtLeft(90_000n, 0)).toBe('1 d 1 h left')
+    expect(fmtLeft(7_170n, 0)).toBe('2 h 0 min left') // 1 h 59 min 30 s rounds up without '60 min'
   })
 })
 

@@ -98,9 +98,10 @@ export function fmtWib(deadline: bigint): string {
 export function fmtLeft(deadline: bigint, nowSec: number): string {
   const s = Number(deadline) - nowSec
   if (s <= 0) return 'closed'
-  const d = Math.floor(s / 86400)
-  const h = Math.floor((s % 86400) / 3600)
-  const m = Math.ceil((s % 3600) / 60)
+  const mins = Math.ceil(s / 60) // round up to whole minutes first, so "1 h 60 min" can't happen
+  const d = Math.floor(mins / 1440)
+  const h = Math.floor((mins % 1440) / 60)
+  const m = mins % 60
   if (d > 0) return `${d} d ${h} h left`
   if (h > 0) return `${h} h ${m} min left`
   return `${m} min left`

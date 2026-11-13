@@ -78,6 +78,8 @@ class PoolPage {
   private data?: PoolData
   private activity: Activity = { joins: new Map(), refunds: new Map() }
   private logsFailed = false
+  private scanning = false
+  private lastScanned?: bigint
   private account?: Address
   private lastKind?: PoolKind
   private maxDevBps = 1500
@@ -155,14 +157,18 @@ class PoolPage {
 
   /** Tx links come from logs, loaded after first paint; nothing the first paint needs depends on them. */
   private async loadActivity() {
+    if (this.scanning) return // never stack scans on the public RPCs
+    this.scanning = true
     try {
       const args = { id: this.id }
       const latest = await this.client.getBlockNumber()
+      const start = this.lastScanned === undefined ? BigInt(this.dep.deployBlock) : this.lastScanned + 1n
       const joined = []
       const paidLogs = []
       const refunded = []
       // bounded ranges: public RPCs cap eth_getLogs spans
-      for (let from = BigInt(this.dep.deployBlock); from <= latest; from += LOG_CHUNK) {
+      // incremental: after the first full scan, only the blocks since the last one
+      for (let from = start; from <= latest; from += LOG_CHUNK) {
         const range = { address: this.dep.address, abi: patunganAbi, fromBlock: from, toBlock: from + LOG_CHUNK - 1n < latest ? from + LOG_CHUNK - 1n : latest } as const
         const [j, p, r] = await Promise.all([
           this.client.getContractEvents({ ...range, eventName: 'Joined', args }),
@@ -173,20 +179,23 @@ class PoolPage {
         paidLogs.push(...p)
         refunded.push(...r)
       }
-      const a: Activity = { joins: new Map(), refunds: new Map() }
+      const a = this.activity
       for (const l of joined) {
         const m = l.args.member!.toLowerCase()
         a.joins.set(m, [...(a.joins.get(m) ?? []), { n: Number(l.args.n), qie: !!l.args.paidWithQIE, tx: l.transactionHash }])
       }
-      a.paidTx = paidLogs[0]?.transactionHash
+      a.paidTx ??= paidLogs[0]?.transactionHash
       for (const l of refunded) a.refunds.set(l.args.member!.toLowerCase(), l.transactionHash)
-      this.activity = a
+      this.lastScanned = latest
       this.logsFailed = false
       this.paint()
     } catch {
-      // logs are optional: the roster and state come from getPool/getMembers; say so instead of failing silently
+      // logs are optional: the roster and state come from getPool/getMembers; say so instead of failing silently.
+      // A failed chunk is retried from the last fully scanned block on the next call (nothing is merged twice).
       this.logsFailed = true
       this.paint()
+    } finally {
+      this.scanning = false
     }
   }
 
@@ -303,7 +312,7 @@ class PoolPage {
     const dis = this.busy ? ' disabled' : ''
     const mine = me ? d.members.find((m) => m.addr.toLowerCase() === me) : undefined
     const b: string[] = []
-    if (kind === 'open') {
+    if (kind === 'open' && d.now < Number(d.deadline)) {
       b.push(`<button class="cta" data-act="open-sheet"${dis}>Join · pay ${fmtQusdc(d.price)} QUSDC per seat</button>`)
       if (me && me === d.organizer.toLowerCase()) b.push(`<button class="cta ghost" data-act="cancel"${dis}>Cancel pool (refunds open at once)</button>`)
     }
@@ -415,6 +424,8 @@ class PoolPage {
     }
     let n = 1
     let tab: 'qie' | 'qusdc' = 'qie'
+    s.innerHTML = '<p class="quote">Reading your wallet…</p>'
+    if (!s.open) s.showModal()
     // F9: QIE is the default only when the wallet can't already cover one seat in QUSDC
     if (this.account) {
       const bal = await this.client
@@ -491,12 +502,18 @@ class PoolPage {
         }
       } else {
         const acct = this.account
-        const [bal, allowance] = acct
-          ? await Promise.all([
+        let bal = 0n
+        let allowance = 0n
+        try {
+          if (acct)
+            [bal, allowance] = await Promise.all([
               this.client.readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'balanceOf', args: [acct] }),
               this.client.readContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'allowance', args: [acct, this.dep.address] }),
             ])
-          : [0n, 0n]
+        } catch {
+          body.innerHTML = `<p class="quote">QIE's RPCs aren't answering right now. Close this and try again in a moment.</p>`
+          return
+        }
         const needApprove = allowance < amount
         body.innerHTML = `<p class="quote">${acct ? `This wallet holds ${fmtQusdc(bal)} QUSDC.` : 'Connect a wallet that holds QUSDC.'} Two steps: approve, then pay.</p>
           <button type="button" class="cta${needApprove ? '' : ' ghost'}" data-pay="approve"${needApprove ? '' : ' disabled'}>1 · Approve ${fmtQusdc(amount)} QUSDC</button>
