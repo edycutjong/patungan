@@ -133,9 +133,11 @@ contract Patungan is ReentrancyGuard {
         uint256 maxDevBps_,
         uint256 maxOracleAge_
     ) {
-        if (maxDevBps_ == 0 || maxDevBps_ > MAX_DEV_BPS_CAP || maxOracleAge_ == 0) revert BadParams();
+        if (maxDevBps_ == 0 || maxDevBps_ > MAX_DEV_BPS_CAP || maxOracleAge_ == 0) {
+            revert BadParams();
+        }
         (qusdc, router, zone, oracle, maxDevBps, maxOracleAge) =
-            (qusdc_, router_, zone_, oracle_, maxDevBps_, maxOracleAge_);
+        (qusdc_, router_, zone_, oracle_, maxDevBps_, maxOracleAge_);
         wqie = router_.WETH();
         uint8 od = oracle_.decimals();
         uint8 qd = IERC20Metadata(address(qusdc_)).decimals();

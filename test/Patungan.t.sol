@@ -68,8 +68,14 @@ contract PatunganTest is PatunganBase {
         uint256 id = pat.createPool(payee, PRICE, 5, deadline, "Futsal Kamis");
         assertEq(id, 1);
         assertEq(pat.nextId(), 1);
-        (Patungan.Pool memory p, string memory title, string memory payeeName, uint256 mc, uint256 rc, bool refundable) =
-            pat.getPool(id);
+        (
+            Patungan.Pool memory p,
+            string memory title,
+            string memory payeeName,
+            uint256 mc,
+            uint256 rc,
+            bool refundable
+        ) = pat.getPool(id);
         assertEq(p.organizer, organizer);
         assertEq(p.payee, payee);
         assertEq(p.price, PRICE);

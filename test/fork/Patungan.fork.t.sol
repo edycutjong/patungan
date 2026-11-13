@@ -49,9 +49,7 @@ contract PatunganForkTest is QieMainnet {
 
     function setUp() public {
         _forkQie();
-        pat = new Patungan(
-            qusdc, router, IQieZone(ZONE), IAggregatorV3(ORACLE_QIE_USD), DEV_BPS, ORACLE_AGE
-        );
+        pat = new Patungan(qusdc, router, IQieZone(ZONE), IAggregatorV3(ORACLE_QIE_USD), DEV_BPS, ORACLE_AGE);
         vm.deal(alice, 100 ether);
         vm.deal(bob, 100 ether);
         vm.deal(carol, 100 ether);
