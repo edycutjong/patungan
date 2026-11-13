@@ -15,6 +15,8 @@ ALICE=0x00000000000000000000000000000000000B0b00
 BOB=0x0000000000000000000000000000000000C0FFEE
 
 [ "$(cast chain-id --rpc-url "$RPC")" = 1990 ] || { echo "not a chain-1990 fork" >&2; exit 1; }
+# Refuse to run against anything but a local anvil node (a real mainnet RPC has no anvil_nodeInfo).
+cast rpc --rpc-url "$RPC" anvil_nodeInfo >/dev/null 2>&1 || { echo "not an anvil fork; refusing" >&2; exit 1; }
 for a in $ORG $ALICE $BOB; do
   cast rpc --rpc-url "$RPC" anvil_setBalance $a 0x56BC75E2D63100000 >/dev/null # 100 QIE
   cast rpc --rpc-url "$RPC" anvil_impersonateAccount $a >/dev/null
