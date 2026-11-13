@@ -46,6 +46,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box }
+[hidden] { display: none !important }
 html { overflow-x: clip; scroll-behavior: smooth; -webkit-text-size-adjust: 100% }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--font-body); font-variant-numeric: tabular-nums }
 ::selection { background: var(--before); color: var(--bg) }
@@ -449,7 +450,7 @@ native QIE left in contract: 0</pre>
     </div>
     <div>
       <details open><summary>Is it on QIE mainnet?</summary>
-        <p id="faq-mainnet">Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes by itself once the contract is live.</p></details>
+        <p id="faq-mainnet">Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes once the deployment is added to the app's deployment list.</p></details>
       <details><summary>What if the group doesn't fill?</summary>
         <p>Then nobody is paid. After the deadline each member can take their QUSDC back with <code>claimRefund</code>, and anyone can call <code>refundAll</code> to return everyone's at once (in batches for large pools). The organizer can also cancel early, which opens the same refunds. A seat paid in QIE comes back as QUSDC.</p></details>
       <details><summary>Can the organizer run off with the money?</summary>
@@ -515,7 +516,7 @@ async function live() {
     const hours = Math.max(0, Math.round((Date.now() / 1000 - Number(word(round, 3))) / 3600))
     const rows = [
       ['Block', '#' + BigInt(block).toLocaleString('en-US')],
-      ['QIE price (QIE Oracle, QIE/USDT feed)', `${units(word(round, 1), 8, 4)}, updated ${hours} h ago`],
+      ['QIE price (QIE Oracle, QIE/USDT feed)', `${units(word(round, 1), 8, 4)} USDT, updated ${hours} h ago`],
       ['QIE for a 0.25 QUSDC seat (QIEDEX)', `${units(word(quote, 2), 18, 4)} QIE`],
     ]
     dl.replaceChildren(...rows.flatMap(([k, v]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd] }))
