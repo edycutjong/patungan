@@ -78,7 +78,8 @@ with sync_playwright() as pw:
     expect(p.locator("[data-err=title]")).to_contain_text("Give the pool a name")
     expect(p.locator("[data-err=seats]")).to_contain_text("2 to 100")
     expect(p.locator("[data-err=price]")).to_contain_text("price per seat")
-    expect(p.locator("[data-err=payee]")).to_contain_text(".qie name that exists")
+    expect(p.locator("[data-err=payee]")).to_have_text("")  # one message only: the resolve line already says "not registered"
+    expect(p.locator(".resolve")).to_contain_text("is not registered")
     assert next_id() == n0, "a form error must not send a transaction"
     p.screenshot(path=OUT / "1-new-errors.png", full_page=True)
 
@@ -94,6 +95,9 @@ with sync_playwright() as pw:
     pid = next_id()
     assert pid == n0 + 1
     expect(p.locator(".sharetext")).to_contain_text(f"/p/local/{pid}")
+    expect(p.locator("#create")).to_have_count(0)  # the form is gone after a create: no second tx from a stray tap
+    expect(p.locator("#shared")).to_contain_text(f"Pool #{pid} created")
+    expect(p.locator(".sharetext")).to_contain_text("take their QUSDC back")
     expect(p.locator(".sharetext")).to_contain_text("4 kursi × 0.25 QUSDC")
     href = p.get_by_role("link", name="Share on WhatsApp").get_attribute("href")
     assert href.startswith("https://wa.me/?text="), href

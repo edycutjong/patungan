@@ -18,7 +18,7 @@ RPC = os.environ.get("RPC", "https://rpc1mainnet.qie.digital/")
 DEP_ID = os.environ.get("DEP_ID", "mainnet-1")
 MANIFEST = os.environ.get("MANIFEST", "web/public/deployments.json")
 BUILDER_ENV = os.path.expanduser(os.environ.get("BUILDER_ENV", "~/.config/patungan/builder-wallets.env"))
-FUND_QIE = os.environ.get("FUND_QIE", "3")  # per builder wallet: one 0.25 QUSDC seat in QIE (~1.7) + gas
+FUND_QIE = os.environ.get("FUND_QIE", "4")  # per builder wallet: the swap sends up to 3 QIE for a 0.25 QUSDC seat (~1.7 is spent, the rest comes back) + gas
 QUSDC = "0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5"
 ROUTER = "0x08cd2e72e156D8563B4351eb4065C262A9f553Ef"
 WQIE = "0x0087904D95BEe9E5F24dc8852804b547981A9139"
@@ -46,6 +46,15 @@ def tx(label, key, *a, value=None):
         raise SystemExit(f"{label} reverted: {out['transactionHash']}")
     rows.append((label, out["transactionHash"], int(r["gasUsed"], 16)))
     return r
+
+
+def created_id(receipt):
+    """The pool id from this tx's own PoolCreated log (never nextId(): another user's create could land in between)."""
+    topic0 = subprocess.run(["cast", "keccak", "PoolCreated(uint256,address,address,string,uint96,uint16,uint40,string)"], capture_output=True, text=True, check=True).stdout.strip().lower()
+    for lg in receipt["logs"]:
+        if lg["address"].lower() == PAT.lower() and lg["topics"][0].lower() == topic0:
+            return int(lg["topics"][1], 16)
+    raise SystemExit("no PoolCreated log in the create receipt")
 
 
 def now():
@@ -78,7 +87,7 @@ def wallets(n):
 
 def seat_qusdc(who, k, pool, n=1):
     tx(f"{who[:8]} buys {n * SEAT / 1e6:.2f} QUSDC (QIEDEX)", k, ROUTER, "swapETHForExactTokens(uint256,address[],address,uint256)", str(n * SEAT),
-       f"[{WQIE},{QUSDC}]", who, str(now() + 600), value=3 * 10**18)
+       f"[{WQIE},{QUSDC}]", who, str(now() + 600), value=3 * 10**18)  # the router refunds the unused QIE in the same tx
     tx(f"{who[:8]} approves QUSDC", k, QUSDC, "approve(address,uint256)", PAT, str(n * SEAT))
     tx(f"{who[:8]} join({pool}) in QUSDC", k, PAT, "join(uint256,uint16)", str(pool), str(n))
 
@@ -95,8 +104,8 @@ for a, _ in ws[:nb]:
     tx(f"fund {a[:8]} with {FUND_QIE} QIE", KEY, a, value=int(float(FUND_QIE) * 10**18))
 
 seats, title, dl = (2, "Rehearsal PAID (builder wallets)", 3600) if MODE == "paid" else (6, "Badminton Sabtu (builder wallets)", 900)
-tx(f"createPool '{title}' {seats} x 0.25 QUSDC", KEY, PAT, "createPool(address,uint96,uint16,uint40,string)", payee, str(SEAT), str(seats), str(now() + dl), title)
-pool = int(cast("call", PAT, "nextId()(uint256)").split()[0])
+created = tx(f"createPool '{title}' {seats} x 0.25 QUSDC", KEY, PAT, "createPool(address,uint96,uint16,uint40,string)", payee, str(SEAT), str(seats), str(now() + dl), title)
+pool = created_id(created)
 before = int(cast("call", QUSDC, "balanceOf(address)(uint256)", payee).split()[0])
 
 if MODE == "paid":
@@ -123,4 +132,10 @@ else:
 print("\n| step | tx | gas |\n|---|---|---|")
 for label, h, g in rows:
     print(f"| {label} | {h} | {g:,} |")
-print(f"\nbuilder wallets (labelled in the UI): {', '.join(a for a, _ in ws)}")
+doc = json.load(open(MANIFEST))
+for d in doc["deployments"]:
+    if d["id"] == DEP_ID:
+        have = {a.lower() for a in d.get("builderWallets", [])}
+        d["builderWallets"] = d.get("builderWallets", []) + [a for a, _ in ws if a.lower() not in have]
+json.dump(doc, open(MANIFEST, "w"), indent=2)
+print(f"\nbuilder wallets (added to {MANIFEST} builderWallets, so every roster labels them): {', '.join(a for a, _ in ws)}")

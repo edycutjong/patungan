@@ -134,3 +134,8 @@ dt { color: var(--muted) }
 .createform .actions { position: static; background: none; padding: 6px 0 }
 .verify h3.label, .verify dl { margin-bottom: 8px }
 .verify h3.label { margin-top: 20px }
+[hidden] { display: none !important }
+#shared .actions { position: static; background: none }
+.field input:disabled { opacity: .6 }
+.label i { opacity: 1; color: #55514a }
+.link:active { opacity: .6 }

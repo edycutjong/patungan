@@ -5,6 +5,9 @@
 #   script/deploy-mainnet.sh                                      # QIE mainnet, chain 1990, rpc1 → rpc5 failover
 #   RPC=http://127.0.0.1:8547 VERIFY=0 MANIFEST=/tmp/d.json script/deploy-mainnet.sh   # rehearsal on an anvil fork
 #
+# NOTE: foundry's cast only takes the key as --private-key (ETH_PRIVATE_KEY is not read), so it is briefly visible in `ps` on this
+# machine. Accepted for a single-user laptop; use a foundry keystore if that ever changes.
+#
 # Spends real QIE on mainnet (~3M gas, a fraction of a QIE). Preflight (G1b) must pass first: the router quotes, the pair has reserves,
 # the Oracle is fresh. Constructor: maxDevBps 1500 (the deploy default), maxOracleAge 172800 s. Writes deployments.json only after
 # the contract's code is on chain and (unless VERIFY=0) Blockscout says the source is verified.
@@ -21,7 +24,16 @@ VERIFY=${VERIFY:-1}
 MANIFEST=${MANIFEST:-web/public/deployments.json}
 EXPLORER=https://mainnet.qie.digital
 DEP_ID=${DEP_ID:-mainnet-1}
+OVERWRITE=${OVERWRITE:-0}
 : "${DEPLOYER_PRIVATE_KEY:?load ~/.config/patungan/mainnet-deployer.env first}"
+# A second deploy under the same id would drop the first from the manifest (its pools would vanish from the UI).
+if [ -f "$MANIFEST" ] && [ "$OVERWRITE" != 1 ] && python3 -c "import json,sys; sys.exit(0 if any(d['id']=='$DEP_ID' for d in json.load(open('$MANIFEST'))['deployments']) else 1)"; then
+  echo "$MANIFEST already has a deployment '$DEP_ID'. Use DEP_ID=mainnet-2 (old pools keep working) or OVERWRITE=1." >&2; exit 1
+fi
+# Real money: on the public RPCs (no RPC override) require an explicit CONFIRM=1.
+if [ -z "${RPC:-}" ] && [ "${CONFIRM:-0}" != 1 ]; then
+  echo "This deploys to QIE MAINNET and spends real QIE. Re-run with CONFIRM=1 once specs/mainnet-authorized exists." >&2; exit 1
+fi
 
 pick_rpc() {
   if [ -n "${RPC:-}" ]; then echo "$RPC"; return; fi

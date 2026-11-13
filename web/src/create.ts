@@ -20,7 +20,7 @@ export async function renderCreate(root: HTMLElement) {
   const deps = await loadDeployments()
   const dep: Deployment | undefined = deps[deps.length - 1]
   const client = dep ? clientFor(dep) : undefined
-  const tomorrow = unixToWib(Math.floor(Date.now() / 1000) + 3 * 24 * 3600)
+  const defaultDeadline = unixToWib(Math.floor(Date.now() / 1000) + 3 * 24 * 3600) // a suggestion only; chain time validates
 
   root.innerHTML = `<article class="kuitansi"><div class="perf"></div><section class="sheet">
     <div class="topline"><a class="link" href="/">← Patungan</a></div>
@@ -28,24 +28,24 @@ export async function renderCreate(root: HTMLElement) {
     ${dep ? (dep.rpc ? '<p class="localnote">Local test chain (an anvil fork of QIE mainnet). Not mainnet.</p>' : '') : '<p class="localnote">The Patungan contract is not deployed on QIE mainnet yet, so pools can\'t be created. Check back soon.</p>'}
     <form id="create" class="createform" novalidate>
       <label class="field"><span class="label">Untuk pembayaran <i>(what is it for · up to ${MAX_TITLE_BYTES} bytes)</i></span>
-        <input name="title" maxlength="64" autocomplete="off" placeholder="Futsal Kamis" required><span class="err" data-err="title"></span></label>
+        <input name="title" maxlength="64" autocomplete="off" placeholder="Futsal Kamis" required><span class="err" aria-live="polite" data-err="title"></span></label>
       <div class="two">
         <label class="field"><span class="label">Kursi <i>(seats ${MIN_SEATS}–${MAX_SEATS})</i></span>
-          <input name="seats" type="number" inputmode="numeric" min="${MIN_SEATS}" max="${MAX_SEATS}" value="5" required><span class="err" data-err="seats"></span></label>
+          <input name="seats" type="number" inputmode="numeric" min="${MIN_SEATS}" max="${MAX_SEATS}" value="5" required><span class="err" aria-live="polite" data-err="seats"></span></label>
         <label class="field"><span class="label">Harga per kursi <i>(QUSDC)</i></span>
-          <input name="price" inputmode="decimal" autocomplete="off" placeholder="2" value="2" required><span class="err" data-err="price"></span></label>
+          <input name="price" inputmode="decimal" autocomplete="off" placeholder="2" value="2" required><span class="err" aria-live="polite" data-err="price"></span></label>
       </div>
       <div class="two">
         <label class="field"><span class="label">Batas bayar <i>(deadline, WIB)</i></span>
-          <input name="date" type="date" value="${tomorrow.date}" required></label>
+          <input name="date" type="date" value="${defaultDeadline.date}" required></label>
         <label class="field"><span class="label">Jam <i>(WIB)</i></span>
           <input name="time" type="time" value="20:00" required></label>
       </div>
-      <span class="err" data-err="deadline"></span>
+      <span class="err" aria-live="polite" data-err="deadline"></span>
       <label class="field"><span class="label">Penjual <i>(payee: a .qie name or a 0x address)</i></span>
         <input name="payee" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="lapangan.qie" required>
-        <span class="resolve" aria-live="polite"></span><span class="err" data-err="payee"></span></label>
-      <p class="note">The last seat pays the seller in the same transaction. If the pool doesn't fill by the deadline, every member gets their QUSDC back. No one holds the money in between: it sits in the Patungan contract.</p>
+        <span class="resolve" aria-live="polite"></span><span class="err" aria-live="polite" data-err="payee"></span></label>
+      <p class="note">The last seat pays the seller in the same transaction. If the pool doesn't fill by the deadline, each member can take their QUSDC back from the pool page (one tap, or anyone can refund everyone). No one holds the money in between: it sits in the Patungan contract.</p>
       <div class="actions"><button class="cta" type="submit"${dep ? '' : ' disabled'}>Buat patungan · Create pool</button></div>
       <p class="msg" aria-live="polite"></p>
     </form>
@@ -107,30 +107,53 @@ export async function renderCreate(root: HTMLElement) {
     void submit()
   })
 
+  /** While a tx is being prepared or signed, nothing in the form can change under it. */
+  function lock(on: boolean) {
+    Array.from(form.elements).forEach((el) => ((el as HTMLInputElement | HTMLButtonElement).disabled = on))
+  }
+
   async function submit() {
     if (!dep || !client) return
     const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!
     msg.textContent = ''
     ;['title', 'seats', 'price', 'deadline', 'payee'].forEach((k) => setErr(k, ''))
     btn.disabled = true
+    let created_ok = false
     try {
       if (!hasWallet()) throw new Error('NoWallet')
-      const block = await client.getBlock()
-      const c: CreateChecked & { errors: Record<string, string | undefined> } = checkCreate({ title: val('title'), seats: Number(val('seats')), price: val('price'), date: val('date'), time: val('time'), chainNow: Number(block.timestamp) })
+      lock(true)
+      clearTimeout(t) // a pending debounced resolve must not clear the payee mid-submit
       await resolvePayee()
-      if (!payee) c.errors.payee = 'Enter a .qie name that exists, or a 0x address.'
+      const pay = payee
+      const seats = Number(val('seats'))
+      const title = val('title').trim()
+      const priceText = val('price')
+      const date = val('date')
+      const time = val('time')
+      const check = async () => {
+        const block = await client.getBlock()
+        const c: CreateChecked & { errors: Record<string, string | undefined> } = checkCreate({ title, seats, price: priceText, date, time, chainNow: Number(block.timestamp) })
+        if (!pay && !resolveEl.textContent?.startsWith('✗')) c.errors.payee = 'Enter a .qie name that exists, or a 0x address.'
+        return c
+      }
+      let c = await check()
       const bad = Object.entries(c.errors)
-      if (bad.length || !payee) {
+      if (bad.length || !pay) {
         bad.forEach(([k, v]) => setErr(k, v!))
+        lock(false)
         return
       }
       const { account } = await connect()
-      const seats = Number(val('seats'))
-      const title = val('title').trim()
+      c = await check() // chain time again: a slow wallet connect must not leave the deadline under the 10-minute floor
+      if (Object.keys(c.errors).length) {
+        Object.entries(c.errors).forEach(([k, v]) => setErr(k, v!))
+        lock(false)
+        return
+      }
       const call =
-        payee.kind === 'name'
-          ? { functionName: 'createPoolByName', args: [payee.label, payee.address, c.price!, seats, c.deadline!, title] }
-          : { functionName: 'createPool', args: [payee.address, c.price!, seats, c.deadline!, title] }
+        pay.kind === 'name'
+          ? { functionName: 'createPoolByName', args: [pay.label, pay.address, c.price!, seats, c.deadline!, title] }
+          : { functionName: 'createPool', args: [pay.address, c.price!, seats, c.deadline!, title] }
       const req = { account, address: dep.address, abi: patunganAbi, ...call } as never
       const { request } = await client.simulateContract(req)
       const gas = ((await client.estimateContractGas(req)) * 5n) / 4n
@@ -142,13 +165,14 @@ export async function renderCreate(root: HTMLElement) {
       const created = parseEventLogs({ abi: patunganAbi, eventName: 'PoolCreated', logs: r.logs }).find((l) => l.address.toLowerCase() === dep.address.toLowerCase())
       if (!created) throw new Error('No PoolCreated event in the receipt')
       const id = created.args.id
-      msg.innerHTML = `✓ Pool #${id} created. ${txLink(dep, hash)}`
-      form.hidden = true
-      share(dep, id, { title, seats, price: c.price!, deadline: c.deadline!, payeeLabel: payee.kind === 'name' ? `${payee.label}.qie` : shortAddr(payee.address) }, hash)
+      form.remove() // gone, not hidden: no second create tx from a stray tap
+      created_ok = true
+      share(dep, id, { title, seats, price: c.price!, deadline: c.deadline!, payeeLabel: pay.kind === 'name' ? `${pay.label}.qie` : shortAddr(pay.address) }, hash)
     } catch (e) {
       msg.textContent = createError(e)
+      lock(false)
     } finally {
-      btn.disabled = false
+      if (!created_ok) btn.disabled = false
     }
   }
 
@@ -156,7 +180,8 @@ export async function renderCreate(root: HTMLElement) {
     const url = `${location.origin}/p/${d.id}/${id}`
     const text = shareText({ ...p, url })
     const box = root.querySelector<HTMLElement>('#shared')!
-    box.innerHTML = `<h2 class="label">Bagikan · Share</h2>
+    box.innerHTML = `<p class="status">✓ Pool #${id} created. ${txLink(d, hash as `0x${string}`)}</p>
+      <h2 class="label">Bagikan · Share</h2>
       <p class="status">${esc(p.title)} · ${p.seats} seats × ${fmtQusdc(p.price)} QUSDC</p>
       <pre class="sharetext">${esc(text)}</pre>
       <div class="actions">
@@ -165,7 +190,7 @@ export async function renderCreate(root: HTMLElement) {
         <a class="cta ghost" href="${url}">Open the pool page</a>
       </div>
       <p class="msg" id="copied" aria-live="polite"></p>
-      <p class="data">Create tx: ${txLink(d, hash as `0x${string}`)}</p>`
+      `
     const copied = box.querySelector<HTMLElement>('#copied')!
     box.querySelector<HTMLButtonElement>('[data-copy]')!.onclick = async () => {
       try {

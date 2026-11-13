@@ -74,12 +74,13 @@ export function checkCreate(i: CreateInput): CreateChecked {
 /** The WhatsApp message: Bahasa first, English second. Says plainly what happens to the money. */
 export function shareText(p: { title: string; url: string; seats: number; price: bigint; deadline: number; payeeLabel: string }): string {
   const price = fmtQusdc(p.price)
+  const title = p.title.replace(/[*_~`]/g, '') // WhatsApp formatting characters would break the bold title
   const when = fmtWib(BigInt(p.deadline))
   return [
-    `*${p.title}* — patungan ${p.seats} kursi × ${price} QUSDC`,
-    `Bayar kursimu sebelum ${when}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, semua dapat uang kembali (QUSDC).`,
+    `*${title}* — patungan ${p.seats} kursi × ${price} QUSDC`,
+    `Bayar kursimu sebelum ${when}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, tiap anggota bisa mengambil kembali QUSDC-nya dari halaman patungan.`,
     ``,
-    `Join ${p.seats} seats × ${price} QUSDC before ${when}. The last seat pays ${p.payeeLabel} in the same transaction; if the pool doesn't fill, everyone is refunded in QUSDC.`,
+    `Join ${p.seats} seats × ${price} QUSDC before ${when}. The last seat pays ${p.payeeLabel} in the same transaction; if the pool doesn't fill, every member can take their QUSDC back from the pool page.`,
     p.url,
   ].join('\n')
 }

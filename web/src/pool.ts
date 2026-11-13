@@ -291,18 +291,22 @@ class PoolPage {
     const out = el.querySelector<HTMLElement>('.msg')!
     btn.onclick = async () => {
       const to = input.value.trim()
+      const lower = to.toLowerCase()
+      if (isAddress(to) && (lower === '0x0000000000000000000000000000000000000000' || lower === this.dep.address.toLowerCase() || lower === d.organizer.toLowerCase()))
+        return void (out.textContent = "That address can't receive gas from here (zero address, the Patungan contract, or your own wallet). Paste a member's address.")
       if (!isAddress(to))
         return void (out.textContent = isBadChecksum(to) ? "That address doesn't pass its checksum (the capital letters are off). Copy it again." : 'Paste the member\'s 0x address (42 characters).')
       btn.disabled = true
       try {
         const account = await this.ensureAccount()
+        if (account.toLowerCase() !== d.organizer.toLowerCase()) throw new Error('NotOrganizerWallet')
         out.textContent = 'Confirm in your wallet…'
         const hash = await walletFor(account).sendTransaction({ to: to as Address, value: GAS_DRIP_WEI })
         out.innerHTML = `Sent, waiting for a QIE block… ${this.txLink(hash)}`
         const r = await this.client.waitForTransactionReceipt({ hash })
         out.innerHTML = r.status === 'success' ? `✓ Sent 0.02 QIE for gas to ${shortAddr(to)}. ${this.txLink(hash)}` : 'The transfer reverted.'
       } catch (e) {
-        out.textContent = e instanceof BaseError && e.walk((x) => x instanceof UserRejectedRequestError) ? 'You cancelled in the wallet. Nothing was sent.' : 'Could not send the QIE. Nothing moved except, if it was mined, the network fee.'
+        out.textContent = e instanceof Error && e.message === 'NotOrganizerWallet' ? "The connected wallet is not this pool's organizer. Switch to the organizer wallet." : e instanceof BaseError && e.walk((x) => x instanceof UserRejectedRequestError) ? 'You cancelled in the wallet. Nothing was sent.' : 'Could not send the QIE. Nothing moved except, if it was mined, the network fee.'
       } finally {
         btn.disabled = false
       }
