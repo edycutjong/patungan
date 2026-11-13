@@ -21,6 +21,8 @@ Four bugs injected one at a time into `src/Patungan.sol`; the local suite fails 
 refund balance not zeroed (double refund) · last seat never pays · Oracle guard loosened 2× · payout leaves `totalHeld` counted.
 
 ## Measured gas (transaction receipts on an anvil fork): `script/local-flow.sh` → `local-flow-run.txt`
+One run (fork block in the run file). The fork follows live mainnet state, so a re-run can differ by a few thousand gas
+(the last-seat join read 255,574 on an earlier run the same night and 266,146 on this one).
 | Transaction | gasUsed |
 |---|---|
 | deploy Patungan | 2,990,231 |
@@ -28,7 +30,7 @@ refund balance not zeroed (double refund) · last seat never pays · Oracle guar
 | createPool (address payee) | 128,973 |
 | join, QUSDC (first seat) | 182,672 |
 | joinWithQIE (middle seat) | 246,961 |
-| joinWithQIE (last seat, pays the payee in the same tx) | 255,574 |
+| joinWithQIE (last seat, pays the payee in the same tx) | 266,146 |
 | cancel (before the first join) | 32,930 |
 | claimRefund (one member) | 95,422 |
 | refundAll (2 members refunded, 1 skipped) | 120,539 |
