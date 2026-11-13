@@ -4,12 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Patungan · the kitty that pays the court, or pays everyone back</title>
-<meta name="description" content="Group payments with a deadline on QIE. Friends pay seats in QUSDC or QIE; the last seat pays the payee in the same transaction; a missed deadline refunds everyone." />
+<meta name="description" content="Group payments with a deadline on QIE: the last seat pays the payee in the same transaction, and a missed deadline refunds everyone." />
+<meta name="author" content="Edy Cu Tjong" />
 <meta name="theme-color" content="#FAF6EC" />
 <meta property="og:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
 <meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Built for QIE mainnet." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Patungan" />
+<meta property="og:url" content="https://patungan-qie.vercel.app/" />
+<meta property="og:image" content="https://patungan-qie.vercel.app/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: a three-seat Patungan receipt stamped LUNAS" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
+<meta name="twitter:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone." />
+<meta name="twitter:image" content="https://patungan-qie.vercel.app/og.png" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%231d2a47%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-size=%2718%27 font-family=%27Arial%27 font-weight=%27bold%27 text-anchor=%27middle%27 fill=%27%23faf6ec%27%3EP%3C/text%3E%3C/svg%3E" />
 <link rel="preload" href="/fonts/anybody-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -130,6 +140,10 @@ p { margin: 0 0 14px }
 .receipt .num { font: 850 clamp(44px, 5vw, 68px)/1 var(--font-display); font-stretch: 75% }
 .receipt p { font-size: 15px; margin: 8px 0 6px }
 .receipt a { font: 400 12.5px var(--font-data); color: var(--muted) }
+.receipt a, footer a, .mark { transition: color 120ms ease, text-decoration-color 120ms ease }
+.receipt a:hover { color: var(--before); text-decoration-thickness: 2px }
+footer a:hover { color: #FFFFFF; text-decoration-thickness: 2px }
+.mark:hover { color: var(--before) }
 
 /* demo pair */
 .demo { padding: 40px 0 72px }
