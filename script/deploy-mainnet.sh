@@ -9,8 +9,9 @@
 # machine. Accepted for a single-user laptop; use a foundry keystore if that ever changes.
 #
 # Spends real QIE on mainnet (~3M gas, a fraction of a QIE). Preflight (G1b) must pass first: the router quotes, the pair has reserves,
-# the Oracle is fresh. Constructor: maxDevBps 1500 (the deploy default), maxOracleAge 172800 s. Writes deployments.json only after
-# the contract's code is on chain and (unless VERIFY=0) Blockscout says the source is verified.
+# the Oracle is fresh. Constructor: maxDevBps 1500 (the deploy default), maxOracleAge 172800 s. Writes deployments.json right after
+# the contract's code is on chain (before verification, so a verify hiccup never orphans the deploy); then, unless VERIFY=0, requires a
+# full Blockscout source match and exits non-zero with a verify-only hint if it does not get one.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 QUSDC=0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5
@@ -88,7 +89,7 @@ EOF
 if [ "$VERIFY" = 1 ]; then
   echo "== verify on Blockscout"
   forge verify-contract "$ADDR" src/Patungan.sol:Patungan --chain-id 1990 --verifier blockscout --verifier-url "$EXPLORER/api/" \
-    --constructor-args "${ARGS#0x}" --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch
+    --constructor-args "${ARGS#0x}" --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch || echo "forge verify-contract exited non-zero; checking Blockscout anyway" >&2
   OK=$(curl -s "$EXPLORER/api/v2/smart-contracts/$ADDR" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(bool(d.get("is_verified")) and not d.get("is_partially_verified"))')
   [ "$OK" = True ] || { echo "Blockscout does not show a FULL source match for $ADDR. The contract IS deployed and in the manifest; do not redeploy. Re-run only the verify: forge verify-contract $ADDR src/Patungan.sol:Patungan --chain-id 1990 --verifier blockscout --verifier-url $EXPLORER/api/ --constructor-args ${ARGS#0x} --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch" >&2; exit 1; }
   echo "verified: $EXPLORER/address/$ADDR#code"

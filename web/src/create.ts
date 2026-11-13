@@ -115,6 +115,11 @@ export async function renderCreate(root: HTMLElement) {
     void submit()
   })
 
+  function focusFirstError() {
+    const key = form.querySelector<HTMLElement>('.err:not(:empty)')?.dataset.err
+    ;(form.elements.namedItem(key === 'deadline' ? 'date' : (key ?? '')) as HTMLInputElement | null)?.focus()
+  }
+
   /** While a tx is being prepared or signed, nothing in the form can change under it. */
   function lock(on: boolean) {
     Array.from(form.elements).forEach((el) => ((el as HTMLInputElement | HTMLButtonElement).disabled = on))
@@ -149,7 +154,7 @@ export async function renderCreate(root: HTMLElement) {
       if (bad.length || !pay) {
         bad.forEach(([k, v]) => setErr(k, v!))
         lock(false)
-        form.querySelector<HTMLElement>('.err:not(:empty)')?.parentElement?.querySelector('input')?.focus()
+        focusFirstError()
         return
       }
       const { account } = await connect()
@@ -187,7 +192,7 @@ export async function renderCreate(root: HTMLElement) {
       } else {
         msg.textContent = createError(e)
         lock(false)
-        form.querySelector<HTMLElement>('.err:not(:empty)')?.parentElement?.querySelector('input')?.focus()
+        focusFirstError()
       }
     } finally {
       if (!created_ok) btn.disabled = false
