@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Patungan · the kitty that pays the court, or pays everyone back</title>
+<meta name="description" content="Group payments with a deadline on QIE. Friends pay seats in QUSDC or QIE; the last seat pays the payee in the same transaction; a missed deadline refunds everyone." />
+<meta name="theme-color" content="#FAF6EC" />
+<meta property="og:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
+<meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Built for QIE mainnet." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Patungan" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%231d2a47%27/%3E%3Ctext x=%2716%27 y=%2722%27 font-size=%2718%27 font-family=%27Arial%27 font-weight=%27bold%27 text-anchor=%27middle%27 fill=%27%23faf6ec%27%3EP%3C/text%3E%3C/svg%3E" />
+<link rel="preload" href="/fonts/anybody-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+<style>
+@font-face { font-family: "Anybody"; src: url(/fonts/anybody-latin-wdth-normal.woff2) format("woff2"); font-weight: 100 900; font-stretch: 50% 150%; font-display: swap }
+@font-face { font-family: "Anybody"; font-style: italic; src: url(/fonts/anybody-latin-wdth-italic.woff2) format("woff2"); font-weight: 100 900; font-stretch: 50% 150%; font-display: swap }
+@font-face { font-family: "Plus Jakarta Sans"; src: url(/fonts/plus-jakarta-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap }
+@font-face { font-family: "Plus Jakarta Sans"; src: url(/fonts/plus-jakarta-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap }
+@font-face { font-family: "Plus Jakarta Sans"; src: url(/fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2"); font-weight: 700; font-display: swap }
+@font-face { font-family: "Red Hat Mono"; src: url(/fonts/red-hat-mono-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap }
+
+:root {
+  --bg:      #FAF6EC;
+  --copy:    #F6E3E5;
+  --ink:     #1D2A47;
+  --muted:   #6E6A5E;
+  --rule:    #DCD2BC;
+  --before:  #2D5BA6;
+  --after:   #C23A2E;
+  --refund:  #2F7550;
+  --font-display: "Anybody", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body:    "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-data:    "Red Hat Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box }
+html { overflow-x: clip; scroll-behavior: smooth; -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--font-body); font-variant-numeric: tabular-nums }
+::selection { background: var(--before); color: var(--bg) }
+a { color: inherit }
+:focus-visible { outline: 2px solid var(--before); outline-offset: 3px; border-radius: 2px }
+img { max-width: 100%; display: block }
+.wrap { width: min(1180px, 100% - 40px); margin-inline: auto }
+.label { font: 700 12px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
+.label i { font-style: normal; text-transform: none; letter-spacing: .02em; font-weight: 600 }
+.data { font-family: var(--font-data); font-size: .86em; overflow-wrap: anywhere }
+.display { font-family: var(--font-display); font-stretch: 75%; font-weight: 850; text-transform: uppercase; letter-spacing: .01em; line-height: .92 }
+h2.display { font-size: clamp(34px, 4.6vw, 60px); margin: 10px 0 18px; max-width: 20ch; text-wrap: balance }
+section[id] { scroll-margin-top: 64px }
+p { margin: 0 0 14px }
+.lede { max-width: 62ch; font-size: 18px }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 10; background: rgb(250 246 236 / .92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule) }
+.nav .wrap { display: flex; align-items: center; gap: 22px; min-height: 60px }
+.mark { margin-right: auto; font: 850 24px/1 var(--font-display); font-stretch: 75%; letter-spacing: .03em; text-decoration: none; text-transform: uppercase }
+.nav nav { display: flex; gap: 20px; font-size: 15px; font-weight: 600 }
+.nav nav a { text-decoration: none; color: var(--muted) }
+.nav nav a:hover { color: var(--ink) }
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 6px; font: 700 16px var(--font-body); text-decoration: none; border: 1.5px solid var(--ink); background: var(--bg); color: var(--ink); cursor: pointer; transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--ink) }
+.btn:active { transform: translateY(1px); box-shadow: none }
+.btn.solid { background: var(--ink); color: var(--bg) }
+.btn.small { min-height: 38px; padding: 0 14px; font-size: 14px }
+
+/* hero: ruled receipt-book paper with a perforated stub */
+.hero { position: relative; padding: 64px 0 72px; background:
+  radial-gradient(circle at 9px 9px, var(--rule) 3px, transparent 3.4px) 0 0 / 18px 18px repeat-y,
+  repeating-linear-gradient(to bottom, transparent 0 39px, rgb(220 210 188 / .55) 39px 40px) }
+.hero::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; border-left: 1px dashed var(--rule) }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 56px; align-items: center }
+.hero h1 { font-size: clamp(46px, 6.6vw, 96px); margin: 18px 0 22px }
+.hero h1 .hl { font-style: italic; color: var(--refund); display: block }
+.hero .sub { max-width: 58ch; font-size: 18.5px }
+.hero .sub b { font-weight: 700 }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0 16px }
+.proof { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: var(--muted) }
+.copy-cmd { font: 400 14px var(--font-data); background: var(--copy); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 10px; color: var(--ink); cursor: pointer; transition: background-color 120ms ease }
+.copy-cmd:hover { background: #F1D6D9 }
+.load > * { animation: rise 520ms cubic-bezier(.2, .7, .2, 1) both }
+.load > :nth-child(2) { animation-delay: 80ms } .load > :nth-child(3) { animation-delay: 160ms }
+.load > :nth-child(4) { animation-delay: 240ms } .load > :nth-child(5) { animation-delay: 320ms }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) } }
+.load.settled > * { animation: none }
+
+/* the kuitansi card (hero replay of the fork run) */
+.kuitansi { position: relative; background: #FFFDF7; border: 1px solid var(--rule); border-radius: 4px; box-shadow: 0 1px 0 var(--rule), 0 18px 40px -22px rgb(29 42 71 / .35); padding: 0 22px 20px; margin: 0 }
+.perf { height: 16px; margin: 0 -22px 14px; background: radial-gradient(circle at 8px 8px, var(--bg) 3.4px, transparent 3.8px) 0 0 / 16px 16px repeat-x; border-bottom: 1px dashed var(--rule) }
+.k-title { font: 850 34px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 4px 0 12px }
+.k-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end }
+.amount { border: 1.5px solid var(--ink); padding: 6px 10px; display: inline-block }
+.amount b { font-size: 21px } .amount small { display: block; font-size: 12.5px; color: var(--muted) }
+.counter { font: 850 64px/1 var(--font-display); font-stretch: 75% }
+.counter span { color: var(--muted) }
+.terbilang { font-size: 13.5px; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 8px 0 }
+.roster-wrap { position: relative }
+.roster { list-style: none; padding: 0; margin: 12px 0 0; border-top: 1.5px solid var(--ink) }
+.roster li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--rule); font-size: 15px; transition: color 200ms ease }
+.roster .n { font-weight: 700; font-size: 13px; color: var(--muted) }
+.roster .tag { font: 600 12px var(--font-body); color: var(--before); border: 1px solid var(--before); border-radius: 3px; padding: 1px 5px; margin-left: 6px }
+.roster .tick { font: 700 12px var(--font-body); letter-spacing: .08em; color: var(--before) }
+.roster li.empty { color: var(--muted); font-style: italic }
+.roster li.empty .tick { visibility: hidden }
+.stamp { position: absolute; left: 30%; top: 18px; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 18px 4px; font: 850 58px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: transparent; color: var(--after); text-align: center; pointer-events: none }
+.stamp small { display: block; font: 600 14px var(--font-body); letter-spacing: .08em }
+.stamp.kembali { color: var(--refund) }
+.stamp.hide { opacity: 0 }
+.stamp.land { animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
+@keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .92 } }
+.paidline { font-weight: 700; font-size: 16px; margin: 16px 0 2px }
+.kuitansi figcaption { font-size: 12.5px; color: var(--muted); margin-top: 12px; line-height: 1.5 }
+
+/* status band (the pink carbon duplicate) */
+.status { background: var(--copy); border-block: 1px solid #E9CDD1; padding: 22px 0 }
+.status .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px }
+.status p { margin: 6px 0 0; font-size: 15.5px }
+.live dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 6px 0 0; font-size: 15px }
+.live dt { color: var(--muted) } .live dd { margin: 0; font-weight: 600 }
+
+/* receipts */
+.receipts { padding: 64px 0 40px }
+.receipts .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1.5px solid var(--ink) }
+.receipt { padding: 18px 18px 8px 0; border-right: 1px solid var(--rule) }
+.receipt + .receipt { padding-left: 18px } .receipt:last-child { border-right: 0 }
+.receipt .num { font: 850 clamp(44px, 5vw, 68px)/1 var(--font-display); font-stretch: 75% }
+.receipt p { font-size: 15px; margin: 8px 0 6px }
+.receipt a { font: 400 12.5px var(--font-data); color: var(--muted) }
+
+/* demo pair */
+.demo { padding: 40px 0 72px }
+.pair { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 18px }
+.phone { margin: 0; border: 10px solid var(--ink); border-radius: 28px; overflow: hidden; background: var(--bg); box-shadow: 0 24px 50px -28px rgb(29 42 71 / .5) }
+.phone img { width: 100%; height: auto }
+.shot-cap { font-size: 13px; color: var(--muted); margin-top: 10px }
+.term { margin: 0; background: var(--ink); color: #E8E4D8; border-radius: 8px; padding: 18px 20px 20px; font: 400 14px/1.75 var(--font-data); overflow-x: auto; min-height: 330px; white-space: pre }
+.term .bar { display: block; color: rgb(232 228 216 / .6); font-size: 12.5px; margin-bottom: 10px; white-space: normal }
+.term .hot { color: #FFFFFF; background: rgb(250 246 236 / .16); padding: 0 3px }
+.steps { list-style: none; counter-reset: s; margin: 22px 0 0; padding: 0; border-top: 1.5px solid var(--ink) }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 15px }
+.steps li::before { content: counter(s); font-weight: 700; font-size: 13px; color: var(--muted) }
+.steps .ok { font: 700 12px var(--font-body); letter-spacing: .08em; color: var(--before) }
+.steps-head { margin: 26px 0 0 }
+.pair > *, .term-wrap { min-width: 0 }
+.term-wrap .shot-cap { margin-top: 10px }
+
+/* three screens */
+.screens { background: linear-gradient(var(--bg), #F3EDE0); padding: 64px 0 72px; border-top: 1px solid var(--rule) }
+.strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 28px }
+.strip figure { margin: 0 }
+.strip .phone { border-width: 8px; border-radius: 22px; max-height: 560px }
+.strip .phone img { object-fit: cover; object-position: top }
+.strip figcaption { margin-top: 12px; font-size: 15px }
+.strip figcaption b { display: block; font: 850 22px/1.1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin-bottom: 4px }
+
+/* how it works: asymmetric bento */
+.how { padding: 72px 0 }
+.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-top: 26px }
+.card { border: 1px solid var(--rule); background: #FFFDF7; border-radius: 6px; padding: 20px 20px 18px; transition: border-color 140ms ease, transform 140ms ease }
+.card:hover { border-color: var(--ink); transform: translateY(-2px) }
+.card h3 { font: 850 26px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 6px 0 10px }
+.card p { font-size: 15.5px }
+.chip { display: inline-block; font: 400 12.5px var(--font-data); border: 1px solid var(--rule); background: var(--bg); border-radius: 3px; padding: 2px 7px; margin: 2px 4px 0 0 }
+.c1 { grid-column: span 4 } .c2 { grid-column: span 2 } .c3 { grid-column: span 2 } .c4 { grid-column: span 2 } .c5 { grid-column: span 2 }
+.c6 { grid-column: span 6; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 2fr); gap: 24px; align-items: center }
+.c1 .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 6px; font-weight: 700; font-size: 15px }
+.c1 .flow span { border: 1.5px solid var(--ink); border-radius: 4px; padding: 4px 10px; background: var(--bg) }
+.c1 .flow i { font-style: normal; color: var(--muted) }
+.c1 .flow .paid { border: 3px double var(--ink) }
+
+/* honest band: navy ink */
+.honest { background: var(--ink); color: var(--bg); padding: 72px 0 }
+.honest .label { color: rgb(250 246 236 / .72) }
+.honest ol { list-style: none; counter-reset: q; padding: 0; margin: 26px 0 0; border-top: 1px solid rgb(250 246 236 / .25) }
+.honest li { counter-increment: q; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 20px 0; border-bottom: 1px solid rgb(250 246 236 / .25) }
+.honest li::before { content: "0" counter(q); font: 850 30px/1 var(--font-display); font-stretch: 75%; color: rgb(250 246 236 / .5) }
+.honest blockquote { margin: 0; font-size: clamp(19px, 2.1vw, 24px); line-height: 1.45 }
+.honest cite { display: block; font: 400 13px var(--font-data); font-style: normal; color: rgb(250 246 236 / .72); margin-top: 6px }
+.honest code { font-family: var(--font-data); font-size: .85em }
+
+/* FAQ */
+.faq { padding: 72px 0 }
+.faq .cols { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: 48px }
+details { border-bottom: 1px solid var(--rule) }
+details:first-of-type { border-top: 1.5px solid var(--ink) }
+summary { cursor: pointer; list-style: none; padding: 18px 36px 18px 0; position: relative; font-weight: 700; font-size: 18px; transition: color 120ms ease }
+summary::-webkit-details-marker { display: none }
+summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font: 850 30px/1 var(--font-display); transition: transform 160ms ease }
+details[open] summary::after { transform: rotate(45deg) }
+summary:hover { color: var(--before) }
+details p { max-width: 68ch; font-size: 16px }
+code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 188 / .4); padding: 0 4px; border-radius: 3px }
+
+/* final + footer */
+.final { background: var(--copy); padding: 72px 0; text-align: center; border-top: 1px solid #E9CDD1 }
+.final h2 { font-size: clamp(36px, 5.4vw, 72px); margin: 0 auto 26px; max-width: 16ch }
+.final .ctas { justify-content: center }
+footer { background: var(--ink); color: rgb(250 246 236 / .78); padding: 28px 0; font-size: 14px }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between }
+footer a { color: var(--bg) }
+footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
+
+@media (max-width: 900px) {
+  .nav nav a.opt { display: none }
+  .hero { padding: 40px 0 52px }
+  .hero .wrap, .status .wrap, .pair, .faq .cols { grid-template-columns: minmax(0, 1fr); gap: 32px }
+  .receipts .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .receipt:nth-child(2) { border-right: 0 } .receipt:nth-child(3) { padding-left: 0 }
+  .receipt:nth-child(n+3) { border-top: 1px solid var(--rule) }
+  .strip { grid-template-columns: minmax(0, 1fr); max-width: 360px; margin-inline: auto }
+  .bento { grid-template-columns: minmax(0, 1fr) }
+  .c1, .c2, .c3, .c4, .c5, .c6 { grid-column: auto } .c6 { grid-template-columns: minmax(0, 1fr) }
+  .pair .phone { max-width: 340px }
+}
+@media (max-width: 560px) {
+  .nav nav, .nav .btn.opt { display: none }
+  .hero::before { display: none }
+  .k-title { font-size: 28px } .counter { font-size: 52px }
+  .live dl { grid-template-columns: minmax(0, 1fr); gap: 0 } .live dd { margin-bottom: 8px }
+  .stamp { left: 18%; font-size: 48px }
+  .term { font-size: 12px; padding: 14px }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important }
+}
+@media print { .nav, .ctas, .copy-cmd { display: none } .hero, .status, .final, .honest, footer { -webkit-print-color-adjust: exact; print-color-adjust: exact } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" /><feDisplacementMap in="SourceGraphic" scale="2.2" /></filter>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="mark" href="/">Patungan</a>
+    <nav aria-label="Sections"><a href="#demo">Demo</a><a href="#how">How it works</a><a class="opt" href="#honest">Honest limits</a><a class="opt" href="#faq">FAQ</a></nav>
+    <a class="btn small opt" href="/pitch/">Pitch deck</a>
+    <a class="btn small solid" href="/pools">Open the app</a>
+  </div>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div class="load">
+      <p class="label">Commerce &amp; Real World · QIE Mainnet Hackathon 3.0</p>
+      <h1 id="h1" class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
+      <p class="sub">Rina books the futsal court and shares one link. Each friend pays a seat in QUSDC, or in QIE that QIEDEX swaps in the same transaction. <b>The last seat pays the court owner's <code>.qie</code> name in that transaction.</b> If the deadline passes first, <b>every friend takes their QUSDC back.</b></p>
+      <div class="ctas">
+        <a class="btn" href="https://github.com/edycutjong/patungan">View on GitHub</a>
+        <a class="btn" href="/pitch/">Pitch deck</a>
+        <a class="btn solid" href="/pools">Open the app</a>
+      </div>
+      <p class="proof">No admin key · deadline refunds · <button class="copy-cmd" type="button" data-copy="forge test -vv" title="Copy">forge test -vv</button> <span>forks QIE mainnet through the public RPC</span></p>
+    </div>
+
+    <figure class="kuitansi" id="hero-card" aria-label="A three-seat pool: seat three fills and the payee test.qie is paid, stamped LUNAS">
+      <div class="perf" aria-hidden="true"></div>
+      <p class="label">Kuitansi patungan · <i>group payment</i></p>
+      <p class="k-title">Futsal Kamis</p>
+      <p class="label" style="margin:0">Untuk pembayaran · <i>pays</i></p>
+      <div class="k-row">
+        <div>
+          <p style="margin:2px 0 10px;font-weight:700;font-size:19px">test.qie</p>
+          <p class="amount"><b>0.25 QUSDC</b><small>per seat · 0.75 QUSDC in total</small></p>
+        </div>
+        <p class="counter" aria-live="polite"><b id="filled">3</b><span>/</span>3</p>
+      </div>
+      <p class="terbilang"><span class="label">Terbilang</span> nol koma dua lima QUSDC per kursi</p>
+      <div class="roster-wrap">
+        <ol class="roster">
+          <li><span class="n">1</span><span class="who">seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li>
+          <li><span class="n">2</span><span class="who">seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
+          <li><span class="n">3</span><span class="who">seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
+        </ol>
+        <div class="stamp" id="stamp" aria-hidden="true">LUNAS<small>PAID IN FULL</small></div>
+      </div>
+      <p class="paidline">✓ Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
+      <figcaption>Replay of a recorded run on an anvil fork of QIE mainnet (block 11,883,271): <code>test.qie</code> is a real mainnet name; the last seat used 267,557 gas. Source: <code>evidence/local-flow-run.txt</code>.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="status" aria-label="Deployment status">
+  <div class="wrap">
+    <div>
+      <p class="label">Status</p>
+      <p id="dep-status"><b>Mainnet deployment pending.</b> The contract and app are built and tested against the real QUSDC, QIEDEX, Zone and Oracle contracts on a fork of QIE mainnet. This line reads the app's deployment list and changes when the contract is live.</p>
+    </div>
+    <div class="live">
+      <p class="label">QIE mainnet, read by this page just now</p>
+      <dl id="live"><dt>Block</dt><dd>reading…</dd><dt>QIE/USD (QIE Oracle)</dt><dd>reading…</dd><dt>QIE for a 0.25 QUSDC seat (QIEDEX)</dt><dd>reading…</dd></dl>
+    </div>
+  </div>
+</section>
+
+<section class="receipts" aria-label="Measured results">
+  <div class="wrap">
+    <div class="grid">
+      <div class="receipt"><p class="num" data-count="71">71</p><p>contract tests pass; 24 of them read live mainnet state</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">evidence/forge-test-run.txt</a></div>
+      <div class="receipt"><p class="num"><span data-count="5">5</span> / 5</p><p>injected bugs caught by those tests</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">evidence/mutation-run.txt</a></div>
+      <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for the last seat: swap, seat and payout in one transaction</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/local-flow-run.txt">evidence/local-flow-run.txt</a></div>
+      <div class="receipt"><p class="num" data-count="4">4</p><p>QIE mainnet components: QUSDC, QIEDEX, Zone <code>.qie</code>, QIE Oracle</p><a href="https://github.com/edycutjong/patungan#the-four-qie-components-it-runs-on">README · components</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="demo" id="demo" aria-labelledby="demo-h">
+  <div class="wrap">
+    <p class="label">Lembar 01 · <i>the last seat</i></p>
+    <h2 class="display" id="demo-h">The last seat fills the roster and pays the seller</h2>
+    <div class="pair">
+      <div>
+        <figure class="phone"><img src="/shots/4-lunas-after-last-seat.webp" width="390" height="1040" alt="Pool page after the last seat: 4 of 4 seats paid, a red LUNAS stamp, and the line Paid in full: 1.00 QUSDC to the payee" loading="lazy" /></figure>
+        <p class="shot-cap">The app after the last seat, in a browser run on a mainnet fork (<code>evidence/e2e-local/</code>, pool #2).</p>
+      </div>
+      <div class="term-wrap">
+<pre class="term" id="term" aria-label="Terminal output of script/local-flow.sh"><span class="bar">$ script/local-flow.sh · anvil fork of QIE mainnet</span>fork block 11883271
+deploy Patungan                              gasUsed 3002560
+createPoolByName (.qie resolve + title)      gasUsed 177664
+join (QUSDC, first seat)                     gasUsed 182829
+joinWithQIE (middle seat)                    gasUsed 248372
+<span class="hot">joinWithQIE (last seat -> payee paid)        gasUsed 267557</span>
+<span class="hot">payee received 750000 QUSDC units in the last-seat tx (expect 750000)</span>
+createPool (address payee)                   gasUsed 128973
+cancel (before first join)                   gasUsed 32930
+claimRefund (one member)                     gasUsed 95422
+refundAll (2 members, 1 skipped)             gasUsed 120539
+pool 3 refundedCount 3
+escrow QUSDC 500000 = totalHeld 500000 (pool 2's two seats)
+native QIE left in contract: 0</pre>
+        <p class="shot-cap">A separate run of <code>script/local-flow.sh</code>, lines from <code>evidence/local-flow-run.txt</code>: the payee (owner of <code>test.qie</code>) gains 0.75 QUSDC inside the last seat's own transaction, and no QIE is left behind in the contract.</p>
+        <p class="label steps-head">Browser run on a mainnet fork · <i>selected steps from <code>evidence/e2e-local-run.txt</code></i></p>
+        <ol class="steps">
+          <li><span>Dave joins pool #2 paying QIE (quote + 1%, one tx)</span><span class="ok">OK</span></li>
+          <li><span>Erin pays the last seat in QUSDC (approve, pay) and the LUNAS stamp lands; payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
+          <li><span>the short pool passes its deadline: Fran gets her money back; the stamp says DIKEMBALIKAN</span><span class="ok">OK</span></li>
+          <li><span>a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)</span><span class="ok">OK</span></li>
+          <li><span>a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button</span><span class="ok">OK</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screens" aria-labelledby="screens-h">
+  <div class="wrap">
+    <p class="label">Lembar 02 · <i>one link, two endings</i></p>
+    <h2 class="display" id="screens-h">Share, pay in QIE, or get it back</h2>
+    <div class="strip">
+      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet with the pool link and a ready WhatsApp message" loading="lazy" /></div>
+        <figcaption><b>Bagikan · share</b>The organizer creates the pool and sends one link to the group chat.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet paying 0.25 QUSDC in QIE with a QIEDEX quote and the Oracle cap" loading="lazy" /></div>
+        <figcaption><b>Bayar pakai QIE · pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/6-dikembalikan.webp" width="390" height="918" alt="Pool past its deadline with a green DIKEMBALIKAN stamp: everyone was refunded" loading="lazy" /></div>
+        <figcaption><b>Dikembalikan · refunded</b>The deadline passed with an open seat, so the member took the QUSDC back.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <p class="label">Lembar 03 · <i>how it works</i></p>
+    <h2 class="display" id="how-h">Four QIE contracts, one flow</h2>
+    <div class="bento">
+      <article class="card c1">
+        <p class="label">Bayar pakai QIE · <i>pay with QIE</i></p>
+        <h3>The swap hides inside the join</h3>
+        <p><code>joinWithQIE</code> buys the exact seat price in QUSDC on QIEDEX and seats the member in the same call. A member holding only QIE never opens a swap screen.</p>
+        <div class="flow" aria-label="QIE, then QIEDEX, then QUSDC escrow, then the payee"><span>QIE</span><i>→</i><span>QIEDEX</span><i>→</i><span>QUSDC escrow</span><i>→</i><span class="paid">payee, on the last seat</span></div>
+        <span class="chip">QIEDEX router · swapETHForExactTokens</span><span class="chip">WQIE/QUSDC pair</span>
+      </article>
+      <article class="card c2">
+        <p class="label">Lunas · <i>paid in full</i></p>
+        <h3>The last seat pays</h3>
+        <p>When the final seat is bought, the whole pool goes to the payee in that transaction. Nobody presses a release button.</p>
+        <span class="chip">QUSDC · PoolPaid</span>
+      </article>
+      <article class="card c3">
+        <p class="label">Untuk pembayaran · <i>pays</i></p>
+        <h3>Pay a name</h3>
+        <p>The payee can be a <code>.qie</code> name. It is resolved when the pool is created and stored, so a later change to the name cannot redirect the money.</p>
+        <span class="chip">Zone · domainOwnerByName</span>
+      </article>
+      <article class="card c4">
+        <p class="label">Batas harga · <i>price guard</i></p>
+        <h3>The Oracle sets the ceiling</h3>
+        <p>The QIE/USD feed bounds what the swap may cost. It is a sanity bound, never the price paid.</p>
+        <span class="chip">QIE Oracle · latestRoundData</span>
+      </article>
+      <article class="card c5">
+        <p class="label">Dikembalikan · <i>refunded</i></p>
+        <h3>The deadline refunds</h3>
+        <p>Past the deadline, or after a cancel, each member claims their QUSDC, or anyone triggers refunds for everyone.</p>
+        <span class="chip">claimRefund · refundAll</span>
+      </article>
+      <article class="card c6">
+        <div>
+          <p class="label">Peta · <i>the map</i></p>
+          <h3>Where the money moves</h3>
+          <p>Member to escrow, escrow to the payee or back to the member. Patungan has no admin key and no withdraw function.</p>
+        </div>
+        <img src="/architecture.svg" width="960" height="470" alt="Architecture: a member joins with QUSDC or QIE; QIE is swapped through QIEDEX within the Oracle bound; Patungan escrows QUSDC; the last seat pays the payee resolved from Zone; past the deadline members are refunded" loading="lazy" />
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="honest" id="honest" aria-labelledby="honest-h">
+  <div class="wrap">
+    <p class="label">Tembusan · <i>the carbon copy we keep</i></p>
+    <h2 class="display" id="honest-h">What is not true yet, in our own words</h2>
+    <ol>
+      <li><div><blockquote>Mainnet transactions: none yet (see Status). Everything above ran on a fork or mocks.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li><div><blockquote>Distinct wallets are not distinct people. Any usage count we publish counts wallets.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li><div><blockquote>QUSDC has an issuer-controlled <code>VAULT_ROLE</code>; if the issuer burns escrowed QUSDC, the pool cannot make everyone whole.</blockquote><cite>README · Honest limits</cite></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="faq-h">
+  <div class="wrap cols">
+    <div>
+      <p class="label">Pertanyaan · <i>questions</i></p>
+      <h2 class="display" id="faq-h">What a judge would ask</h2>
+    </div>
+    <div>
+      <details open><summary>Is it on QIE mainnet?</summary>
+        <p>Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes by itself once the contract is live.</p></details>
+      <details><summary>What if the group doesn't fill?</summary>
+        <p>Then nobody is paid. After the deadline each member can take their QUSDC back with <code>claimRefund</code>, and anyone can call <code>refundAll</code> to return everyone's at once. The organizer can also cancel early, which opens the same refunds. A seat paid in QIE comes back as QUSDC.</p></details>
+      <details><summary>Can the organizer run off with the money?</summary>
+        <p>The organizer never holds it. QUSDC sits in the contract until the last seat, then goes to the payee fixed when the pool was created. Patungan has no admin key and no withdraw function. The one risk outside our code is QUSDC's issuer role, listed above.</p></details>
+      <details><summary>Why swap QIE inside the join?</summary>
+        <p>Members who hold QIE can pay without a separate swap. <code>joinWithQIE</code> buys exactly the seat price and returns unused QIE in the same transaction. It reverts if the swap would cost more than the Oracle's fair value plus a guard set at deploy (1,500 bps in the fork runs; the contract caps it at 2,000).</p></details>
+      <details><summary>What does the <code>.qie</code> name do?</summary>
+        <p>The organizer types the payee as a name such as <code>test.qie</code>. Patungan resolves it through Zone's <code>domainOwnerByName</code> at creation and stores the address. If the name points somewhere else by the time the transaction is mined, creation reverts with <code>PayeeChanged</code>.</p></details>
+      <details><summary>What is mocked, and who are the users?</summary>
+        <p>The demo path is not mocked: the browser runs and <code>script/local-flow.sh</code> use a mainnet fork. 47 of the 71 contract tests use mocks for speed and fuzzing. There are no real users yet; pools the builder creates are labelled as builder wallets.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final" aria-labelledby="final-h">
+  <div class="wrap">
+    <h2 class="display" id="final-h">Everyone chips in, or everyone gets their money back.</h2>
+    <div class="ctas">
+      <a class="btn" href="https://github.com/edycutjong/patungan">View on GitHub</a>
+      <a class="btn" href="/pitch/">Pitch deck</a>
+      <a class="btn solid" href="/pools">Open the app</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Patungan · built from scratch for QIE Mainnet Hackathon 3.0 · MIT licence</span>
+    <nav aria-label="Footer"><a href="https://github.com/edycutjong/patungan">Repository</a><a href="/pitch/">Pitch deck</a><a href="/pools">App</a><a href="/verify">Verify the contract</a><a href="https://mainnet.qie.digital/">QIE explorer</a></nav>
+  </div>
+</footer>
+
+<script type="module">
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+const RPCS = [1, 2, 3, 4, 5].map((n) => `https://rpc${n}mainnet.qie.digital/`)
+const ORACLE = '0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17'
+const ROUTER = '0x08cd2e72e156D8563B4351eb4065C262A9f553Ef'
+// getAmountsIn(250000, [WQIE, QUSDC]): QIE needed for one 0.25 QUSDC seat
+const QUOTE = '0x1f00ca74000000000000000000000000000000000000000000000000000000000003d090000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000087904d95bee9e5f24dc8852804b547981a91390000000000000000000000003f43da82ec9a4f5285f10faf1f26eca7319e5da5'
+
+async function rpc(method, params) {
+  for (const url of RPCS) {
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }), signal: AbortSignal.timeout(6000) })
+      const j = await r.json()
+      if (j.result) return j.result
+    } catch { /* next RPC */ }
+  }
+  throw new Error('no QIE RPC answered')
+}
+const word = (hex, i) => BigInt('0x' + hex.slice(2 + 64 * i, 2 + 64 * (i + 1)))
+const units = (v, d, places) => (Number(v) / 10 ** d).toLocaleString('en-US', { minimumFractionDigits: places, maximumFractionDigits: places })
+
+async function live() {
+  const dl = document.getElementById('live')
+  try {
+    const [block, round, quote] = await Promise.all([
+      rpc('eth_blockNumber', []),
+      rpc('eth_call', [{ to: ORACLE, data: '0xfeaf968c' }, 'latest']),
+      rpc('eth_call', [{ to: ROUTER, data: QUOTE }, 'latest']),
+    ])
+    const hours = Math.max(0, Math.round((Date.now() / 1000 - Number(word(round, 3))) / 3600))
+    const rows = [
+      ['Block', '#' + BigInt(block).toLocaleString('en-US')],
+      ['QIE/USD (QIE Oracle)', `$${units(word(round, 1), 8, 4)}, updated ${hours} h ago`],
+      ['QIE for a 0.25 QUSDC seat (QIEDEX)', `${units(word(quote, 2), 18, 4)} QIE`],
+    ]
+    dl.replaceChildren(...rows.flatMap(([k, v]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd] }))
+  } catch (e) {
+    dl.innerHTML = '<dt>QIE mainnet</dt><dd>not answering right now; try again in a minute</dd>'
+  }
+}
+
+async function deployment() {
+  try {
+    const { deployments } = await (await fetch('/deployments.json', { cache: 'no-store' })).json()
+    const main = (deployments || []).find((d) => d.chainId === 1990 && !d.rpc)
+    if (!main) return
+    const el = document.getElementById('dep-status')
+    el.innerHTML = '<b>Live on QIE mainnet.</b> Contract <a class="data"></a>. Every pool, join, payout and refund is on the explorer.'
+    const a = el.querySelector('a')
+    a.href = `https://mainnet.qie.digital/address/${main.address}`
+    a.textContent = main.address
+  } catch { /* keep the pending line */ }
+}
+
+function countUps() {
+  const els = [...document.querySelectorAll('[data-count]')]
+  if (reduce || !('IntersectionObserver' in window)) return
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue
+      io.unobserve(e.target)
+      const to = Number(e.target.dataset.count)
+      const t0 = performance.now()
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / 900)
+        e.target.textContent = Math.round(to * (1 - (1 - k) ** 3)).toLocaleString('en-US')
+        if (k < 1) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    }
+  }, { threshold: 0.6 })
+  els.forEach((el) => io.observe(el))
+}
+
+function replayTerm() {
+  const pre = document.getElementById('term')
+  if (reduce || !('IntersectionObserver' in window)) return
+  const bar = pre.querySelector('.bar').outerHTML
+  const lines = pre.innerHTML.replace(bar, '').split('\n')
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return
+    io.disconnect()
+    let i = 0
+    pre.innerHTML = bar
+    const next = () => { pre.innerHTML += (i ? '\n' : '') + lines[i++]; if (i < lines.length) setTimeout(next, 240) }
+    next()
+  }, { threshold: 0.4 })
+  io.observe(pre)
+}
+
+function replayHero() {
+  setTimeout(() => document.querySelector('.load').classList.add('settled'), 1100)
+  if (reduce) return
+  const rows = [...document.querySelectorAll('#hero-card .roster li')]
+  const filled = document.getElementById('filled')
+  const stamp = document.getElementById('stamp')
+  const full = rows.map((li) => li.querySelector('.who').innerHTML)
+  const set = (i, on) => {
+    rows[i].classList.toggle('empty', !on)
+    rows[i].querySelector('.who').innerHTML = on ? full[i] : 'kursi kosong · open seat'
+  }
+  rows.forEach((li) => (li.querySelector('.tick').textContent = 'HELD'))
+  set(1, false); set(2, false)
+  filled.textContent = '1'
+  stamp.classList.add('hide')
+  setTimeout(() => { set(1, true); filled.textContent = '2' }, 500)
+  setTimeout(() => { set(2, true); filled.textContent = '3' }, 1000)
+  setTimeout(() => {
+    rows.forEach((li) => (li.querySelector('.tick').textContent = 'PAID'))
+    stamp.classList.remove('hide'); stamp.classList.add('land')
+  }, 1250)
+  setTimeout(() => stamp.classList.remove('land'), 1600)
+}
+
+document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(b.dataset.copy); const t = b.textContent; b.textContent = 'copied'; setTimeout(() => (b.textContent = t), 1200) } catch { /* clipboard blocked */ }
+}))
+
+replayHero()
+countUps()
+replayTerm()
+void live()
+void deployment()
+</script>
+</body>
+</html>

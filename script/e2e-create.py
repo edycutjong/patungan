@@ -155,7 +155,7 @@ with sync_playwright() as pw:
     p.screenshot(path=OUT / "5-verify.png", full_page=True)
 
     step("home has the create button")
-    p.goto(APP)
+    p.goto(f"{APP}/pools")
     p.get_by_role("link", name="Start a pool").click()
     expect(p.locator("h1")).to_contain_text("Buat patungan")
     b.close()

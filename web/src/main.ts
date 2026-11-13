@@ -39,7 +39,7 @@ const STAMP: Record<string, string> = {
   'closed-empty': 'CLOSED',
 }
 
-/** Home (S5, minimal until P4): live QIE component reads + every pool on each known deployment, newest first. */
+/** App home at /pools (the landing page is index.html at /): live QIE component reads + every pool on each known deployment, newest first. */
 async function home() {
   app.innerHTML = `<section class="home">
     <h1>Patungan</h1>

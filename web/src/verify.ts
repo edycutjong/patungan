@@ -109,7 +109,7 @@ export async function renderVerify(root: HTMLElement) {
   } catch {
     loadFailed = true
   }
-  root.innerHTML = `<section class="home verify"><div class="topline"><a class="link" href="/">← Patungan</a></div>
+  root.innerHTML = `<section class="home verify"><div class="topline"><a class="link" href="/pools">← Patungan</a></div>
     <h1>Verify</h1>
     <p class="lede">What a juror can check in two minutes. The contract, its four components, solvency and the events below are read live from QIE mainnet and its explorer when the page opens. The notes at the bottom are static text.</p>
     <div id="vbody"><p class="data">Reading…</p></div>

@@ -74,7 +74,7 @@ interface Activity {
 export async function renderPool(root: HTMLElement, depId: string, poolId: bigint) {
   const dep = (await loadDeployments()).find((d) => d.id === depId)
   if (!dep) {
-    root.innerHTML = `<section class="notice"><h1>Unknown deployment</h1><p>No Patungan deployment called “${esc(depId)}”. <a href="/">Home</a></p></section>`
+    root.innerHTML = `<section class="notice"><h1>Unknown deployment</h1><p>No Patungan deployment called “${esc(depId)}”. <a href="/pools">All pools</a></p></section>`
     return
   }
   const page = new PoolPage(root, dep, poolId)
@@ -230,7 +230,7 @@ class PoolPage {
     try {
       const d = await this.read()
       if (!d) {
-        this.root.innerHTML = `<section class="notice"><h1>Pool #${this.id} not found</h1><p>Pool #${this.id} doesn't exist on this Patungan deployment. <a href="/">Home</a></p></section>`
+        this.root.innerHTML = `<section class="notice"><h1>Pool #${this.id} not found</h1><p>Pool #${this.id} doesn't exist on this Patungan deployment. <a href="/pools">All pools</a></p></section>`
         return
       }
       if (d.blockNumber < this.appliedBlock) return

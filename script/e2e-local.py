@@ -180,7 +180,7 @@ with sync_playwright() as pw:
 
     step("home lists every pool with its state")
     p = page_as(b)
-    p.goto(APP)
+    p.goto(f"{APP}/pools")
     expect(p.locator(".pools li")).to_have_count(DBL, timeout=15000)
     expect(p.locator(".mini.paid")).to_have_count(2)
     p.screenshot(path=OUT / "0-home.png", full_page=True)

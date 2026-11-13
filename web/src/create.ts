@@ -23,7 +23,7 @@ export async function renderCreate(root: HTMLElement) {
   const defaultDeadline = unixToWib(Math.floor(Date.now() / 1000) + 3 * 24 * 3600) // a suggestion only; chain time validates
 
   root.innerHTML = `<article class="kuitansi"><div class="perf"></div><section class="sheet">
-    <div class="topline"><a class="link" href="/">← Patungan</a></div>
+    <div class="topline"><a class="link" href="/pools">← Patungan</a></div>
     <h1>Buat patungan<br><small class="sub">Start a pool</small></h1>
     ${dep ? (dep.rpc ? '<p class="localnote">Local test chain (an anvil fork of QIE mainnet). Not mainnet.</p>' : '') : '<p class="localnote">The Patungan contract is not deployed on QIE mainnet yet, so pools can\'t be created. Check back soon.</p>'}
     <form id="create" class="createform" novalidate>
@@ -186,7 +186,7 @@ export async function renderCreate(root: HTMLElement) {
     } catch (e) {
       if (sentHash) {
         // The tx was signed and sent: it may still be pending or already mined. Never invite a second create.
-        msg.innerHTML = `Your transaction was sent but we couldn't confirm it. ${txLink(dep, sentHash)} Check the explorer or <a href="/">the pool list</a> before trying again, or you may create the pool twice. <button class="link" type="button" data-reload>Start over</button>`
+        msg.innerHTML = `Your transaction was sent but we couldn't confirm it. ${txLink(dep, sentHash)} Check the explorer or <a href="/pools">the pool list</a> before trying again, or you may create the pool twice. <button class="link" type="button" data-reload>Start over</button>`
         msg.querySelector<HTMLButtonElement>('[data-reload]')!.onclick = () => location.reload()
         created_ok = true // keep the form locked
       } else {
