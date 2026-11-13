@@ -62,13 +62,18 @@ export async function renderCreate(root: HTMLElement) {
   }
   let payee: Payee | undefined
   let resolveSeq = 0
+  let resolveFailed = false
+  let sentHash: string | undefined
 
   async function resolvePayee() {
     const seq = ++resolveSeq
     payee = undefined
+    resolveFailed = false
     setErr('payee', '')
     const raw = val('payee').trim()
     if (!raw || !client) return void (resolveEl.textContent = '')
+    if (isAddress(raw) && (/^0x0{40}$/.test(raw) || raw.toLowerCase() === dep!.address.toLowerCase()))
+      return void (resolveEl.textContent = "✗ That address can't be the seller (the zero address or the Patungan contract).")
     if (isAddress(raw)) {
       payee = { kind: 'address', address: raw as Address }
       resolveEl.textContent = `✓ A plain address: ${shortAddr(raw)}. Make sure the seller can use QUSDC at this address.`
@@ -87,7 +92,10 @@ export async function renderCreate(root: HTMLElement) {
       payee = { kind: 'name', label, address: owner }
       resolveEl.textContent = `✓ ${label}.qie resolves to ${shortAddr(owner)}. The money goes to this address, fixed when the pool is created.`
     } catch {
-      if (seq === resolveSeq) resolveEl.textContent = "Couldn't reach the QIE name registry. Try again in a moment."
+      if (seq === resolveSeq) {
+        resolveFailed = true
+        resolveEl.textContent = "Couldn't reach the QIE name registry. Try again in a moment."
+      }
     }
   }
   let t: ReturnType<typeof setTimeout> | undefined
@@ -133,7 +141,7 @@ export async function renderCreate(root: HTMLElement) {
       const check = async () => {
         const block = await client.getBlock()
         const c: CreateChecked & { errors: Record<string, string | undefined> } = checkCreate({ title, seats, price: priceText, date, time, chainNow: Number(block.timestamp) })
-        if (!pay && !resolveEl.textContent?.startsWith('✗')) c.errors.payee = 'Enter a .qie name that exists, or a 0x address.'
+        if (!pay && !resolveFailed && !resolveEl.textContent?.startsWith('✗')) c.errors.payee = 'Enter a .qie name that exists, or a 0x address.'
         return c
       }
       let c = await check()
@@ -141,6 +149,7 @@ export async function renderCreate(root: HTMLElement) {
       if (bad.length || !pay) {
         bad.forEach(([k, v]) => setErr(k, v!))
         lock(false)
+        form.querySelector<HTMLElement>('.err:not(:empty)')?.parentElement?.querySelector('input')?.focus()
         return
       }
       const { account } = await connect()
@@ -159,6 +168,7 @@ export async function renderCreate(root: HTMLElement) {
       const gas = ((await client.estimateContractGas(req)) * 5n) / 4n
       msg.textContent = 'Confirm in your wallet…'
       const hash = await walletFor(account).writeContract({ ...(request as object), gas } as never)
+      sentHash = hash
       msg.innerHTML = `Sent, waiting for a QIE block… ${txLink(dep, hash)}`
       const r = await client.waitForTransactionReceipt({ hash })
       if (r.status !== 'success') throw new Error('Reverted')
@@ -169,8 +179,16 @@ export async function renderCreate(root: HTMLElement) {
       created_ok = true
       share(dep, id, { title, seats, price: c.price!, deadline: c.deadline!, payeeLabel: pay.kind === 'name' ? `${pay.label}.qie` : shortAddr(pay.address) }, hash)
     } catch (e) {
-      msg.textContent = createError(e)
-      lock(false)
+      if (sentHash) {
+        // The tx was signed and sent: it may still be pending or already mined. Never invite a second create.
+        msg.innerHTML = `Your transaction was sent but we couldn't confirm it. ${txLink(dep, sentHash)} Check the explorer or <a href="/">the pool list</a> before trying again, or you may create the pool twice. <button class="link" type="button" data-reload>Start over</button>`
+        msg.querySelector<HTMLButtonElement>('[data-reload]')!.onclick = () => location.reload()
+        created_ok = true // keep the form locked
+      } else {
+        msg.textContent = createError(e)
+        lock(false)
+        form.querySelector<HTMLElement>('.err:not(:empty)')?.parentElement?.querySelector('input')?.focus()
+      }
     } finally {
       if (!created_ok) btn.disabled = false
     }

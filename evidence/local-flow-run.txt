@@ -1,9 +1,9 @@
-fork block 11880775
+fork block 11880830
 deploy Patungan                              gasUsed 2990231
-Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880776)
+Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880831)
 createPoolByName (.qie resolve + title)      gasUsed 177664
 join (QUSDC, first seat)                     gasUsed 182672
-joinWithQIE (middle seat)                    gasUsed 236389
+joinWithQIE (middle seat)                    gasUsed 246961
 joinWithQIE (last seat -> payee paid)        gasUsed 255574
 payee received 750000 QUSDC units in the last-seat tx (expect 750000)
 createPool (address payee)                   gasUsed 128973

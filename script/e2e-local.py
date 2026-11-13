@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Click through the core flow in a real browser against a LOCAL anvil fork of QIE mainnet.
 
-Prereqs: anvil fork on :8547 + script/local-flow.sh (deploys, seeds pools 1-4, writes deployments.local.json),
+Prereqs (use a FRESH fork each run, then `cast rpc evm_mine`; wallets keep QUSDC between runs): anvil fork on :8547 + script/local-flow.sh (deploys, seeds pools 1-4, writes deployments.local.json),
 then `npm --prefix web run dev -- --port 5179 --strictPort`. Usage: python3 script/e2e-local.py [screenshot_dir]
 The page gets an injected EIP-1193 provider that forwards to anvil, where test accounts are impersonated (no keys).
 """

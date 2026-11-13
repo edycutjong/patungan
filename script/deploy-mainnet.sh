@@ -30,8 +30,9 @@ OVERWRITE=${OVERWRITE:-0}
 if [ -f "$MANIFEST" ] && [ "$OVERWRITE" != 1 ] && python3 -c "import json,sys; sys.exit(0 if any(d['id']=='$DEP_ID' for d in json.load(open('$MANIFEST'))['deployments']) else 1)"; then
   echo "$MANIFEST already has a deployment '$DEP_ID'. Use DEP_ID=mainnet-2 (old pools keep working) or OVERWRITE=1." >&2; exit 1
 fi
-# Real money: on the public RPCs (no RPC override) require an explicit CONFIRM=1.
-if [ -z "${RPC:-}" ] && [ "${CONFIRM:-0}" != 1 ]; then
+# Real money: anything that is not a local anvil node (including a public RPC set by hand) requires an explicit CONFIRM=1.
+case "${RPC:-}" in http://127.0.0.1:*|http://localhost:*) LOCAL=1 ;; *) LOCAL=0 ;; esac
+if [ "$LOCAL" != 1 ] && [ "${CONFIRM:-0}" != 1 ]; then
   echo "This deploys to QIE MAINNET and spends real QIE. Re-run with CONFIRM=1 once specs/mainnet-authorized exists." >&2; exit 1
 fi
 
@@ -73,15 +74,6 @@ GAS=$(cast receipt --rpc-url "$RPC" "$TX" gasUsed)
 echo "Patungan $ADDR · block $BLOCK · gas $GAS · tx $TX"
 echo "reads: maxDevBps $(cast call --rpc-url "$RPC" "$ADDR" 'maxDevBps()(uint256)') · isSolvent $(cast call --rpc-url "$RPC" "$ADDR" 'isSolvent()(bool)')"
 
-if [ "$VERIFY" = 1 ]; then
-  echo "== verify on Blockscout"
-  forge verify-contract "$ADDR" src/Patungan.sol:Patungan --chain-id 1990 --verifier blockscout --verifier-url "$EXPLORER/api/" \
-    --constructor-args "${ARGS#0x}" --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch
-  OK=$(curl -s "$EXPLORER/api/v2/smart-contracts/$ADDR" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("is_verified"))')
-  [ "$OK" = True ] || { echo "Blockscout does not show the source as verified (is_verified=$OK)" >&2; exit 1; }
-  echo "verified: $EXPLORER/address/$ADDR#code"
-fi
-
 python3 - "$MANIFEST" "$DEP_ID" "$ADDR" "$BLOCK" "$DEPLOYER" "$TX" <<'EOF'
 import json, os, sys
 path, dep_id, addr, block, deployer, tx = sys.argv[1:]
@@ -93,4 +85,13 @@ doc["deployments"] = [d for d in doc["deployments"] if d["id"] != dep_id] + [{
 json.dump(doc, open(path, "w"), indent=2)
 print("manifest updated:", path)
 EOF
+if [ "$VERIFY" = 1 ]; then
+  echo "== verify on Blockscout"
+  forge verify-contract "$ADDR" src/Patungan.sol:Patungan --chain-id 1990 --verifier blockscout --verifier-url "$EXPLORER/api/" \
+    --constructor-args "${ARGS#0x}" --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch
+  OK=$(curl -s "$EXPLORER/api/v2/smart-contracts/$ADDR" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(bool(d.get("is_verified")) and not d.get("is_partially_verified"))')
+  [ "$OK" = True ] || { echo "Blockscout does not show a FULL source match for $ADDR. The contract IS deployed and in the manifest; do not redeploy. Re-run only the verify: forge verify-contract $ADDR src/Patungan.sol:Patungan --chain-id 1990 --verifier blockscout --verifier-url $EXPLORER/api/ --constructor-args ${ARGS#0x} --compiler-version 0.8.28 --evm-version shanghai --num-of-optimizations 200 --watch" >&2; exit 1; }
+  echo "verified: $EXPLORER/address/$ADDR#code"
+fi
+
 echo "next: redeploy the web app (cd web && vercel deploy --prod), add the tx to evidence/ and specs/mainnet-spend.md"

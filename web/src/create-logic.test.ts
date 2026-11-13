@@ -65,6 +65,7 @@ describe('share', () => {
     expect(t).toContain('Futsal Kamis')
     expect(t).toContain('12 kursi × 2.00 QUSDC')
     expect(t).toContain('Fri 20 Nov 20:00 WIB')
+    expect(t).toContain('sebelum Jum 20 Nov 20:00 WIB')
     expect(t).toContain('mengambil kembali QUSDC')
     expect(t).toContain('take their QUSDC back')
     expect(shareText({ title: 'a*b_c', url: 'u', seats: 2, price: 1_000_000n, deadline: 1_800_000_000, payeeLabel: 'x' })).toContain('*abc*')

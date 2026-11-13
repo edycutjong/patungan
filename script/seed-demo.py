@@ -24,6 +24,9 @@ ROUTER = "0x08cd2e72e156D8563B4351eb4065C262A9f553Ef"
 WQIE = "0x0087904D95BEe9E5F24dc8852804b547981A9139"
 SEAT = 250_000
 KEY = os.environ["DEPLOYER_PRIVATE_KEY"]
+LOCAL = RPC.startswith(("http://127.0.0.1:", "http://localhost:"))
+if not LOCAL and os.environ.get("CONFIRM") != "1":
+    raise SystemExit("This sends real QIE on mainnet (funding ~%s QIE per builder wallet + swaps + gas). Re-run with CONFIRM=1 once specs/mainnet-authorized exists." % FUND_QIE)
 PAT = next(d for d in json.load(open(MANIFEST))["deployments"] if d["id"] == DEP_ID)["address"]
 
 
@@ -36,6 +39,20 @@ def cast(sub, *a, key=None, check=True):
 
 
 rows = []
+_chain = subprocess.run(["cast", "chain-id", "--rpc-url", RPC], capture_output=True, text=True).stdout.strip()
+assert _chain == "1990", f"not chain 1990 (got {_chain!r})"
+
+
+def label_builders(addrs):
+    """Persist the builder-wallet labels (atomic) BEFORE any funds move, so an interrupted run can never leave them unlabelled."""
+    doc = json.load(open(MANIFEST))
+    for d in doc["deployments"]:
+        if d["id"] == DEP_ID:
+            have = {a.lower() for a in d.get("builderWallets", [])}
+            d["builderWallets"] = d.get("builderWallets", []) + [a for a in addrs if a.lower() not in have]
+    tmp = MANIFEST + ".tmp"
+    json.dump(doc, open(tmp, "w"), indent=2)
+    os.replace(tmp, MANIFEST)
 
 
 def tx(label, key, *a, value=None):
@@ -100,6 +117,8 @@ def seat_qie(who, k, pool, n=1):
 nb = 3 if MODE == "refund" else 2
 ws = wallets(nb + 1)  # B1..Bnb are members, the last is the payee
 payee = ws[-1][0]
+label_builders([a for a, _ in ws])
+print(f"will fund {nb} wallets x {FUND_QIE} QIE from the deployer (plus swaps and gas); builder labels written to {MANIFEST}", flush=True)
 for a, _ in ws[:nb]:
     tx(f"fund {a[:8]} with {FUND_QIE} QIE", KEY, a, value=int(float(FUND_QIE) * 10**18))
 
@@ -132,10 +151,4 @@ else:
 print("\n| step | tx | gas |\n|---|---|---|")
 for label, h, g in rows:
     print(f"| {label} | {h} | {g:,} |")
-doc = json.load(open(MANIFEST))
-for d in doc["deployments"]:
-    if d["id"] == DEP_ID:
-        have = {a.lower() for a in d.get("builderWallets", [])}
-        d["builderWallets"] = d.get("builderWallets", []) + [a for a, _ in ws if a.lower() not in have]
-json.dump(doc, open(MANIFEST, "w"), indent=2)
 print(f"\nbuilder wallets (added to {MANIFEST} builderWallets, so every roster labels them): {', '.join(a for a, _ in ws)}")

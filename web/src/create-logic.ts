@@ -78,11 +78,21 @@ export function shareText(p: { title: string; url: string; seats: number; price:
   const when = fmtWib(BigInt(p.deadline))
   return [
     `*${title}* — patungan ${p.seats} kursi × ${price} QUSDC`,
-    `Bayar kursimu sebelum ${when}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, tiap anggota bisa mengambil kembali QUSDC-nya dari halaman patungan.`,
+    `Bayar kursimu sebelum ${fmtWibId(p.deadline)}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, tiap anggota bisa mengambil kembali QUSDC-nya dari halaman patungan.`,
     ``,
     `Join ${p.seats} seats × ${price} QUSDC before ${when}. The last seat pays ${p.payeeLabel} in the same transaction; if the pool doesn't fill, every member can take their QUSDC back from the pool page.`,
     p.url,
   ].join('\n')
+}
+
+const ID_DAY = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+const ID_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+/** "Sel 17 Nov 20:00 WIB": the Bahasa paragraph of the share text. */
+export function fmtWibId(deadline: number): string {
+  const d = new Date((deadline + WIB_OFFSET_S) * 1000)
+  const hh = String(d.getUTCHours()).padStart(2, '0')
+  const mm = String(d.getUTCMinutes()).padStart(2, '0')
+  return `${ID_DAY[d.getUTCDay()]} ${d.getUTCDate()} ${ID_MON[d.getUTCMonth()]} ${hh}:${mm} WIB`
 }
 
 export const whatsappLink = (text: string) => `https://wa.me/?text=${encodeURIComponent(text)}`
