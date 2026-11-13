@@ -10,13 +10,14 @@ import {IQieDexRouter} from "./interfaces/IQieDexRouter.sol";
 import {IQieZone} from "./interfaces/IQieZone.sol";
 import {IAggregatorV3} from "./interfaces/IAggregatorV3.sol";
 
-/// @title Patungan: group-buy escrow on QIE mainnet
+/// @title Patungan: group-buy escrow for QIE mainnet
 /// @notice An organizer opens a pool (seats x price in QUSDC, a deadline, a payee). Members pay their seats in QUSDC,
 /// or in native QIE that this contract swaps to QUSDC through QIEDEX in the same transaction. The transaction that
 /// fills the last seat pays the payee the whole amount. A pool that misses its deadline (or is cancelled by its
 /// organizer) refunds every member in QUSDC.
 /// @dev No owner, no pause, no upgrade, no sweep: QUSDC leaves this contract only to a pool's payee (last seat) or to
-/// a member (refund). The QIE Oracle is a sanity bound on the swap, never the price paid.
+/// a member (refund). The QIE Oracle is a sanity bound on the swap, never the price paid (the bound assumes
+/// 1 QUSDC = 1 USD).
 contract Patungan is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -223,7 +224,7 @@ contract Patungan is ReentrancyGuard {
     function refundAll(uint256 id, uint256 from, uint256 count) external nonReentrant {
         if (!isRefundable(id)) revert NotRefundable();
         address[] storage list = members[id];
-        uint256 end = Math.min(list.length, from + count);
+        uint256 end = _end(list.length, from, count);
         for (uint256 i = from; i < end; ++i) {
             address m = list[i];
             uint256 amount = paid[id][m];
@@ -280,7 +281,7 @@ contract Patungan is ReentrancyGuard {
         returns (address[] memory addrs, uint16[] memory seats, uint256[] memory owed)
     {
         address[] storage list = members[id];
-        uint256 end = Math.min(list.length, from + count);
+        uint256 end = _end(list.length, from, count);
         uint256 len = end > from ? end - from : 0;
         addrs = new address[](len);
         seats = new uint16[](len);
@@ -416,6 +417,12 @@ contract Patungan is ReentrancyGuard {
         // forge-lint: disable-next-line(unsafe-typecast) -- amount <= price (uint96) * seats (uint16) < 2^112
         pools[id].held += uint128(amount);
         totalHeld += amount;
+    }
+
+    /// @dev min(len, from + count) without overflow for any from/count.
+    function _end(uint256 len, uint256 from, uint256 count) private pure returns (uint256) {
+        if (from >= len) return from;
+        return count >= len - from ? len : from + count;
     }
 
     function _path() private view returns (address[] memory path) {

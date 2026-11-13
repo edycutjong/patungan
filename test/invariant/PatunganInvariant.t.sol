@@ -16,6 +16,7 @@ contract Handler is Test {
     uint256[] public ids;
     mapping(uint256 => uint256) public refundedSum; // ghost: Σ Refunded amounts per pool
     uint256 public paidOutSum; // ghost: Σ PoolPaid totals
+    uint256 public donated; // ghost: QUSDC sent to the contract directly
 
     constructor(Patungan p, MockQUSDC q, MockOracle o, address payee_) {
         (pat, qusdc, oracle, payee) = (p, q, o, payee_);
@@ -96,8 +97,10 @@ contract Handler is Test {
 
     /// Anyone can send QUSDC to the contract directly; it must never be counted as anyone's money.
     function donate(uint256 actorSeed, uint32 amount) external {
+        uint256 amt = bound(amount, 1, 1e6);
         vm.prank(_actor(actorSeed));
-        qusdc.transfer(address(pat), bound(amount, 1, 1e6));
+        qusdc.transfer(address(pat), amt);
+        donated += amt;
     }
 
     function _beforePayout(uint256 id, uint16 n) internal {
@@ -131,7 +134,7 @@ contract PatunganInvariantTest is PatunganBase {
         targetContract(address(h));
     }
 
-    /// escrow QUSDC balance ≥ totalHeld == Σ held[p]  (≥: direct donations)
+    /// escrow QUSDC balance == totalHeld + direct donations, and totalHeld == Σ held[p]
     function invariant_conservation_totalHeld() public view {
         uint256 sum;
         for (uint256 i; i < h.idsLength(); ++i) {
@@ -139,6 +142,8 @@ contract PatunganInvariantTest is PatunganBase {
         }
         assertEq(pat.totalHeld(), sum, "totalHeld == sum of held");
         assertGe(qusdc.balanceOf(address(pat)), pat.totalHeld(), "solvent");
+        // exact: everything above totalHeld is a direct donation, nothing else
+        assertEq(qusdc.balanceOf(address(pat)), pat.totalHeld() + h.donated(), "balance == totalHeld + donations");
         assertTrue(pat.isSolvent());
     }
 

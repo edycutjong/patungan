@@ -523,6 +523,21 @@ contract PatunganTest is PatunganBase {
         assertFalse(pat.isSolvent());
     }
 
+    function test_refundAll_andGetMembers_hugeRanges_doNotOverflow() public {
+        uint256 id = _create(5);
+        _join(alice, id, 1);
+        _join(bob, id, 1);
+        (address[] memory a,,) = pat.getMembers(id, 1, type(uint256).max);
+        assertEq(a.length, 1);
+        (a,,) = pat.getMembers(id, type(uint256).max, type(uint256).max);
+        assertEq(a.length, 0);
+        vm.warp(block.timestamp + 1 days);
+        pat.refundAll(id, type(uint256).max, 1); // past the end: no-op
+        assertEq(pat.refundedCount(id), 0);
+        pat.refundAll(id, 0, type(uint256).max);
+        assertEq(pat.refundedCount(id), 2);
+    }
+
     // ================================================================ F6 cancel
     function test_cancel_beforeFirstJoin_closesPool() public {
         uint256 id = _create(5);
