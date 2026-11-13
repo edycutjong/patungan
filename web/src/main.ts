@@ -68,7 +68,7 @@ async function home() {
       }),
     ])
     row('QIE mainnet block', block.toString())
-    row('QIE/USD (QIE Oracle)', `$${formatUnits(round[1], 8)}, updated ${ageHours(round[3], Date.now() / 1000)} h ago`)
+    row('QIE/USDT (QIE Oracle)', `${formatUnits(round[1], 8)} USDT, updated ${ageHours(round[3], Date.now() / 1000)} h ago`)
     row('QIE for a 0.25 QUSDC seat (QIEDEX quote)', formatUnits(qieIn[0], 18))
   } catch (e) {
     row('QIE mainnet', `not answering (${String((e as Error).message).slice(0, 80)})`)

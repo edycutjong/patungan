@@ -17,7 +17,7 @@
 <text x="395" y="58" font-weight="700">QIEDEX router</text><text x="395" y="78" font-size="12">WQIE/QUSDC pair</text>
 <text x="395" y="200" font-weight="700" font-size="16">Patungan escrow</text><text x="395" y="222" font-size="12">one contract, every pool</text><text x="395" y="240" font-size="12">seats × price in QUSDC</text>
 <text x="395" y="368" font-weight="700">QUSDC</text><text x="395" y="388" font-size="12">escrow token, transferFrom</text>
-<text x="735" y="58" font-weight="700">QIE Oracle</text><text x="735" y="78" font-size="12">QIE/USD guard (view)</text>
+<text x="735" y="58" font-weight="700">QIE Oracle</text><text x="735" y="78" font-size="12">QIE/USDT guard (view)</text>
 <text x="735" y="198" font-weight="700">Payee</text><text x="735" y="218" font-size="12">address or .qie name</text>
 <text x="735" y="368" font-weight="700">Members (refund)</text><text x="735" y="388" font-size="12">after deadline or cancel</text>
 </g>

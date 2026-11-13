@@ -125,7 +125,7 @@ export async function renderVerify(root: HTMLElement) {
   const comp = (label: string, addr: string) =>
     `<dt>${label}</dt><dd><a class="data" href="${explorerAddress(addr)}" target="_blank" rel="noopener">${addr}</a></dd>`
   const components = `<h2 class="label">The four QIE components it calls</h2><dl>
-    ${comp('QUSDC (escrow token)', ADDR.qusdc)}${comp('QIEDEX Router (swap)', ADDR.router)}${comp('Zone (.qie names)', ADDR.zone)}${comp('QIE Oracle (QIE/USD feed)', ADDR.oracle)}</dl>`
+    ${comp('QUSDC (escrow token)', ADDR.qusdc)}${comp('QIEDEX Router (swap)', ADDR.router)}${comp('Zone (.qie names)', ADDR.zone)}${comp('QIE Oracle (QIE/USDT feed)', ADDR.oracle)}</dl>`
   if (loadFailed) {
     body.innerHTML = '<p class="localnote">Could not load the deployment list. Reload the page.</p>'
     return
