@@ -1,17 +1,19 @@
 # Patungan
 
-Group payments with a deadline, on QIE mainnet. An organizer opens a pool (seats × price in QUSDC), and members join paying
-QUSDC, or QIE that the contract swaps to QUSDC through QIEDEX. The last seat pays the seller in the same transaction. If the
-deadline passes first, every member can take their money back.
+Group payments with a deadline, on QIE mainnet. Patungan is being built as a QUSDC escrow. An organizer opens a pool (seats ×
+price), and members join paying QUSDC, or QIE that the contract swaps to QUSDC through QIEDEX. The last seat pays the seller in the
+same transaction. If the deadline passes first, every member can take their money back.
 
-> Work in progress. Day-one spike results: [`evidence/fork-spike.md`](evidence/fork-spike.md).
+> **Status: work in progress.** The product contract (`src/Patungan.sol`) is not written yet. The day-one spike proves this
+> flow on a fork of QIE mainnet with a test-only escrow: [`evidence/fork-spike.md`](evidence/fork-spike.md).
 
 ## Layout
 
-- `src/`: Solidity contracts (Foundry). `src/interfaces/` holds the QIE component interfaces (QIEDEX router, Zone `.qie` names, QIE Oracle).
-- `test/`: Foundry tests. `test/spike/` runs fork tests against real QIE mainnet state.
-- `web/`: the static frontend (Vite + TypeScript + viem).
-- `evidence/`: measured runs that back every number in this repo.
+- `src/interfaces/`: the QIE component interfaces (QIEDEX router, Zone `.qie` names, QIE Oracle). The product contract goes in `src/`.
+- `test/spike/`: fork tests against real QIE mainnet state, plus the test-only spike escrow.
+- `script/`: `fork-gas.sh` (transaction gas on an anvil fork) and `mainnet-probe.sh` (read-only mainnet checks).
+- `web/`: frontend scaffold (Vite + TypeScript + viem). For now it is a read-only status page for the QIE components.
+- `evidence/`: the spike's raw run outputs and the summary that cites them.
 
 ## Run
 

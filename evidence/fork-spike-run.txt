@@ -1,60 +1,59 @@
 Compiling 36 files with Solc 0.8.28
-Solc 0.8.28 finished in 873.58ms
+Solc 0.8.28 finished in 858.08ms
 Compiler run successful!
 Ran 16 tests for test/spike/Spike.fork.t.sol:SpikeForkTest
 [PASS] test_escrow_createByName_unknownName_reverts() (gas: 38360)
 Logs:
-  fork block 11879615 timestamp 1794587820
-[PASS] test_escrow_joinWithQIE_contractOrigin_forwardsExcess_lastSeatPays() (gas: 646305)
+  fork block 11879734 timestamp 1794588249
+[PASS] test_escrow_joinWithQIE_contractOrigin_forwardsExcess_lastSeatPays() (gas: 633923)
 Logs:
-  fork block 11879615 timestamp 1794587820
-  joinWithQIE (last seat, swap + payout) gas 233415
+  fork block 11879734 timestamp 1794588249
 [PASS] test_escrow_liveSpread_insideDeployGuard() (gas: 40215)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
   oracle-fair QIE 1616385964002567339 router QIE in 1705131047102392564
   router premium over oracle, bps 549
-[PASS] test_escrow_oracleStale_revertsQiePath() (gas: 179214)
+[PASS] test_escrow_oracleStale_revertsQiePath() (gas: 179277)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_escrow_priceDeviation_revertsBeforeSwap() (gas: 200972)
 Logs:
-  fork block 11879615 timestamp 1794587820
-[PASS] test_escrow_qusdcJoins_lastSeatPaysPayee() (gas: 696044)
+  fork block 11879734 timestamp 1794588249
+[PASS] test_escrow_qusdcJoins_lastSeatPaysPayee() (gas: 942749)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_escrow_receive_rejectsNonRouter() (gas: 37976)
 Logs:
-  fork block 11879615 timestamp 1794587820
-[PASS] test_escrow_refundAfterDeadline() (gas: 816677)
+  fork block 11879734 timestamp 1794588249
+[PASS] test_escrow_refundAfterDeadline() (gas: 846404)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_oracle_latestAnswer_reverts_soWeNeverUseIt() (gas: 24498)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_oracle_latestRoundData_isLiveAndFresh() (gas: 28912)
 Logs:
-  fork block 11879615 timestamp 1794587820
-  oracle QIE/USD (8 dp) 15466603 age s 26104
+  fork block 11879734 timestamp 1794588249
+  oracle QIE/USD (8 dp) 15466603 age s 26533
 [PASS] test_qusdc_isSixDecimals() (gas: 3609)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_router_pairIsTheLiveWqieQusdcPool() (gas: 25710)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
   pair reserves 29817108352938757749462 4385078499
 [PASS] test_router_swapExactOut_fromEOA() (gas: 177772)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
   QIE in for 0.25 QUSDC 1705131047102392564
 [PASS] test_zone_inputFormat_lowercaseLabelOnly() (gas: 28305)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_zone_resolvesRealName() (gas: 19505)
 Logs:
-  fork block 11879615 timestamp 1794587820
+  fork block 11879734 timestamp 1794588249
 [PASS] test_zone_unknownName_reverts() (gas: 12476)
 Logs:
-  fork block 11879615 timestamp 1794587820
-Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.30s (6.87s CPU time)
-Ran 1 test suite in 2.31s (2.30s CPU time): 16 tests passed, 0 failed, 0 skipped (16 total tests)
+  fork block 11879734 timestamp 1794588249
+Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.33s (6.75s CPU time)
+Ran 1 test suite in 2.34s (2.33s CPU time): 16 tests passed, 0 failed, 0 skipped (16 total tests)
