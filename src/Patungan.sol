@@ -125,6 +125,7 @@ contract Patungan is ReentrancyGuard {
     error NothingToRefund();
     error NotOrganizer();
     error OnlyRouter();
+    error Insolvent();
 
     constructor(
         IERC20 qusdc_,
@@ -182,7 +183,7 @@ contract Patungan is ReentrancyGuard {
     function join(uint256 id, uint16 n) external nonReentrant {
         Pool storage p = _openPool(id);
         uint256 amount = _checkSeats(p, n);
-        uint256 before = qusdc.balanceOf(address(this));
+        uint256 before = _solventBalance();
         qusdc.safeTransferFrom(msg.sender, address(this), amount);
         if (qusdc.balanceOf(address(this)) - before < amount) revert TransferShort();
         emit Joined(id, msg.sender, n, amount, false, 0, 0);
@@ -197,6 +198,7 @@ contract Patungan is ReentrancyGuard {
         if (block.timestamp > expiry) revert QuoteExpired();
         Pool storage p = _openPool(id);
         uint256 amount = _checkSeats(p, n);
+        _solventBalance(); // before the swap: a short escrow never spends the member's QIE
         (uint256 qieSpent, uint256 oraclePrice) = _swapIn(amount);
         emit Joined(id, msg.sender, n, amount, true, qieSpent, oraclePrice);
         _seat(id, p, msg.sender, n, amount);
@@ -358,6 +360,15 @@ contract Patungan is ReentrancyGuard {
         if (n == 0) revert BadParams();
         if (uint256(p.filled) + n > p.seats) revert TooManySeats();
         amount = uint256(p.price) * n;
+    }
+
+    /// @dev The escrow's QUSDC balance, reverting Insolvent while it is below totalHeld (only QUSDC's issuer can cause
+    /// that, by burning from this contract). New deposits would otherwise fund the existing shortfall, and a later
+    /// joiner would be the one left short. Refunds, claims and cancel stay open; a donation that covers the gap
+    /// re-opens joins.
+    function _solventBalance() private view returns (uint256 bal) {
+        bal = qusdc.balanceOf(address(this));
+        if (bal < totalHeld) revert Insolvent();
     }
 
     /// @dev Swap exactly `amount` QUSDC out of QIEDEX for at most min(msg.value, Oracle ceiling) QIE.

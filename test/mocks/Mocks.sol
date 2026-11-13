@@ -51,6 +51,10 @@ contract MockRouter {
     uint256 public qiePerQusdc;
     uint256 public deliverShortBy;
     uint256 public overchargeBps;
+    uint256 public lastValue; // msg.value of the last swap: proves what Patungan forwarded, not just what it kept
+    address public reenterTarget; // when set, the swap calls back into this contract before refunding
+    uint256 public reenterId;
+    bytes public reenterError;
 
     constructor(MockQUSDC q, address wqie, uint256 rate) {
         (qusdc, WETH, qiePerQusdc) = (q, wqie, rate);
@@ -66,6 +70,10 @@ contract MockRouter {
 
     function setOverchargeBps(uint256 b) external {
         overchargeBps = b;
+    }
+
+    function setReenter(address target, uint256 id) external {
+        (reenterTarget, reenterId) = (target, id);
     }
 
     function getAmountsIn(uint256 amountOut, address[] calldata path) public view returns (uint256[] memory a) {
@@ -88,6 +96,13 @@ contract MockRouter {
         a = getAmountsIn(amountOut, path);
         a[0] = a[0] * (10_000 + overchargeBps) / 10_000;
         require(a[0] <= msg.value, "EXCESSIVE_INPUT_AMOUNT");
+        lastValue = msg.value;
+        if (reenterTarget != address(0)) {
+            // a hostile router re-entering mid-swap (before Patungan seats anyone): must hit the guard
+            (bool ok, bytes memory ret) = reenterTarget.call(abi.encodeWithSignature("claimRefund(uint256)", reenterId));
+            require(!ok, "re-entry succeeded");
+            reenterError = ret;
+        }
         qusdc.mint(to, amountOut - deliverShortBy);
         if (msg.value > a[0]) {
             (bool ok,) = msg.sender.call{value: msg.value - a[0]}("");

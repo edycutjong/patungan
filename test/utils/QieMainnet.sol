@@ -17,11 +17,15 @@ abstract contract QieMainnet is Test {
 
     string internal constant DEFAULT_RPC = "https://rpc1mainnet.qie.digital/";
 
-    /// @dev Forks QIE mainnet at the latest block. QIE_RPC_URL overrides the default public RPC
-    /// (rpc1..rpc5mainnet.qie.digital are interchangeable).
+    /// @dev Forks QIE mainnet at the latest block: these tests check the contract against today's live QUSDC, QIEDEX,
+    /// Zone and Oracle state, so a failure can mean the live state moved (a spread past the guard, a stale Oracle) as
+    /// well as a regression. QIE_FORK_BLOCK pins a block to tell the two apart (needs an RPC that serves that state).
+    /// QIE_RPC_URL overrides the default public RPC (rpc1..rpc5mainnet.qie.digital are interchangeable).
     function _forkQie() internal {
         string memory url = vm.envOr("QIE_RPC_URL", DEFAULT_RPC);
-        vm.createSelectFork(url);
+        uint256 pin = vm.envOr("QIE_FORK_BLOCK", uint256(0));
+        if (pin == 0) vm.createSelectFork(url);
+        else vm.createSelectFork(url, pin);
         assertEq(block.chainid, QIE_CHAIN_ID, "not QIE mainnet");
     }
 

@@ -40,7 +40,9 @@ contract PatunganForkTest is QieMainnet {
     uint256 constant DEV_BPS = 1_500;
     uint256 constant ORACLE_AGE = 172_800;
     string constant NAME = "test"; // a real `.qie` name (P0c); read-only demo payee, fork only
-    address constant NAME_OWNER = 0x2220541bC5506E01be95bdc82297Fbf061df132A;
+    // Resolved live in setUp: names are transferable NFTs (the P0c read was 0x2220541bC5506E01be95bdc82297Fbf061df132A),
+    // so a transfer of `test.qie` changes the fixture, not the result.
+    address NAME_OWNER;
 
     address organizer = makeAddr("organizer");
     address alice = makeAddr("alice");
@@ -49,6 +51,7 @@ contract PatunganForkTest is QieMainnet {
 
     function setUp() public {
         _forkQie();
+        NAME_OWNER = IQieZone(ZONE).domainOwnerByName(NAME, "qie");
         pat = new Patungan(qusdc, router, IQieZone(ZONE), IAggregatorV3(ORACLE_QIE_USD), DEV_BPS, ORACLE_AGE);
         vm.deal(alice, 100 ether);
         vm.deal(bob, 100 ether);
@@ -90,7 +93,8 @@ contract PatunganForkTest is QieMainnet {
         assertLe(qieIn, maxAllowed, "live spread inside the 15% deploy-default guard");
         console2.log("2 seats: router QIE in", qieIn);
         console2.log("2 seats: oracle fair QIE", fair);
-        console2.log("router premium over oracle (bps)", (qieIn * 10_000) / fair - 10_000);
+        // signed: the one-sided guard also admits a router that is cheaper than the Oracle (a discount)
+        console2.log("router premium over oracle (bps)", int256((qieIn * 10_000) / fair) - 10_000);
     }
 
     /// The whole PAID path on real state: a QUSDC join, a QIE join, then a QIE join fills the last seat and pays the
@@ -143,7 +147,8 @@ contract PatunganForkTest is QieMainnet {
 
     /// Residual risk, documented: QUSDC's issuer (VAULT_ROLE) can burn from any address, including this escrow. With
     /// two pools in the singleton, refunds then succeed in call order until the balance runs out; the member left
-    /// short keeps a claimable balance (refundAll records RefundFailed) and accounting stays exact.
+    /// short keeps a claimable balance (refundAll records RefundFailed) and accounting stays exact. New joins refuse
+    /// (Insolvent) while the balance is below totalHeld, so no later member's deposit fills the hole.
     function test_fork_twoPools_issuerBurn_firstComeFirstPaid() public {
         bytes32 vaultRole = keccak256("VAULT_ROLE");
         address vault = makeAddr("vault");
@@ -157,6 +162,11 @@ contract PatunganForkTest is QieMainnet {
         vm.prank(vault);
         IQusdcIssuer(QUSDC).burn(address(pat), PRICE);
         assertFalse(pat.isSolvent());
+        // no new deposit can backfill the hole: both join paths refuse while the escrow is short
+        uint256 c = _createByName(5);
+        vm.prank(carol);
+        vm.expectRevert(Patungan.Insolvent.selector);
+        pat.joinWithQIE{value: 10 ether}(c, 1, uint40(block.timestamp + 300));
         vm.warp(block.timestamp + 1 days);
 
         pat.refundAll(b, 0, 25); // first come, first paid

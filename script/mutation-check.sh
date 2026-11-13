@@ -14,6 +14,7 @@ MUTATIONS=(
   "no-last-seat-payout|s/if \(p\.filled == p\.seats\) \{/if (p.filled > p.seats) {/|the last seat would never pay the payee"
   "guard-off-by-2x|s/if \(qieIn > ceiling\) revert/if (qieIn > ceiling * 2) revert/|the Oracle guard would let QIEDEX charge up to twice the bound"
   "payout-keeps-totalHeld|s/totalHeld -= total;/totalHeld -= 0;/|a paid pool would still count as escrowed (accounting drift)"
+  "no-insolvency-gate|s/if \(bal < totalHeld\) revert Insolvent\(\);//|after an issuer burn, a new member's deposit would fill the hole and leave them short"
 )
 
 caught=0

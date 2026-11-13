@@ -291,6 +291,31 @@ contract PatunganTest is PatunganBase {
         pat.joinWithQIE{value: 100 ether}(id, 1, uint40(block.timestamp));
         assertEq(before - alice.balance, qieIn);
         assertEq(address(pat).balance, 0);
+        (,, uint256 maxAllowed) = pat.quoteQIE(id, 1);
+        assertEq(router.lastValue(), maxAllowed, "forwarded min(msg.value, Oracle ceiling), not the full 100 QIE");
+    }
+
+    function test_joinWithQIE_routerReentersMidSwap_hitsGuard() public {
+        uint256 id = _create(5);
+        router.setReenter(address(pat), id);
+        _joinQIE(alice, id, 1);
+        assertEq(bytes4(router.reenterError()), ReentrancyGuard.ReentrancyGuardReentrantCall.selector);
+        assertEq(pat.seatsOf(id, alice), 1);
+        assertEq(address(pat).balance, 0);
+    }
+
+    function test_joinWithQIE_lastSeat_memberRejectsChange_rollsBackPayout() public {
+        uint256 id = _create(2);
+        _join(alice, id, 1);
+        RejectingMember m = new RejectingMember();
+        vm.deal(address(this), 10 ether);
+        vm.expectRevert(Patungan.ForwardFailed.selector);
+        m.joinWithQIE{value: 10 ether}(address(pat), id, 1, uint40(block.timestamp));
+        Patungan.Pool memory p = _pool(id);
+        assertEq(p.filled, 1, "last seat not taken");
+        assertEq(uint8(p.status), uint8(Patungan.Status.Open), "still open");
+        assertEq(qusdc.balanceOf(payee), 0, "payee payout rolled back with the failed change");
+        assertEq(pat.totalHeld(), PRICE);
     }
 
     function test_joinWithQIE_expired_reverts() public {
@@ -521,6 +546,38 @@ contract PatunganTest is PatunganBase {
         pat.claimRefund(a);
         assertEq(pat.paid(a, alice), PRICE, "the revert rolled back: still owed");
         assertFalse(pat.isSolvent());
+    }
+
+    /// While the escrow is short (issuer burn), new deposits would fund the hole and leave the newest joiner short.
+    /// Joins refuse; refunds keep working; a donation that covers the gap re-opens joins.
+    function test_insolvent_joinsRefuse_refundsStayOpen_donationReopens() public {
+        uint256 a = _create(5);
+        uint256 b = _create(5);
+        _join(alice, a, 1);
+        qusdc.burn(address(pat), PRICE);
+        assertFalse(pat.isSolvent());
+
+        vm.prank(bob);
+        vm.expectRevert(Patungan.Insolvent.selector);
+        pat.join(b, 1);
+        uint256 qieBefore = bob.balance;
+        vm.prank(bob);
+        vm.expectRevert(Patungan.Insolvent.selector);
+        pat.joinWithQIE{value: 10 ether}(b, 1, uint40(block.timestamp + 300));
+        assertEq(bob.balance, qieBefore, "no QIE spent");
+        assertEq(pat.paid(b, bob), 0);
+
+        qusdc.mint(address(pat), PRICE); // anyone may cover the gap
+        assertTrue(pat.isSolvent());
+        _join(bob, b, 1);
+        assertEq(pat.paid(b, bob), PRICE);
+
+        vm.prank(organizer);
+        pat.cancel(a); // cancel still works; alice is refunded in full from the restored balance
+        vm.prank(alice);
+        pat.claimRefund(a);
+        assertEq(pat.paid(a, alice), 0);
+        assertTrue(pat.isSolvent());
     }
 
     function test_refundAll_andGetMembers_hugeRanges_doNotOverflow() public {
