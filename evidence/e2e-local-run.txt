@@ -1,3 +1,4 @@
+browser: installed Google Chrome 157.0.8103.51
 - no wallet: PAID pool #1 reads with the LUNAS stamp
 - no wallet: join opens the 'how to join' sheet
 - Dave joins pool #2 paying QIE (quote + 1%, one tx)

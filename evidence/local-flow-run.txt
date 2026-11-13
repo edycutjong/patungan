@@ -1,6 +1,6 @@
-fork block 11880231
-deploy Patungan                              gasUsed 2982011
-Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880232)
+fork block 11880334
+deploy Patungan                              gasUsed 2990231
+Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880335)
 createPoolByName (.qie resolve + title)      gasUsed 177664
 join (QUSDC, first seat)                     gasUsed 182672
 joinWithQIE (middle seat)                    gasUsed 246961
@@ -9,7 +9,7 @@ payee received 750000 QUSDC units in the last-seat tx (expect 750000)
 createPool (address payee)                   gasUsed 128973
 cancel (before first join)                   gasUsed 32930
 claimRefund (one member)                     gasUsed 95422
-refundAll (2 members, 1 skipped)             gasUsed 120522
+refundAll (2 members, 1 skipped)             gasUsed 120539
 pool 3 refundedCount 3
 escrow QUSDC 500000 = totalHeld 500000 (pool 2's two seats)
 native QIE left in contract: 0

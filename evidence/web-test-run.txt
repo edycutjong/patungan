@@ -1,0 +1,5 @@
+ RUN  v5.1.0 /Users/edycu/Hackathon/others/qie-mainnet-hackathon-3-2026/patungan/build/web
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  00:19:08
+   Duration  196ms (import 76%, tests 14%, transform 7%, worker 3%)

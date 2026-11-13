@@ -82,9 +82,10 @@ def step(name):
 with sync_playwright() as pw:
     EXP, CAN = setup()
     try:
-        b = pw.chromium.launch()
+        b, which = pw.chromium.launch(), "Playwright Chromium"
     except Exception:
-        b = pw.chromium.launch(channel="chrome")  # the installed Google Chrome
+        b, which = pw.chromium.launch(channel="chrome"), "installed Google Chrome"  # Playwright's own build missing
+    print(f"browser: {which} {b.version}")
 
     step("no wallet: PAID pool #1 reads with the LUNAS stamp")
     p = page_as(b)
