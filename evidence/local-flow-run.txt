@@ -1,6 +1,6 @@
-fork block 11880046
-deploy Patungan                              gasUsed 2981999
-Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880047)
+fork block 11880231
+deploy Patungan                              gasUsed 2982011
+Patungan at 0x6b182f1488E8EfEb2Eb298155ed5Bd7FF8A14042 (block 11880232)
 createPoolByName (.qie resolve + title)      gasUsed 177664
 join (QUSDC, first seat)                     gasUsed 182672
 joinWithQIE (middle seat)                    gasUsed 246961
