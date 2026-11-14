@@ -98,7 +98,7 @@ footer { padding: 24px 0 40px; color: var(--muted); font-size: 14px }
       <tr><th>Last seat in QIE (swap + seat + payout, one tx)</th><td>267,557 gas on mainnet</td></tr>
       <tr><th>QIE out of the deployer</th><td>20.003668 QIE: 20 funded five builder wallets, 0.003668 was gas</td></tr>
       <tr><th>Contract tests</th><td><span id="forge-tests">74</span> passed (unit, fuzz, invariants, and mainnet-fork tests on the real QUSDC, QIEDEX, Zone and Oracle); <code>src/</code> coverage 100% lines, statements, branches and functions</td></tr>
-      <tr><th>Web tests</th><td><span id="web-tests">210</span> unit tests at 100% coverage, plus Playwright end-to-end tests against live mainnet reads</td></tr>
+      <tr><th>Web tests</th><td><span id="web-tests">204</span> unit tests at 100% coverage, plus Playwright end-to-end tests against live mainnet reads</td></tr>
       <tr><th>Mutation check</th><td>5 of 5 injected bugs caught</td></tr>
     </table>
   </section>
@@ -130,9 +130,5 @@ cd web && npm ci && npm test && npm run build</pre>
   </section>
 </main>
 <footer><div class="wrap">Patungan · MIT licence · release <a data-version href="https://github.com/edycutjong/patungan/releases/latest">%PATUNGAN_VERSION%</a></div></footer>
-<script type="module">
-import { mountVersion } from '/src/version.ts'
-void mountVersion()
-</script>
 </body>
 </html>

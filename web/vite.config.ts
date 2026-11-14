@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { Connect } from 'vite'
 import { defineConfig } from 'vitest/config'
+import { pickVersion } from './src/version.ts'
 
 // `/` is the static landing page (index.html). The app is app.html, served for its routes.
 // Vercel does the same with rewrites in vercel.json; this middleware covers `vite` and `vite preview`.
@@ -19,16 +20,19 @@ const judgeRoute: Connect.NextHandleFunction = (req, _res, next) => {
   next()
 }
 
-// Build-time version fallback for the `%PATUNGAN_VERSION%` slots (landing, /judge, the deck in public/pitch/): the latest
-// git tag, else package.json. At runtime src/version.ts swaps in the latest GitHub release when the API answers.
-function buildVersion(): string {
-  // Hosted builds (vercel deploy uploads web/ without .git) pass the release tag in PATUNGAN_VERSION.
-  if (process.env.PATUNGAN_VERSION) return process.env.PATUNGAN_VERSION
+// The release version for the `%PATUNGAN_VERSION%` slots (landing, /judge, the deck in public/pitch/). Build time only:
+// hosted builds (vercel deploy uploads web/ without .git) pass the tag in PATUNGAN_VERSION, else the latest git tag,
+// else package.json. src/version.ts explains why nothing fetches it at runtime.
+function gitTag(): string | undefined {
   try {
     return execSync('git describe --tags --abbrev=0', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
   } catch {
-    return `v${JSON.parse(readFileSync(resolve(import.meta.dirname, 'package.json'), 'utf8')).version}`
+    return undefined
   }
+}
+function buildVersion(): string {
+  const pkg = JSON.parse(readFileSync(resolve(import.meta.dirname, 'package.json'), 'utf8')).version
+  return pickVersion(process.env.PATUNGAN_VERSION, process.env.PATUNGAN_VERSION ? undefined : gitTag(), pkg)
 }
 const VERSION = buildVersion()
 const stamp = (html: string) => html.replaceAll('%PATUNGAN_VERSION%', VERSION)

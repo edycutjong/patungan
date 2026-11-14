@@ -2,12 +2,15 @@
 > patungan-web@0.1.0 test
 > vitest run
 
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./src/version" without a file extension (vite.config.ts:6:29). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 
  RUN  v5.1.0 /Users/edycu/Hackathon/others/qie-mainnet-hackathon-3-2026/patungan/build/web
 
 
  Test Files  11 passed (11)
-      Tests  210 passed (210)
-   Start at  16:55:17
-   Duration  2.41s (tests 38%, environment 33%, import 27%, transform 2%, worker 1%)
+      Tests  204 passed (204)
+   Start at  22:04:52
+   Duration  2.15s (tests 41%, environment 29%, import 28%, transform 1%, worker 1%)
 
