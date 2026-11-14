@@ -1,1 +1,15 @@
-{ "deployments": [] }
+{
+  "deployments": [
+    {
+      "id": "mainnet-1",
+      "label": "QIE mainnet",
+      "address": "0x2f4646D52a5393E239f5b880411dC2CA2D945F31",
+      "deployBlock": 11895948,
+      "chainId": 1990,
+      "deployTx": "0x78090ff8afbdd9bce055a9ddbaaf8f6fa0b7d8e7486e673820746fa9a7d3c9ce",
+      "builderWallets": [
+        "0x616F4e1d85D41F34330D3D0D167717c4015E69D7"
+      ]
+    }
+  ]
+}
