@@ -322,7 +322,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 <section class="receipts" aria-label="Measured results">
   <div class="wrap">
     <div class="grid">
-      <div class="receipt"><p class="num" data-count="71">71</p><p>contract tests pass; 24 of them read live mainnet state</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">evidence/forge-test-run.txt</a></div>
+      <div class="receipt"><p class="num" data-count="74">74</p><p>contract tests pass; 24 of them read live mainnet state</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">evidence/forge-test-run.txt</a></div>
       <div class="receipt"><p class="num"><span data-count="5">5</span> / 5</p><p>injected bugs caught by the 47 mock-based tests</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">evidence/mutation-run.txt</a></div>
       <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for the last seat on a mainnet fork: swap, seat and payout in one transaction</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/local-flow-run.txt">evidence/local-flow-run.txt</a></div>
       <div class="receipt"><p class="num" data-count="4">4</p><p>QIE mainnet components: QUSDC, QIEDEX, Zone <code>.qie</code>, QIE Oracle</p><a href="https://github.com/edycutjong/patungan#the-four-qie-components-it-runs-on">README · components</a></div>
@@ -336,8 +336,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
     <h2 class="display" id="demo-h">The last seat fills the roster and pays the seller</h2>
     <div class="pair">
       <div>
-        <figure class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Pool page after the last seat: 4 of 4 seats paid, a red PAID stamp, and the line Paid in full: 1.00 QUSDC to the payee" loading="lazy" /></figure>
-        <p class="shot-cap">The app after the last seat, in a browser run on a mainnet fork (<code>evidence/e2e-local/</code>, pool #2).</p>
+        <figure class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></figure>
+        <p class="shot-cap">The app after the last seat: <a href="/p/mainnet-1/1">pool #1 on QIE mainnet</a>, read live from the verified contract (members are builder wallets).</p>
       </div>
       <div class="term-wrap">
 <pre class="term" id="term" role="region" tabindex="0" aria-label="Terminal output of script/local-flow.sh"><span class="bar">$ script/local-flow.sh · anvil fork of QIE mainnet</span>fork block 11883271
@@ -373,12 +373,12 @@ native QIE left in contract: 0</pre>
     <p class="label">Sheet 2: one link, two endings</p>
     <h2 class="display" id="screens-h">Share, pay in QIE, or get it back</h2>
     <div class="strip">
-      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet with the pool link and a ready WhatsApp message" loading="lazy" /></div>
-        <figcaption><b>Bagikan · share</b>The organizer creates the pool and sends one link to the group chat. (Captured on a local test run, so the link shows a local address.)</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet paying 0.25 QUSDC in QIE with a QIEDEX quote and the Oracle cap" loading="lazy" /></div>
+      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet after creating Saturday badminton court, 4 seats at 0.25 QUSDC: the pool link and a ready WhatsApp message" loading="lazy" /></div>
+        <figcaption><b>Share</b>The organizer creates the pool and sends one link to the group chat. (Captured on a local test run, so the link shows a local address.)</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet for Thursday football, 2 of 4 seats paid: paying 0.25 QUSDC in QIE with a QIEDEX quote and the 15% QIE Oracle cap" loading="lazy" /></div>
         <figcaption><b>Pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Pool past its deadline with a green REFUNDED stamp: everyone was refunded" loading="lazy" /></div>
-        <figcaption><b>Refunded</b>The deadline passed with an open seat, so the member took the QUSDC back.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, with a green REFUNDED IN FULL stamp: everyone was refunded, 3 members, 0.75 QUSDC" loading="lazy" /></div>
+        <figcaption><b>Refunded</b><a href="/p/mainnet-1/2">Pool #2 on QIE mainnet</a>: the deadline passed at 3 of 6 seats, and one <code>refundAll</code> gave all 3 members their QUSDC back.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -461,7 +461,7 @@ native QIE left in contract: 0</pre>
       <details><summary>What does the <code>.qie</code> name do?</summary>
         <p>The organizer types the payee as a name such as <code>test.qie</code>. Patungan resolves it through Zone's <code>domainOwnerByName</code> at creation and stores the address. If the name points somewhere else by the time the transaction is mined, creation reverts with <code>PayeeChanged</code>.</p></details>
       <details><summary>What is mocked, and who are the users?</summary>
-        <p>The demo path is not mocked: the browser runs and <code>script/local-flow.sh</code> use a mainnet fork. 47 of the 71 contract tests use mocks for speed and fuzzing. There are no real users yet; pools the builder creates will be labelled as builder wallets (the app already supports the label).</p></details>
+        <p>The demo path is not mocked: the browser runs and <code>script/local-flow.sh</code> use a mainnet fork. 50 of the 74 contract tests use mocks for speed and fuzzing. There are no real users yet; pools the builder creates will be labelled as builder wallets (the app already supports the label).</p></details>
     </div>
   </div>
 </section>
@@ -480,12 +480,14 @@ native QIE left in contract: 0</pre>
 
 <footer>
   <div class="wrap">
-    <span>Patungan · built from scratch for QIE Mainnet Hackathon 3.0 · MIT licence</span>
-    <nav aria-label="Footer"><a href="https://github.com/edycutjong/patungan">Repository</a><a href="/pitch/">Pitch deck</a><a href="/pools">App</a><a href="/verify">Verify the contract</a><a href="https://mainnet.qie.digital/">QIE explorer</a></nav>
+    <span>Patungan · built from scratch for QIE Mainnet Hackathon 3.0 · MIT licence · release <a data-version href="https://github.com/edycutjong/patungan/releases/latest">%PATUNGAN_VERSION%</a></span>
+    <nav aria-label="Footer"><a href="/judge">For judges</a><a href="https://github.com/edycutjong/patungan">Repository</a><a href="/pitch/">Pitch deck</a><a href="/pools">App</a><a href="/verify">Verify the contract</a><a href="https://mainnet.qie.digital/">QIE explorer</a></nav>
   </div>
 </footer>
 
 <script type="module">
+import { mountVersion } from '/src/version.ts'
+void mountVersion()
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 const RPCS = [1, 2, 3, 4, 5].map((n) => `https://rpc${n}mainnet.qie.digital/`)
 const ORACLE = '0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17'

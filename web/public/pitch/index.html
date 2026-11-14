@@ -3,8 +3,8 @@
   Patungan pitch deck · single file · 1920×1080 stage scaled to the viewport
   Keys: → / Space / PageDown next · ← / PageUp previous · Home / End · Esc overview grid · P presenter mode (speaker notes)
   Print: Cmd/Ctrl+P → Save as PDF → one slide per page (16in × 9in)
-  Images: ../shots/4-paid-after-last-seat.webp, ../shots/6-refunded.webp, ../shots/2-join-sheet-qie.webp (browser runs on a
-  mainnet fork) · QR: inline SVG for https://patungan-qie.vercel.app/
+  Images: ../shots/4-paid-after-last-seat.webp, ../shots/6-refunded.webp, ../shots/2-join-sheet-qie.webp (4 and 6 are
+  live QIE mainnet pools; 2 runs on a local mainnet fork) · QR: inline SVG for https://patungan-qie.vercel.app/
 -->
 <html lang="en">
 <head>
@@ -190,7 +190,7 @@ body.overview .slide:hover { outline-color: var(--before) }
       <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">PAID<small>IN FULL</small></div></div>
     </div>
   </div>
-  <div class="foot"><span>patungan-qie.vercel.app · v0.1.0 · built 2026-11-14</span></div>
+  <div class="foot"><span>patungan.edycu.dev · <a data-version href="https://github.com/edycutjong/patungan/releases/latest" style="color:inherit">%PATUNGAN_VERSION%</a> · built 2026-11-14</span></div>
   <aside class="speaker-notes">Patungan is the Indonesian word for chipping in. One link per group: friends pay seats, and the pool either pays the venue in the last seat's transaction or gives every friend their money back.</aside>
 </section>
 
@@ -266,16 +266,16 @@ body.overview .slide:hover { outline-color: var(--before) }
         <li><span>A seat paid in QIE comes back as QUSDC</span><span class="data">same refund</span></li>
       </ul>
     </div>
-    <div class="phone"><img src="../shots/6-refunded.webp" width="390" height="918" alt="Pool past its deadline, stamped REFUNDED: everyone was refunded" /></div>
+    <div class="phone"><img src="../shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, stamped REFUNDED IN FULL: everyone was refunded, 3 members, 0.75 QUSDC" /></div>
   </div>
-  <div class="foot"><span>evidence/local-flow-run.txt · evidence/e2e-local/</span></div>
+  <div class="foot"><span>gas: evidence/local-flow-run.txt (fork) · screen: pool #2 on QIE mainnet</span></div>
   <aside class="speaker-notes">The refund is the trust half. The organizer can cancel early, and after the deadline nobody has to wait for anyone: each friend claims, or one call refunds them all.</aside>
 </section>
 
 <section class="slide v ink" data-n="7" aria-label="Evidence">
   <h2 class="display" style="max-width:none">Tested before it is claimed</h2>
   <div class="nums">
-    <div class="num"><b>71</b><p>contract tests pass; 24 read live mainnet state</p></div>
+    <div class="num"><b>74</b><p>contract tests pass; 24 read live mainnet state</p></div>
     <div class="num"><b>5/5</b><p>injected bugs caught</p></div>
     <div class="num"><b>11</b><p>browser steps pass on a mainnet fork</p></div>
     <div class="num"><b>12/12</b><p>QIE joins inside the 15% Oracle guard on a fork (median +5.64%)</p></div>
@@ -322,11 +322,11 @@ body.overview .slide:hover { outline-color: var(--before) }
   <div class="close">
     <div>
       <h2 class="display" style="font-size:100px;max-width:19ch">Everyone chips in, <span class="hl">or everyone gets their money back.</span></h2>
-      <p class="links">patungan-qie.vercel.app<br />github.com/edycutjong/patungan</p>
+      <p class="links">patungan.edycu.dev<br /><a href="/judge" style="color:inherit">patungan.edycu.dev/judge</a> (for judges)<br />github.com/edycutjong/patungan</p>
     </div>
     <div><svg class="qr" role="img" aria-label="QR code for https://patungan-qie.vercel.app/" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#fffdf7" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#1d2a47" d="M2 2.5h7m1 0h1m1 0h1m1 0h2m4 0h3m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h2m2 0h1m3 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m1 0h1m5 0h3m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m6 0h2m1 0h1m-19 1h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h5m-29 1h1m2 0h1m1 0h1m1 0h2m5 0h2m1 0h1m2 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m1 0h4m2 0h2m2 0h1m9 0h4m-29 1h2m1 0h3m5 0h1m1 0h1m2 0h7m4 0h1m-28 1h1m3 0h4m1 0h2m1 0h2m3 0h1m2 0h1m1 0h2m-24 1h3m2 0h1m3 0h1m2 0h1m1 0h4m2 0h4m4 0h1m-29 1h1m4 0h3m1 0h2m2 0h2m1 0h1m1 0h1m1 0h4m2 0h3m-29 1h2m5 0h1m2 0h6m1 0h3m3 0h1m-23 1h1m3 0h2m1 0h4m1 0h1m1 0h3m2 0h4m1 0h1m1 0h1m-27 1h1m1 0h2m4 0h4m2 0h1m2 0h1m1 0h1m1 0h1m2 0h4m-29 1h1m4 0h2m1 0h2m2 0h1m4 0h1m3 0h1m3 0h4m-28 1h3m1 0h1m2 0h1m4 0h2m1 0h2m4 0h1m1 0h1m2 0h1m-28 1h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m2 0h5m3 0h1m-21 1h1m3 0h1m1 0h1m1 0h2m2 0h1m3 0h1m2 0h2m-29 1h7m1 0h1m2 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m1 0h1m-29 1h1m5 0h1m2 0h3m1 0h3m1 0h1m2 0h1m3 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h2m2 0h6m1 0h1m-28 1h1m1 0h3m1 0h1m4 0h4m2 0h2m1 0h2m2 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h1m3 0h4m1 0h1m-29 1h1m5 0h1m1 0h8m1 0h5m1 0h1m1 0h1m1 0h1m-28 1h7m2 0h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h2"/></svg><p class="cap" style="margin-top:14px;text-align:center">Scan to open the app</p></div>
   </div>
-  <div class="foot"><span>Patungan · MIT</span></div>
+  <div class="foot"><span>Patungan · MIT · release <a data-version href="https://github.com/edycutjong/patungan/releases/latest" style="color:inherit">%PATUNGAN_VERSION%</a></span></div>
   <aside class="speaker-notes">Thank you. The QR opens the app (staging until the mainnet deploy); the repo has the contract, the tests and every evidence file quoted in this deck.</aside>
 </section>
 
@@ -335,6 +335,16 @@ body.overview .slide:hover { outline-color: var(--before) }
 <button class="navbtn" id="prev" type="button" aria-label="Previous slide">←</button><button class="navbtn" id="next" type="button" aria-label="Next slide">→</button>
 <div class="hint" id="hint">← → keys, the buttons, or click the slide · Esc for all slides</div></nav>
 <div class="notes-panel" id="notes"></div>
+<script>
+// Latest GitHub release tag over the build-time fallback (same rules as web/src/version.ts); fails silently.
+fetch('https://api.github.com/repos/edycutjong/patungan/releases/latest', { headers: { accept: 'application/vnd.github+json' } })
+  .then((r) => (r.ok ? r.json() : null))
+  .then((b) => {
+    const m = b && typeof b.tag_name === 'string' && b.tag_name.trim().match(/^v?(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.-]+)?$/)
+    if (m) for (const el of document.querySelectorAll('[data-version]')) el.textContent = `v${m[1]}.${m[2]}.${m[3]}${m[4] ?? ''}`
+  })
+  .catch(() => {})
+</script>
 <script>
 (() => {
   const deck = document.getElementById('deck')
