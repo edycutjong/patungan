@@ -18,6 +18,9 @@ RPC = os.environ.get("RPC", "https://rpc1mainnet.qie.digital/")
 DEP_ID = os.environ.get("DEP_ID", "mainnet-1")
 MANIFEST = os.environ.get("MANIFEST", "web/public/deployments.json")
 BUILDER_ENV = os.path.expanduser(os.environ.get("BUILDER_ENV", "~/.config/patungan/builder-wallets.env"))
+PAYEE_NAME = os.environ.get("PAYEE_NAME", "")  # optional .qie label (no ".qie"): the pool pays that name's owner via createPoolByName
+PAYEE_ADDR = os.environ.get("PAYEE_ADDR", "")  # with PAYEE_NAME: the address the name must resolve to right now (expectedPayee)
+assert bool(PAYEE_NAME) == bool(PAYEE_ADDR), "set PAYEE_NAME and PAYEE_ADDR together"
 FUND_QIE = os.environ.get("FUND_QIE", "4")  # per builder wallet: the swap sends up to 3 QIE for a 0.25 QUSDC seat (~1.7 is spent, the rest comes back) + gas
 QUSDC = "0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5"
 ROUTER = "0x08cd2e72e156D8563B4351eb4065C262A9f553Ef"
@@ -115,15 +118,24 @@ def seat_qie(who, k, pool, n=1):
 
 
 nb = 3 if MODE == "refund" else 2
-ws = wallets(nb + 1)  # B1..Bnb are members, the last is the payee
-payee = ws[-1][0]
-label_builders([a for a, _ in ws])
+if PAYEE_NAME:  # a real .qie name (the builder's own) instead of a generated payee wallet
+    ws = wallets(nb)
+    payee = PAYEE_ADDR
+    label_builders([a for a, _ in ws] + [payee])
+else:
+    ws = wallets(nb + 1)  # B1..Bnb are members, the last is the payee
+    payee = ws[-1][0]
+    label_builders([a for a, _ in ws])
 print(f"will fund {nb} wallets x {FUND_QIE} QIE from the deployer (plus swaps and gas); builder labels written to {MANIFEST}", flush=True)
 for a, _ in ws[:nb]:
     tx(f"fund {a[:8]} with {FUND_QIE} QIE", KEY, a, value=int(float(FUND_QIE) * 10**18))
 
-seats, title, dl = (2, "Rehearsal PAID (builder wallets)", 3600) if MODE == "paid" else (6, "Badminton Sabtu (builder wallets)", 900)
-created = tx(f"createPool '{title}' {seats} x 0.25 QUSDC", KEY, PAT, "createPool(address,uint96,uint16,uint40,string)", payee, str(SEAT), str(seats), str(now() + dl), title)
+seats, title, dl = (2, "Rehearsal PAID (builder wallets)", 3600) if MODE == "paid" else (6, "Badminton Saturday (builder wallets)", 900)
+if PAYEE_NAME:
+    created = tx(f"createPoolByName '{title}' {seats} x 0.25 QUSDC to {PAYEE_NAME}.qie", KEY, PAT, "createPoolByName(string,address,uint96,uint16,uint40,string)",
+                 PAYEE_NAME, payee, str(SEAT), str(seats), str(now() + dl), title)
+else:
+    created = tx(f"createPool '{title}' {seats} x 0.25 QUSDC", KEY, PAT, "createPool(address,uint96,uint16,uint40,string)", payee, str(SEAT), str(seats), str(now() + dl), title)
 pool = created_id(created)
 before = int(cast("call", QUSDC, "balanceOf(address)(uint256)", payee).split()[0])
 
@@ -152,3 +164,4 @@ print("\n| step | tx | gas |\n|---|---|---|")
 for label, h, g in rows:
     print(f"| {label} | {h} | {g:,} |")
 print(f"\nbuilder wallets (added to {MANIFEST} builderWallets, so every roster labels them): {', '.join(a for a, _ in ws)}")
+print(f"payee: {PAYEE_NAME + '.qie = ' if PAYEE_NAME else 'builder wallet '}{payee}")
