@@ -8,7 +8,10 @@
       "chainId": 1990,
       "deployTx": "0x78090ff8afbdd9bce055a9ddbaaf8f6fa0b7d8e7486e673820746fa9a7d3c9ce",
       "builderWallets": [
-        "0x616F4e1d85D41F34330D3D0D167717c4015E69D7"
+        "0x616F4e1d85D41F34330D3D0D167717c4015E69D7",
+        "0xc7Fe0a5628c945D0f98594EDA770814BF9Ac4BA1",
+        "0xE1b010F148b1B53CcC45291df583B297E0eA93dC",
+        "0x3e015c14AE36d81d73ACda34713122CC90Ec3cf7"
       ]
     }
   ]
