@@ -8,7 +8,7 @@ test('landing page loads with title, mainnet status and social card, and throws 
   await page.goto('/')
   await expect(page).toHaveTitle(/Patungan/)
   await expect(page.getByText(/live on QIE mainnet/i).first()).toBeVisible()
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /og\.png(\?v=\d+)?$/)
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /og\.png(\?v=\w+)?$/)
   await expect(page.getByRole('link', { name: /Open the app/i }).first()).toBeVisible()
   expect(errors).toEqual([])
 })
