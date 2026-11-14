@@ -22,6 +22,8 @@ const judgeRoute: Connect.NextHandleFunction = (req, _res, next) => {
 // Build-time version fallback for the `%PATUNGAN_VERSION%` slots (landing, /judge, the deck in public/pitch/): the latest
 // git tag, else package.json. At runtime src/version.ts swaps in the latest GitHub release when the API answers.
 function buildVersion(): string {
+  // Hosted builds (vercel deploy uploads web/ without .git) pass the release tag in PATUNGAN_VERSION.
+  if (process.env.PATUNGAN_VERSION) return process.env.PATUNGAN_VERSION
   try {
     return execSync('git describe --tags --abbrev=0', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
   } catch {
