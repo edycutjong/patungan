@@ -30,7 +30,7 @@ import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
 import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
-import { connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets } from './wallet'
+import { QIE_WALLET_URL, connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
@@ -119,9 +119,12 @@ class PoolPage {
       const accts = (await provider()!.request({ method: 'eth_accounts' }).catch(() => [])) as Address[]
       this.account = accts[0]
       provider()!.on?.('accountsChanged', (a: Address[]) => {
+        // An empty array is QIE Wallet's site-disconnect signal (it never emits 'disconnect').
         this.account = a[0]
         void this.refresh()
       })
+      // Guide, Step 6: reload on a network change so every client re-initialises on the right chain.
+      provider()!.on?.('chainChanged', () => window.location.reload())
     }
     await this.refresh()
     void this.loadActivity()
@@ -497,7 +500,7 @@ class PoolPage {
         <h2>Join this pool</h2>
         <p>Paying needs a wallet on QIE mainnet. Two ways:</p>
         <ol class="ways"><li><a href="${esc(metamaskDeepLink(location.href))}">Open this page in your wallet app</a> (from WhatsApp, tap here).</li>
-        <li>Install QIE Wallet or MetaMask, then open this link again.</li></ol>
+        <li>Install <a href="${QIE_WALLET_URL}" target="_blank" rel="noopener">QIE Wallet</a> (or MetaMask), then open this link again.</li></ol>
         <button class="cta ghost">Close</button></form>`
       s.showModal()
       return

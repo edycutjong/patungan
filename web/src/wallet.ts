@@ -9,12 +9,15 @@ import { QIE_RPCS, qieMainnet } from './chain'
 declare global {
   interface Window {
     ethereum?: EIP1193Provider
+    /** QIE Wallet's own global (QIE Wallet integration guide, Step 1): always set, QIE Wallet only. */
+    qie?: EIP1193Provider
   }
 }
 
 export type WalletInfo = { uuid: string; name: string; icon: string; rdns: string }
 export type WalletDetail = { info: WalletInfo; provider: EIP1193Provider }
 
+export const QIE_RDNS = 'me.qiewallet'
 const found: WalletDetail[] = []
 const KEY = 'patungan.wallet'
 if (typeof window !== 'undefined') {
@@ -25,7 +28,10 @@ if (typeof window !== 'undefined') {
   window.dispatchEvent(new Event('eip6963:requestProvider'))
 }
 
-/** Pure: the remembered wallet, else QIE Wallet, else the injected default, else the first announced one. */
+/**
+ * Pure: the remembered wallet, else QIE Wallet (EIP-6963 rdns me.qiewallet, the guide's primary method), else the
+ * injected default, else the first announced one. Never branch on isMetaMask: QIE Wallet also reports it.
+ */
 export function pickProvider(
   list: WalletDetail[],
   saved: string | null,
@@ -33,7 +39,7 @@ export function pickProvider(
 ): EIP1193Provider | undefined {
   const bySaved = saved ? list.find((d) => d.info.rdns === saved) : undefined
   if (bySaved) return bySaved.provider
-  const qie = list.find((d) => /qie/i.test(d.info.name) || /qie/i.test(d.info.rdns))
+  const qie = list.find((d) => d.info.rdns === QIE_RDNS) ?? list.find((d) => /qie/i.test(d.info.name) || /qie/i.test(d.info.rdns))
   if (qie) return qie.provider
   return fallback ?? list[0]?.provider
 }
@@ -133,7 +139,7 @@ export function chooseWallet(rdns: string) {
 }
 
 export const provider = (): EIP1193Provider | undefined =>
-  typeof window === 'undefined' ? undefined : pickProvider(found, savedChoice(), window.ethereum)
+  typeof window === 'undefined' ? undefined : pickProvider(found, savedChoice(), window.qie ?? window.ethereum)
 
 export const hasWallet = () => !!provider()
 
@@ -145,11 +151,13 @@ export async function connect(): Promise<{ account: Address; wallet: ReturnType<
   if (!eth) throw new Error('NoWallet')
   const [account] = (await eth.request({ method: 'eth_requestAccounts' })) as Address[]
   const chainHex = numberToHex(qieMainnet.id)
-  if ((await eth.request({ method: 'eth_chainId' })) !== chainHex) {
+  // Compare numerically: QIE Wallet returns lowercase '0x7c6' (guide, Step 3 note).
+  if (Number.parseInt(String(await eth.request({ method: 'eth_chainId' })), 16) !== qieMainnet.id) {
     try {
       await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: chainHex }] })
-    } catch {
-      // QIE docs (set-up-a-wallet): network name QIEMainnet, symbol QIEV3
+    } catch (e) {
+      // Only an unknown chain (4902) is added; a rejection (4001) or any other error goes back to the caller.
+      if ((e as { code?: number })?.code !== 4902) throw e
       await eth.request({
         method: 'wallet_addEthereumChain',
         params: [
@@ -173,3 +181,6 @@ export function walletFor(account: Address) {
 
 /** MetaMask's in-app browser deep link, for members who open the pool inside WhatsApp. */
 export const metamaskDeepLink = (url: string) => `https://metamask.app.link/dapp/${url.replace(/^https?:\/\//, '')}`
+
+/** Official QIE Wallet download (the guide asks for an install prompt, not a silent failure). */
+export const QIE_WALLET_URL = 'https://qiewallet.me'

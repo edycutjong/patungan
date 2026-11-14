@@ -34,3 +34,11 @@ describe('orderWallets (picker order)', () => {
     expect(orderWallets(list).map((d) => d.info.name)).toEqual(['MetaMask', 'Brave Wallet'])
   })
 })
+
+describe('pickProvider uses the exact QIE rdns first', () => {
+  it('picks me.qiewallet even if another wallet name contains "qie"', () => {
+    const fake = prov('fake'), real = prov('real')
+    const list = [w('Qie-ish Wallet', 'com.qieish', fake), w('QIE Wallet', 'me.qiewallet', real)]
+    expect(pickProvider(list, null, undefined)).toBe(real)
+  })
+})
