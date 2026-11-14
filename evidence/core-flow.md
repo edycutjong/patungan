@@ -1,7 +1,7 @@
 # Core flow evidence (contract `src/Patungan.sol` + pool page)
 
-Everything here ran on a **local anvil fork of QIE mainnet** or on mocks. **No Patungan contract is on mainnet yet**, so there
-are no mainnet transaction hashes in this file. Fork runs fork the latest mainnet block at run time (real QUSDC, the live
+Everything here ran on a **local anvil fork of QIE mainnet** or on mocks. This file was written before the mainnet go-live, so it
+holds no mainnet transaction hashes; the mainnet run (contract, every tx, gas) is in [`mainnet-golive.md`](mainnet-golive.md). Fork runs fork the latest mainnet block at run time (real QUSDC, the live
 QIEDEX router and WQIE/QUSDC pair, a real `.qie` name, the live QIE Oracle feed).
 
 ## Tests: `forge test` → `forge-test-run.txt`

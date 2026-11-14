@@ -1,6 +1,6 @@
 # Security review notes
 
-Static analysis: Slither (`slither . --filter-paths "lib|test|script"`), 101 detectors, 17 results on `src/`. Every external entry point that moves funds is `nonReentrant`. Mutation checks and 71 forge tests (fuzz, invariants, mainnet fork) back the triage below.
+Static analysis: Slither (`slither . --filter-paths "lib|test|script"`), 101 detectors, 17 results on `src/`. Every external entry point that moves funds is `nonReentrant`. Mutation checks and 74 forge tests (fuzz, invariants, mainnet fork) back the triage below.
 
 | Detector | Impact | Where | Triage |
 |---|---|---|---|
