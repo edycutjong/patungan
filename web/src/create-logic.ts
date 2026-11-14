@@ -18,7 +18,7 @@ export function parseQusdc(input: string): bigint | undefined {
   const s = input.trim().replace(/,/g, '')
   const m = s.match(/^(\d+)(?:\.(\d{1,6}))?$/)
   if (!m) return undefined
-  const units = BigInt(m[1]) * 1_000_000n + BigInt((m[2] ?? '').padEnd(6, '0') || '0')
+  const units = BigInt(m[1]) * 1_000_000n + BigInt((m[2] ?? '').padEnd(6, '0'))
   return units > 0n && units <= UINT96_MAX ? units : undefined
 }
 

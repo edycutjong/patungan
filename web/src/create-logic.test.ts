@@ -52,6 +52,12 @@ describe('checkCreate', () => {
     expect(checkCreate({ ...ok, seats: 2.5 }).errors.seats).toBeDefined()
     expect(checkCreate({ ...ok, seats: 100 }).errors.seats).toBeUndefined()
   })
+  it('asks for a price the contract accepts and for a deadline when the inputs are empty', () => {
+    const c = checkCreate({ ...ok, price: 'two', date: '', time: '' })
+    expect(c.errors.price).toMatch(/price per seat in QUSDC/)
+    expect(c.errors.deadline).toBe('Pick a deadline date and time (WIB).')
+    expect(c.price).toBeUndefined()
+  })
   it('bounds the deadline to 10 minutes .. 90 days from chain time', () => {
     expect(checkCreate({ ...ok, date: '2026-11-18', time: '07:05' }).errors.deadline).toMatch(/10 minutes/) // 00:05 UTC = +5 min
     expect(checkCreate({ ...ok, date: '2026-11-17', time: '08:00' }).errors.deadline).toMatch(/10 minutes/) // in the past

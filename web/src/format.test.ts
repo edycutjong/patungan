@@ -95,6 +95,19 @@ describe('pool state', () => {
       '1 of 2 members refunded · the rest can still claim',
     )
   })
+  it('writes a status line for every closed state', () => {
+    const at = { ...base, price: 2_000_000n }
+    expect(statusLine({ ...at, status: 1, filled: 5 }, 0)).toBe("All 5 seats paid · 2.00 QUSDC per seat · the seller was paid in the last seat's transaction")
+    expect(statusLine({ ...at, status: 2, filled: 0, memberCount: 0 }, 0)).toBe('Cancelled by the organizer before anyone joined')
+    expect(statusLine({ ...at, filled: 0, memberCount: 0 }, 2_000_000)).toMatch(/^Closed at .* WIB with no seats paid$/)
+    expect(statusLine(at, 2_000_000)).toBe('CLOSED, refunds available · 2 of 5 seats were paid · every member gets their QUSDC back')
+    expect(statusLine({ ...at, refunded: 2 }, 2_000_000)).toBe('Everyone was refunded: 2 members')
+    expect(statusLine({ ...at, memberCount: 1, refunded: 1 }, 2_000_000)).toBe('Everyone was refunded: 1 member')
+  })
+  it('reads billions and trillions', () => {
+    expect(numberWords(3_000_000_007)).toBe('three billion seven')
+    expect(numberWords(1_000_000_000_000)).toBe('one trillion')
+  })
 })
 
 describe('time', () => {

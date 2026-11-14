@@ -33,8 +33,8 @@ export function numberWords(n: number): string {
     if (x < 100) return `${TENS[Math.floor(x / 10)]} ${words(x % 10)}`
     if (x < 1000) return `${ONES[Math.floor(x / 100)]} hundred ${words(x % 100)}`
     const units: [number, string][] = [[1e12, 'trillion'], [1e9, 'billion'], [1e6, 'million'], [1e3, 'thousand']]
-    for (const [v, name] of units) if (x >= v) return `${words(Math.floor(x / v))} ${name} ${words(x % v)}`
-    return ''
+    const [v, name] = units.find(([u]) => x >= u)! // x ≥ 1000 here, so 'thousand' always matches
+    return `${words(Math.floor(x / v))} ${name} ${words(x % v)}`
   }
   return words(n).replace(/\s+/g, ' ').trim()
 }

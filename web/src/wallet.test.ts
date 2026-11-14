@@ -42,3 +42,11 @@ describe('pickProvider uses the exact QIE rdns first', () => {
     expect(pickProvider(list, null, undefined)).toBe(real)
   })
 })
+
+describe('outside a browser (SSR, node)', () => {
+  it('has no provider and no wallet', async () => {
+    const { provider, hasWallet } = await import('./wallet')
+    expect(provider()).toBeUndefined()
+    expect(hasWallet()).toBe(false)
+  })
+})
