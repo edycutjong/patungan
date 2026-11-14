@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://patungan-qie.vercel.app/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: a three-seat Patungan receipt stamped LUNAS" />
+<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: a three-seat Patungan receipt stamped PAID IN FULL" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
 <meta name="twitter:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone." />
@@ -102,13 +102,14 @@ p { margin: 0 0 14px }
 .kuitansi { position: relative; background: #FFFDF7; border: 1px solid var(--rule); border-radius: 4px; box-shadow: 0 1px 0 var(--rule), 0 18px 40px -22px rgb(29 42 71 / .35); padding: 0 22px 20px; margin: 0 }
 .perf { height: 16px; margin: 0 -22px 14px; background: radial-gradient(circle at 8px 8px, var(--bg) 3.4px, transparent 3.8px) 0 0 / 16px 16px repeat-x; border-bottom: 1px dashed var(--rule) }
 .k-title { font: 850 34px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 4px 0 12px }
+.def { display: block; margin-bottom: 10px; font-size: 1.05em; color: var(--ink) }
 .gloss { font: 600 14px var(--font-body); text-transform: none; color: var(--muted); letter-spacing: 0; margin-left: 6px }
 .k-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end }
 .amount { border: 1.5px solid var(--ink); padding: 6px 10px; display: inline-block }
 .amount b { font-size: 21px } .amount small { display: block; font-size: 12.5px; color: var(--muted) }
 .counter { font: 850 64px/1 var(--font-display); font-stretch: 75% }
 .counter span { color: var(--muted) }
-.terbilang { font-size: 13.5px; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 8px 0 }
+.inwords { font-size: 13.5px; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 8px 0 }
 .roster-wrap { position: relative }
 .roster { list-style: none; padding: 0; margin: 12px 0 0; border-top: 1.5px solid var(--ink) }
 .roster li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--rule); font-size: 15px; transition: color 200ms ease }
@@ -119,7 +120,7 @@ p { margin: 0 0 14px }
 .roster li.empty .tick { visibility: hidden }
 .stamp { position: absolute; left: 47%; top: 22px; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 14px 4px; font: 850 46px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: transparent; color: var(--after); text-align: center; pointer-events: none }
 .stamp small { display: block; font: 700 12px var(--font-body); letter-spacing: .08em }
-.stamp.kembali { color: var(--refund) }
+.stamp.refunded { color: var(--refund) }
 .stamp.hide { opacity: 0 }
 .stamp.land { animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
 @keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .92 } }
@@ -269,7 +270,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
       <p class="label">Commerce &amp; Real World · QIE Mainnet Hackathon 3.0</p>
       <p class="pending" id="hero-status"><b>Status:</b> tested on a fork of QIE mainnet · mainnet deployment pending</p>
       <h1 id="h1" class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
-      <p class="sub">Rina books the futsal court and shares one link; friends pay their seats in QUSDC, QIE's dollar stablecoin, or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
+      <p class="sub"><span class="def"><b>Patungan</b>: Indonesian for chipping in together.</span> Rina books the Thursday 5-a-side football pitch and shares one link; friends pay their seats in QUSDC, QIE's dollar stablecoin, or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
       <div class="ctas">
         <a class="btn" href="https://github.com/edycutjong/patungan">View on GitHub</a>
         <a class="btn" href="/pitch/">Pitch deck</a>
@@ -278,11 +279,11 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
       <p class="proof">No admin key · deadline refunds · <button class="copy-cmd" type="button" data-copy="forge test -vv" title="Copy">forge test -vv</button> <span>forks QIE mainnet through the public RPC</span></p>
     </div>
 
-    <figure class="kuitansi" id="hero-card" aria-label="A three-seat pool: seat three fills and the payee test.qie is paid, stamped LUNAS">
+    <figure class="kuitansi" id="hero-card" aria-label="A three-seat pool: seat three fills and the payee test.qie is paid, stamped PAID IN FULL">
       <div class="perf" aria-hidden="true"></div>
-      <p class="label">Kuitansi patungan · <i>group payment</i></p>
-      <p class="k-title">Futsal Kamis <span class="gloss">Thursday futsal</span></p>
-      <p class="label" style="margin:0">Untuk pembayaran · <i>pays</i></p>
+      <p class="label">Group payment receipt</p>
+      <p class="k-title">Thursday 5-a-side football</p>
+      <p class="label" style="margin:0">Pays</p>
       <div class="k-row">
         <div>
           <p style="margin:2px 0 10px;font-weight:700;font-size:19px">test.qie</p>
@@ -290,14 +291,14 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
         </div>
         <p class="counter"><b id="filled">3</b><span>/</span>3</p>
       </div>
-      <p class="terbilang"><span class="label">Batas waktu · <i>deadline</i></span> all 3 seats were paid before it, so nobody needed a refund</p>
+      <p class="inwords"><span class="label">Deadline</span> all 3 seats were paid before it, so nobody needed a refund</p>
       <div class="roster-wrap">
         <ol class="roster" role="list">
           <li><span class="n">1</span><span class="who">seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li>
           <li><span class="n">2</span><span class="who">seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
           <li><span class="n">3</span><span class="who">seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
         </ol>
-        <div class="stamp" id="stamp" aria-hidden="true">LUNAS<small>PAID IN FULL</small></div>
+        <div class="stamp" id="stamp" aria-hidden="true">PAID<small>IN FULL</small></div>
       </div>
       <p class="paidline">✓ Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
       <figcaption>Replay of a run on a QIE mainnet fork (block 11,883,271). <code>test.qie</code> is a real mainnet name. Source: <code>evidence/local-flow-run.txt</code>.</figcaption>
@@ -331,11 +332,11 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 
 <section class="demo" id="demo" aria-labelledby="demo-h">
   <div class="wrap">
-    <p class="label">Lembar 01 · <i>sheet 1: the last seat</i></p>
+    <p class="label">Sheet 1: the last seat</p>
     <h2 class="display" id="demo-h">The last seat fills the roster and pays the seller</h2>
     <div class="pair">
       <div>
-        <figure class="phone"><img src="/shots/4-lunas-after-last-seat.webp" width="390" height="1040" alt="Pool page after the last seat: 4 of 4 seats paid, a red LUNAS stamp, and the line Paid in full: 1.00 QUSDC to the payee" loading="lazy" /></figure>
+        <figure class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Pool page after the last seat: 4 of 4 seats paid, a red PAID stamp, and the line Paid in full: 1.00 QUSDC to the payee" loading="lazy" /></figure>
         <p class="shot-cap">The app after the last seat, in a browser run on a mainnet fork (<code>evidence/e2e-local/</code>, pool #2).</p>
       </div>
       <div class="term-wrap">
@@ -357,8 +358,8 @@ native QIE left in contract: 0</pre>
         <p class="label steps-head">Browser run on a mainnet fork · <i>selected steps from <code>evidence/e2e-local-run.txt</code></i></p>
         <ol class="steps" role="list">
           <li><span>Dave joins pool #2 paying QIE (quote + 1%, one tx)</span><span class="ok">OK</span></li>
-          <li><span>Erin pays the last seat in QUSDC (approve, pay) and the LUNAS stamp lands<br />payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
-          <li><span>the short pool passes its deadline: Fran gets her money back; the stamp says DIKEMBALIKAN</span><span class="ok">OK</span></li>
+          <li><span>Erin pays the last seat in QUSDC (approve, pay) and the PAID stamp lands<br />payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
+          <li><span>the short pool passes its deadline: Fran gets her money back; the stamp says REFUNDED</span><span class="ok">OK</span></li>
           <li><span>a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)</span><span class="ok">OK</span></li>
           <li><span>a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button</span><span class="ok">OK</span></li>
         </ol>
@@ -369,51 +370,51 @@ native QIE left in contract: 0</pre>
 
 <section class="screens" aria-labelledby="screens-h">
   <div class="wrap">
-    <p class="label">Lembar 02 · <i>sheet 2: one link, two endings</i></p>
+    <p class="label">Sheet 2: one link, two endings</p>
     <h2 class="display" id="screens-h">Share, pay in QIE, or get it back</h2>
     <div class="strip">
       <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet with the pool link and a ready WhatsApp message" loading="lazy" /></div>
         <figcaption><b>Bagikan · share</b>The organizer creates the pool and sends one link to the group chat. (Captured on a local test run, so the link shows a local address.)</figcaption></figure>
       <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet paying 0.25 QUSDC in QIE with a QIEDEX quote and the Oracle cap" loading="lazy" /></div>
-        <figcaption><b>Bayar pakai QIE · pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/6-dikembalikan.webp" width="390" height="918" alt="Pool past its deadline with a green DIKEMBALIKAN stamp: everyone was refunded" loading="lazy" /></div>
-        <figcaption><b>Dikembalikan · refunded</b>The deadline passed with an open seat, so the member took the QUSDC back.</figcaption></figure>
+        <figcaption><b>Pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Pool past its deadline with a green REFUNDED stamp: everyone was refunded" loading="lazy" /></div>
+        <figcaption><b>Refunded</b>The deadline passed with an open seat, so the member took the QUSDC back.</figcaption></figure>
     </div>
   </div>
 </section>
 
 <section class="how" id="how" aria-labelledby="how-h">
   <div class="wrap">
-    <p class="label">Lembar 03 · <i>sheet 3: how it works</i></p>
+    <p class="label">Sheet 3: how it works</p>
     <h2 class="display" id="how-h">Four QIE contracts, one flow</h2>
     <div class="bento">
       <article class="card c1">
-        <p class="label">Bayar pakai QIE · <i>pay with QIE</i></p>
+        <p class="label">Pay with QIE</p>
         <h3>The swap hides inside the join</h3>
         <p><code>joinWithQIE</code> buys the exact seat price in QUSDC on QIEDEX and seats the member in the same call. A member holding only QIE never opens a swap screen.</p>
         <div class="flow" aria-label="QIE, then QIEDEX, then QUSDC escrow, then the payee"><span>QIE</span><i>→</i><span>QIEDEX</span><i>→</i><span>QUSDC escrow</span><i>→</i><span class="paid">payee, on the last seat</span></div>
         <span class="chip">QIEDEX router · <code>swapETHForExactTokens</code></span><span class="chip">WQIE/QUSDC pair</span>
       </article>
       <article class="card c2">
-        <p class="label">Lunas · <i>paid in full</i></p>
+        <p class="label">Paid in full</p>
         <h3>The last seat pays</h3>
         <p>When the final seat is bought, the whole pool goes to the payee in that transaction. Nobody presses a release button.</p>
         <span class="chip">QUSDC · <code>PoolPaid</code></span>
       </article>
       <article class="card c3">
-        <p class="label">Untuk pembayaran · <i>pays</i></p>
+        <p class="label">Pays</p>
         <h3>Pay a name</h3>
         <p>The payee can be a <code>.qie</code> name. It is resolved when the pool is created and stored, so a later change to the name cannot redirect the money.</p>
         <span class="chip">Zone · <code>domainOwnerByName</code></span>
       </article>
       <article class="card c4">
-        <p class="label">Batas harga · <i>price guard</i></p>
+        <p class="label">Price guard</p>
         <h3>The Oracle sets the ceiling</h3>
         <p>The QIE Oracle's price feed bounds what the swap may cost. It is a sanity bound, never the price paid.</p>
         <span class="chip">QIE Oracle · <code>latestRoundData</code></span>
       </article>
       <article class="card c5">
-        <p class="label">Dikembalikan · <i>refunded</i></p>
+        <p class="label">Refunded</p>
         <h3>The deadline refunds</h3>
         <p>Past the deadline, or after a cancel, each member claims their QUSDC, or anyone triggers refunds for everyone.</p>
         <span class="chip"><code>claimRefund</code> · <code>refundAll</code></span>
@@ -587,7 +588,7 @@ function replayHero() {
   const full = rows.map((li) => li.querySelector('.who').innerHTML)
   const set = (i, on) => {
     rows[i].classList.toggle('empty', !on)
-    rows[i].querySelector('.who').innerHTML = on ? full[i] : 'kursi kosong · open seat'
+    rows[i].querySelector('.who').innerHTML = on ? full[i] : 'open seat'
   }
   rows.forEach((li) => (li.querySelector('.tick').textContent = 'HELD'))
   set(1, false); set(2, false)

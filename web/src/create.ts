@@ -24,29 +24,29 @@ export async function renderCreate(root: HTMLElement) {
 
   root.innerHTML = `<article class="kuitansi"><div class="perf"></div><section class="sheet">
     <div class="topline"><a class="link" href="/pools">← Patungan</a></div>
-    <h1>Buat patungan<br><small class="sub">Start a pool</small></h1>
+    <h1>Start a pool</h1>
     ${dep ? (dep.rpc ? '<p class="localnote">Local test chain (an anvil fork of QIE mainnet). Not mainnet.</p>' : '') : '<p class="localnote">The Patungan contract is not deployed on QIE mainnet yet, so pools can\'t be created. Check back soon.</p>'}
     <form id="create" class="createform" novalidate>
-      <label class="field"><span class="label">Untuk pembayaran <i>(what is it for · up to ${MAX_TITLE_BYTES} bytes)</i></span>
-        <input name="title" maxlength="64" autocomplete="off" placeholder="Futsal Kamis" required><span class="err" aria-live="polite" data-err="title"></span></label>
+      <label class="field"><span class="label">What is it for? <i>(up to ${MAX_TITLE_BYTES} bytes)</i></span>
+        <input name="title" maxlength="64" autocomplete="off" placeholder="Thursday football" required><span class="err" aria-live="polite" data-err="title"></span></label>
       <div class="two">
-        <label class="field"><span class="label">Kursi <i>(seats ${MIN_SEATS}–${MAX_SEATS})</i></span>
+        <label class="field"><span class="label">Seats <i>(${MIN_SEATS}–${MAX_SEATS})</i></span>
           <input name="seats" type="number" inputmode="numeric" min="${MIN_SEATS}" max="${MAX_SEATS}" value="5" required><span class="err" aria-live="polite" data-err="seats"></span></label>
-        <label class="field"><span class="label">Harga per kursi <i>(QUSDC)</i></span>
+        <label class="field"><span class="label">Price per seat <i>(QUSDC)</i></span>
           <input name="price" inputmode="decimal" autocomplete="off" placeholder="2" value="2" required><span class="err" aria-live="polite" data-err="price"></span></label>
       </div>
       <div class="two">
-        <label class="field"><span class="label">Batas bayar <i>(deadline, WIB)</i></span>
+        <label class="field"><span class="label">Deadline date <i>(WIB, UTC+7)</i></span>
           <input name="date" type="date" value="${defaultDeadline.date}" required></label>
-        <label class="field"><span class="label">Jam <i>(WIB)</i></span>
+        <label class="field"><span class="label">Time <i>(WIB, UTC+7)</i></span>
           <input name="time" type="time" value="20:00" required></label>
       </div>
       <span class="err" aria-live="polite" data-err="deadline"></span>
-      <label class="field"><span class="label">Penjual <i>(payee: a .qie name or a 0x address)</i></span>
+      <label class="field"><span class="label">Pays <i>(payee: a .qie name or a 0x address)</i></span>
         <input name="payee" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="lapangan.qie" required>
         <span class="resolve" aria-live="polite"></span><span class="err" aria-live="polite" data-err="payee"></span></label>
       <p class="note">The last seat pays the seller in the same transaction. If the pool doesn't fill by the deadline, each member can take their QUSDC back from the pool page (one tap, or anyone can refund everyone). No one holds the money in between: it sits in the Patungan contract.</p>
-      <div class="actions"><button class="cta" type="submit"${dep ? '' : ' disabled'}>Buat patungan · Create pool</button></div>
+      <div class="actions"><button class="cta" type="submit"${dep ? '' : ' disabled'}>Create pool</button></div>
       <p class="msg" aria-live="polite"></p>
     </form>
     <div id="shared"></div>
@@ -204,12 +204,12 @@ export async function renderCreate(root: HTMLElement) {
     const text = shareText({ ...p, url })
     const box = root.querySelector<HTMLElement>('#shared')!
     box.innerHTML = `<p class="status">✓ Pool #${id} created. ${txLink(d, hash as `0x${string}`)}</p>
-      <h2 class="label">Bagikan · Share</h2>
+      <h2 class="label">Share</h2>
       <p class="status">${esc(p.title)} · ${p.seats} seats × ${fmtQusdc(p.price)} QUSDC</p>
       <pre class="sharetext">${esc(text)}</pre>
       <div class="actions">
-        <a class="cta" href="${whatsappLink(text)}" target="_blank" rel="noopener">Kirim ke WhatsApp · Share on WhatsApp</a>
-        <button class="cta ghost" type="button" data-copy>Salin tautan · Copy link</button>
+        <a class="cta" href="${whatsappLink(text)}" target="_blank" rel="noopener">Share on WhatsApp</a>
+        <button class="cta ghost" type="button" data-copy>Copy link</button>
         <a class="cta ghost" href="${url}">Open the pool page</a>
       </div>
       <p class="msg" id="copied" aria-live="polite"></p>

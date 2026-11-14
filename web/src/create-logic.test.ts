@@ -33,7 +33,7 @@ describe('WIB deadline', () => {
 
 describe('checkCreate', () => {
   const now = Date.UTC(2026, 10, 18, 0, 0) / 1000
-  const ok = { title: 'Futsal Kamis', seats: 12, price: '2', date: '2026-11-20', time: '20:00', chainNow: now }
+  const ok = { title: 'Thursday football', seats: 12, price: '2', date: '2026-11-20', time: '20:00', chainNow: now }
   it('accepts a normal pool', () => {
     const c = checkCreate(ok)
     expect(c.errors).toEqual({})
@@ -60,10 +60,10 @@ describe('checkCreate', () => {
 })
 
 describe('share', () => {
-  const t = shareText({ title: 'Futsal Kamis', url: 'https://x.test/p/mainnet-1/7', seats: 12, price: 2_000_000n, deadline: wibToUnix('2026-11-20', '20:00')!, payeeLabel: 'lapangan.qie' })
-  it('carries both languages, the link, the deadline in WIB and the refund promise', () => {
-    expect(t).toContain('Futsal Kamis')
-    expect(t).toContain('12 kursi × 2.00 QUSDC')
+  const t = shareText({ title: 'Thursday football', url: 'https://x.test/p/mainnet-1/7', seats: 12, price: 2_000_000n, deadline: wibToUnix('2026-11-20', '20:00')!, payeeLabel: 'lapangan.qie' })
+  it('is English first with one Indonesian line, carries the link, the deadline in WIB and the refund promise', () => {
+    expect(t).toContain('Thursday football')
+    expect(t).toContain('12 seats × 2.00 QUSDC')
     expect(t).toContain('Fri 20 Nov 20:00 WIB')
     expect(t).toContain('sebelum Jum 20 Nov 20:00 WIB')
     expect(t).toContain('mengambil kembali QUSDC')

@@ -3,7 +3,7 @@
   Patungan pitch deck · single file · 1920×1080 stage scaled to the viewport
   Keys: → / Space / PageDown next · ← / PageUp previous · Home / End · Esc overview grid · P presenter mode (speaker notes)
   Print: Cmd/Ctrl+P → Save as PDF → one slide per page (16in × 9in)
-  Images: ../shots/4-lunas-after-last-seat.webp, ../shots/6-dikembalikan.webp, ../shots/2-join-sheet-qie.webp (browser runs on a
+  Images: ../shots/4-paid-after-last-seat.webp, ../shots/6-refunded.webp, ../shots/2-join-sheet-qie.webp (browser runs on a
   mainnet fork) · QR: inline SVG for https://patungan-qie.vercel.app/
 -->
 <html lang="en">
@@ -184,10 +184,10 @@ body.overview .slide:hover { outline-color: var(--before) }
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
-      <p class="label">Kuitansi patungan · <i>group payment</i></p>
-      <p class="k-title">Futsal Kamis <span class="gloss">Thursday futsal</span></p>
-      <div class="k-row"><div><p class="label" style="margin:0">Untuk pembayaran · <i>pays</i></p><p class="payee">test.qie</p><p class="amount">0.25 QUSDC<small>per seat · 0.75 in total</small></p></div><p class="counter">3<span>/</span>3</p></div>
-      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">LUNAS<small>PAID IN FULL</small></div></div>
+      <p class="label">Group payment receipt</p>
+      <p class="k-title">Thursday 5-a-side football</p>
+      <div class="k-row"><div><p class="label" style="margin:0">Pays</p><p class="payee">test.qie</p><p class="amount">0.25 QUSDC<small>per seat · 0.75 in total</small></p></div><p class="counter">3<span>/</span>3</p></div>
+      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">PAID<small>IN FULL</small></div></div>
     </div>
   </div>
   <div class="foot"><span>patungan-qie.vercel.app · v0.1.0 · built 2026-11-14</span></div>
@@ -207,20 +207,20 @@ body.overview .slide:hover { outline-color: var(--before) }
     </ul>
   </div>
   <div class="foot"><span>Patungan</span></div>
-  <aside class="speaker-notes">Picture a futsal group, an arisan or an office collection where one person pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
+  <aside class="speaker-notes">Picture a Thursday football group, an arisan or an office collection where one person pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
 </section>
 
 <section class="slide" data-n="3" aria-label="The last seat pays">
   <div class="cols" style="grid-template-columns: .8fr 1.2fr">
     <div>
-      <p class="label">Lembar 01 · <i>sheet 1: the last seat</i></p>
+      <p class="label">Sheet 1: the last seat</p>
       <h2 class="display" style="font-size:84px">Seat three fills. <span style="text-transform:none">test.qie</span> is paid in that same transaction.</h2>
       <p class="cap">Recorded on a QIE mainnet fork, block 11,883,271.</p>
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
-      <div class="k-row"><div><p class="k-title" style="margin-bottom:6px">Futsal Kamis <span class="gloss">Thursday futsal</span></p><p class="payee">→ test.qie</p></div><p class="counter">3<span>/</span>3</p></div>
-      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">LUNAS<small>PAID IN FULL</small></div></div>
+      <div class="k-row"><div><p class="k-title" style="margin-bottom:6px">Thursday 5-a-side football</p><p class="payee">→ test.qie</p></div><p class="counter">3<span>/</span>3</p></div>
+      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">PAID<small>IN FULL</small></div></div>
       <p class="paidline">Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
     </div>
   </div>
@@ -258,7 +258,7 @@ body.overview .slide:hover { outline-color: var(--before) }
 <section class="slide" data-n="6" aria-label="Refund">
   <div class="refund-cols">
     <div style="align-self:center">
-      <p class="label">Dikembalikan · <i>refunded</i></p>
+      <p class="label">Refunded</p>
       <h2 class="display">Miss the deadline, everyone is paid back</h2>
       <ul class="facts">
         <li><span>Each member claims their own</span><span class="data">claimRefund · 95,422 gas (fork)</span></li>
@@ -266,7 +266,7 @@ body.overview .slide:hover { outline-color: var(--before) }
         <li><span>A seat paid in QIE comes back as QUSDC</span><span class="data">same refund</span></li>
       </ul>
     </div>
-    <div class="phone"><img src="../shots/6-dikembalikan.webp" width="390" height="918" alt="Pool past its deadline, stamped DIKEMBALIKAN: everyone was refunded" /></div>
+    <div class="phone"><img src="../shots/6-refunded.webp" width="390" height="918" alt="Pool past its deadline, stamped REFUNDED: everyone was refunded" /></div>
   </div>
   <div class="foot"><span>evidence/local-flow-run.txt · evidence/e2e-local/</span></div>
   <aside class="speaker-notes">The refund is the trust half. The organizer can cancel early, and after the deadline nobody has to wait for anyone: each friend claims, or one call refunds them all.</aside>

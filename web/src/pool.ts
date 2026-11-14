@@ -23,7 +23,7 @@ import {
   revertSentence,
   shortAddr,
   statusLine,
-  terbilangQusdc,
+  amountInWords,
   type PoolKind,
 } from './format'
 import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
@@ -261,17 +261,17 @@ class PoolPage {
     card.innerHTML = `
       ${this.dep.rpc ? `<p class="localnote">Local test chain (anvil fork of QIE mainnet). Not mainnet; amounts are test data.</p>` : ''}
       <div class="topline">
-        <p class="label">Kuitansi patungan <i>· group payment</i> <span class="data">#${this.id}</span></p>
+        <p class="label">Group payment receipt <span class="data">#${this.id}</span></p>
         ${this.account ? `<span class="data acct" title="${this.account}">${shortAddr(this.account)}</span>` : hasWallet() ? `<button class="link" data-act="connect">Connect wallet</button>` : ''}
       </div>
       <h1>${esc(d.title) || `Pool #${this.id}`}</h1>
-      <p class="label">Untuk pembayaran <i>· pays</i></p>
+      <p class="label">Pays</p>
       <p class="payee">${payee} ${d.payeeName ? `<span class="data">${shortAddr(d.payee)}</span>` : ''}</p>
       <div class="row2">
         <div class="amount">${fmtQusdc(d.price)} QUSDC<small>per seat · ${fmtQusdc(total)} QUSDC in total</small></div>
         <div class="counter" aria-label="${d.filled} of ${d.seats} seats paid">${d.filled}<span>/</span>${d.seats}</div>
       </div>
-      <p class="terbilang"><span class="label">Terbilang · in words</span> ${terbilangQusdc(d.price)} per kursi</p>
+      <p class="inwords"><span class="label">In words</span> ${amountInWords(d.price)} per seat</p>
       <p class="deadline">closes ${fmtWib(d.deadline)} · ${fmtLeft(d.deadline, d.now)}</p>
       <p class="status" role="status">${esc(statusLine(d, d.now))}</p>
       ${this.stamp(kind, d, payee, land)}
@@ -301,7 +301,7 @@ class PoolPage {
     const el = document.createElement('div')
     el.id = 'drip'
     el.className = 'sheet dripbox'
-    el.innerHTML = `<p class="label">Kirim gas <i>· Send 0.02 QIE for gas</i></p>
+    el.innerHTML = `<p class="label">Send 0.02 QIE for gas</p>
       <p class="note">For a member who has no QIE for the network fee. It is gas only: the seat money is the member's own, in QIE or QUSDC.</p>
       <div class="drip"><input aria-label="Member address" placeholder="0x… member address" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button class="cta ghost" type="button">Send 0.02 QIE</button></div><p class="msg" aria-live="polite"></p>`
@@ -344,13 +344,13 @@ class PoolPage {
   private stamp(kind: PoolKind, d: PoolData, payee: string, land: boolean) {
     const cls = land ? ' land' : ''
     if (kind === 'paid')
-      return `<div class="stampwrap"><div class="stamp lunas${cls}" aria-hidden="true">LUNAS<small>PAID IN FULL</small></div>
+      return `<div class="stampwrap"><div class="stamp paidfull${cls}" aria-hidden="true">PAID<small>IN FULL</small></div>
         <p class="paidline">✓ Paid in full: ${fmtQusdc(d.price * BigInt(d.seats))} QUSDC to ${payee} ${this.txLink(this.activity.paidTx, 'payout tx')}</p></div>`
     if (kind === 'refunded')
-      return `<div class="stampwrap"><div class="stamp kembali${cls}" aria-hidden="true">DIKEMBALIKAN<small>REFUNDED</small></div>
+      return `<div class="stampwrap"><div class="stamp refunded${cls}" aria-hidden="true">REFUNDED<small>IN FULL</small></div>
         <p class="paidline">✓ Everyone was refunded: ${d.memberCount} member${d.memberCount === 1 ? '' : 's'}, ${fmtQusdc(d.price * BigInt(d.filled))} QUSDC</p></div>`
     if (kind === 'cancelled')
-      return `<div class="stampwrap"><div class="stamp batal" aria-hidden="true">DIBATALKAN<small>CANCELLED</small></div></div>`
+      return `<div class="stampwrap"><div class="stamp cancelled" aria-hidden="true">CANCELLED</div></div>`
     return ''
   }
 
@@ -378,7 +378,7 @@ class PoolPage {
           <span class="tick">${tick}</span></li>`)
       }
     }
-    for (; n < d.seats; ) out.push(`<li class="empty"><span class="n">${++n}</span><span class="who">kursi kosong · open seat</span><span></span></li>`)
+    for (; n < d.seats; ) out.push(`<li class="empty"><span class="n">${++n}</span><span class="who">open seat</span><span></span></li>`)
     return out.join('')
   }
 
@@ -540,7 +540,7 @@ class PoolPage {
           <button type="button" data-n="1" aria-label="more seats"${n >= left ? ' disabled' : ''}>+</button>
           <span class="data">${fmtQusdc(amount)} QUSDC</span></div>
         <div class="tabs" role="tablist">
-          <button type="button" role="tab" aria-selected="${tab === 'qie'}" data-tab="qie">Bayar pakai QIE · Pay with QIE</button>
+          <button type="button" role="tab" aria-selected="${tab === 'qie'}" data-tab="qie">Pay with QIE</button>
           <button type="button" role="tab" aria-selected="${tab === 'qusdc'}" data-tab="qusdc">Pay with QUSDC</button>
         </div>
         <div class="tabbody">Reading the price…</div>
@@ -695,5 +695,5 @@ class PoolPage {
 
 function skeleton() {
   const rows = Array.from({ length: 5 }, (_, i) => `<li class="empty"><span class="n">${i + 1}</span><span class="who"></span><span></span></li>`).join('')
-  return `<p class="label">Kuitansi patungan</p><h1 class="ghosttext">&nbsp;</h1><ol class="roster">${rows}</ol>`
+  return `<p class="label">Group payment receipt</p><h1 class="ghosttext">&nbsp;</h1><ol class="roster">${rows}</ol>`
 }

@@ -30,9 +30,9 @@ if (route) {
 }
 
 const STAMP: Record<string, string> = {
-  paid: 'LUNAS',
-  refunded: 'DIKEMBALIKAN',
-  cancelled: 'DIBATALKAN',
+  paid: 'PAID IN FULL',
+  refunded: 'REFUNDED',
+  cancelled: 'CANCELLED',
   open: 'OPEN',
   'refunds-open': 'CLOSED · refunds available',
   'partly-refunded': 'CLOSED · refunding',
@@ -44,7 +44,7 @@ async function home() {
   app.innerHTML = `<section class="home">
     <h1>Patungan</h1>
     <p class="lede">Group payments with a deadline, on QIE mainnet. The last seat pays the seller; a missed deadline refunds everyone.</p>
-    <p class="homecta"><a class="cta" href="/new">Buat patungan · Start a pool</a> <a class="link" href="/verify">Verify the contract →</a></p>
+    <p class="homecta"><a class="cta" href="/new">Start a pool</a> <a class="link" href="/verify">Verify the contract →</a></p>
     <h2 class="label">Pools</h2><ul class="pools" id="pools"><li class="data">Reading…</li></ul>
     <h2 class="label">QIE mainnet, live</h2><dl id="status"></dl></section>`
   void pools()

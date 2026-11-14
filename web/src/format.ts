@@ -20,31 +20,30 @@ export function fmtQie(wei: bigint, digits = 4): string {
 
 export const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`
 
-const SATUAN = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas']
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
 
-/** Indonesian number words for a non-negative integer ("terbilang"), up to the trillions. */
-export function terbilang(n: number): string {
+/** English number words for a non-negative integer ("one thousand two hundred fifty"), up to the trillions. */
+export function numberWords(n: number): string {
   n = Math.floor(n)
-  if (n === 0) return 'nol'
+  if (n === 0) return 'zero'
   const words = (x: number): string => {
-    if (x < 12) return SATUAN[x]
-    if (x < 20) return `${SATUAN[x - 10]} belas`
-    if (x < 100) return `${SATUAN[Math.floor(x / 10)]} puluh ${words(x % 10)}`
-    if (x < 200) return `seratus ${words(x - 100)}`
-    if (x < 1000) return `${SATUAN[Math.floor(x / 100)]} ratus ${words(x % 100)}`
-    if (x < 2000) return `seribu ${words(x - 1000)}`
-    const units: [number, string][] = [[1e12, 'triliun'], [1e9, 'miliar'], [1e6, 'juta'], [1e3, 'ribu']]
+    if (x === 0) return ''
+    if (x < 20) return ONES[x]
+    if (x < 100) return `${TENS[Math.floor(x / 10)]} ${words(x % 10)}`
+    if (x < 1000) return `${ONES[Math.floor(x / 100)]} hundred ${words(x % 100)}`
+    const units: [number, string][] = [[1e12, 'trillion'], [1e9, 'billion'], [1e6, 'million'], [1e3, 'thousand']]
     for (const [v, name] of units) if (x >= v) return `${words(Math.floor(x / v))} ${name} ${words(x % v)}`
     return ''
   }
   return words(n).replace(/\s+/g, ' ').trim()
 }
 
-/** "dua koma lima nol QUSDC" style reading of a QUSDC amount (decimals read digit by digit, as on a receipt). */
-export function terbilangQusdc(units: bigint): string {
+/** "two point two five QUSDC" reading of a QUSDC amount (decimals read digit by digit, as on a receipt). */
+export function amountInWords(units: bigint): string {
   const [int, frac] = fmtQusdc(units).replace(/,/g, '').split('.')
-  const digits = frac.split('').map((d) => (d === '0' ? 'nol' : SATUAN[Number(d)]))
-  return `${terbilang(Number(int))} koma ${digits.join(' ')} QUSDC`
+  const digits = frac.split('').map((d) => ONES[Number(d)])
+  return `${numberWords(Number(int))} point ${digits.join(' ')} QUSDC`
 }
 
 export enum Status {

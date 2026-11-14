@@ -10,8 +10,8 @@ import {
   qieOffer,
   revertSentence,
   statusLine,
-  terbilang,
-  terbilangQusdc,
+  numberWords,
+  amountInWords,
 } from './format'
 
 const base = { status: 0, seats: 5, filled: 2, deadline: 1_000_000n, memberCount: 2, refunded: 0 }
@@ -50,18 +50,18 @@ describe('amounts', () => {
   })
 })
 
-describe('terbilang', () => {
-  it('reads Indonesian numbers', () => {
-    expect(terbilang(0)).toBe('nol')
-    expect(terbilang(11)).toBe('sebelas')
-    expect(terbilang(15)).toBe('lima belas')
-    expect(terbilang(100)).toBe('seratus')
-    expect(terbilang(1250)).toBe('seribu dua ratus lima puluh')
-    expect(terbilang(2_500_000)).toBe('dua juta lima ratus ribu')
+describe('number words', () => {
+  it('reads English numbers', () => {
+    expect(numberWords(0)).toBe('zero')
+    expect(numberWords(11)).toBe('eleven')
+    expect(numberWords(15)).toBe('fifteen')
+    expect(numberWords(100)).toBe('one hundred')
+    expect(numberWords(1250)).toBe('one thousand two hundred fifty')
+    expect(numberWords(2_500_000)).toBe('two million five hundred thousand')
   })
   it('reads a QUSDC amount as on a receipt', () => {
-    expect(terbilangQusdc(2_250_000n)).toBe('dua koma dua lima QUSDC')
-    expect(terbilangQusdc(750_000n)).toBe('nol koma tujuh lima QUSDC')
+    expect(amountInWords(2_250_000n)).toBe('two point two five QUSDC')
+    expect(amountInWords(750_000n)).toBe('zero point seven five QUSDC')
   })
 })
 
@@ -69,10 +69,10 @@ describe('pool state', () => {
   it('is open before the deadline', () => {
     expect(poolKind(base, 999_999)).toBe('open')
   })
-  it('stamps LUNAS only when paid', () => {
+  it('stamps PAID only when paid', () => {
     expect(poolKind({ ...base, status: 1, filled: 5 }, 2_000_000)).toBe('paid')
   })
-  it('says refunds are available, then k of m, then DIKEMBALIKAN only when everyone is refunded', () => {
+  it('says refunds are available, then k of m, then REFUNDED only when everyone is refunded', () => {
     expect(poolKind(base, 1_000_000)).toBe('refunds-open')
     expect(poolKind({ ...base, refunded: 1 }, 1_000_000)).toBe('partly-refunded')
     expect(poolKind({ ...base, refunded: 2 }, 1_000_000)).toBe('refunded')

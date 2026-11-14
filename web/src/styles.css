@@ -41,16 +41,16 @@ h1 { font: 850 30px/1 var(--font-display); font-stretch: 75%; text-transform: up
 .counter { font: 850 56px/.9 var(--font-display); font-stretch: 75%; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap }
 .counter span { color: var(--muted); margin: 0 2px }
 @media (min-width: 768px) { .counter { font-size: 80px } }
-.terbilang { font-size: 15px; border-bottom: 1px solid var(--rule); padding: 4px 0 6px; margin-bottom: 10px }
+.inwords { font-size: 15px; border-bottom: 1px solid var(--rule); padding: 4px 0 6px; margin-bottom: 10px }
 .deadline { font-size: 15px; text-align: right }
 .status { font: 600 16px/1.4 var(--font-body); margin: 8px 0 }
 
 .stampwrap { position: relative; text-align: center; margin: 18px 0 6px }
 .stamp { display: inline-block; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 18px 4px; font: 850 56px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: rgb(250 246 236 / .35) }
 .stamp small { display: block; font: 600 14px var(--font-body); letter-spacing: .06em }
-.stamp.lunas { color: var(--after) }
-.stamp.kembali { color: var(--refund); font-size: 38px }
-.stamp.batal { color: var(--muted); transform: none; border-style: solid; border-width: 2px; filter: none; font-size: 34px }
+.stamp.paidfull { color: var(--after) }
+.stamp.refunded { color: var(--refund); font-size: 38px }
+.stamp.cancelled { color: var(--muted); transform: none; border-style: solid; border-width: 2px; filter: none; font-size: 34px }
 .stamp.land { animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
 @keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .92 } }
 @media (prefers-reduced-motion: reduce) { .stamp.land { animation: none } }

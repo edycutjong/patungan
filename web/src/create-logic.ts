@@ -59,7 +59,7 @@ export interface CreateChecked {
 /** Mirrors the contract's BadParams checks so the form says what is wrong before a wallet is opened. */
 export function checkCreate(i: CreateInput): CreateChecked {
   const errors: CreateChecked['errors'] = {}
-  if (!i.title.trim()) errors.title = 'Give the pool a name, e.g. "Futsal Kamis".'
+  if (!i.title.trim()) errors.title = 'Give the pool a name, e.g. "Thursday football".'
   else if (byteLength(i.title) > MAX_TITLE_BYTES) errors.title = `The name is too long (${byteLength(i.title)} of ${MAX_TITLE_BYTES} bytes).`
   if (!Number.isInteger(i.seats) || i.seats < MIN_SEATS || i.seats > MAX_SEATS) errors.seats = `Seats must be ${MIN_SEATS} to ${MAX_SEATS}.`
   const price = parseQusdc(i.price)
@@ -71,23 +71,23 @@ export function checkCreate(i: CreateInput): CreateChecked {
   return { errors, price, deadline }
 }
 
-/** The WhatsApp message: Bahasa first, English second. Says plainly what happens to the money. */
+/** The WhatsApp message: English first, then one Indonesian line for the group. Says plainly what happens to the money. */
 export function shareText(p: { title: string; url: string; seats: number; price: bigint; deadline: number; payeeLabel: string }): string {
   const price = fmtQusdc(p.price)
   const title = p.title.replace(/[*_~`]/g, '') // WhatsApp formatting characters would break the bold title
   const when = fmtWib(BigInt(p.deadline))
   return [
-    `*${title}* — patungan ${p.seats} kursi × ${price} QUSDC`,
-    `Bayar kursimu sebelum ${fmtWibId(p.deadline)}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, tiap anggota bisa mengambil kembali QUSDC-nya dari halaman patungan.`,
+    `*${title}* — ${p.seats} seats × ${price} QUSDC`,
+    `Join before ${when}. The last seat pays ${p.payeeLabel} in the same transaction; if the pool doesn't fill, every member can take their QUSDC back from the pool page.`,
     ``,
-    `Join ${p.seats} seats × ${price} QUSDC before ${when}. The last seat pays ${p.payeeLabel} in the same transaction; if the pool doesn't fill, every member can take their QUSDC back from the pool page.`,
+    `🇮🇩 Bayar kursimu sebelum ${fmtWibId(p.deadline)}. Kursi terakhir langsung membayar ${p.payeeLabel}; kalau tidak penuh, tiap anggota bisa mengambil kembali QUSDC-nya dari halaman patungan.`,
     p.url,
   ].join('\n')
 }
 
 const ID_DAY = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 const ID_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-/** "Sel 17 Nov 20:00 WIB": the Bahasa paragraph of the share text. */
+/** "Sel 17 Nov 20:00 WIB": the one Indonesian line of the share text. */
 export function fmtWibId(deadline: number): string {
   const d = new Date((deadline + WIB_OFFSET_S) * 1000)
   const hh = String(d.getUTCHours()).padStart(2, '0')
