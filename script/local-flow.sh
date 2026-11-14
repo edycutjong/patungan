@@ -49,7 +49,7 @@ OWNER=$(cast call --rpc-url "$RPC" $ZONE 'domainOwnerByName(string,string)(addre
 D=$(( $(now) + 86400 ))
 
 # pool 1: PAID: QUSDC join, QIE join, QIE join fills the last seat and pays test.qie's owner
-TX=$(send --from $ORG $PAT 'createPoolByName(string,address,uint96,uint16,uint40,string)' $NAME $OWNER $SEAT 3 $D "Futsal Kamis")
+TX=$(send --from $ORG $PAT 'createPoolByName(string,address,uint96,uint16,uint40,string)' $NAME $OWNER $SEAT 3 $D "Thursday football")
 gas "createPoolByName (.qie resolve + title)" "$TX"
 buy $ALICE $SEAT
 send --from $ALICE $QUSDC 'approve(address,uint256)' $PAT $SEAT >/dev/null

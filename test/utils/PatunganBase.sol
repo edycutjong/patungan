@@ -62,7 +62,7 @@ abstract contract PatunganBase is Test {
 
     function _create(uint16 seats) internal returns (uint256 id) {
         vm.prank(organizer);
-        id = pat.createPool(payee, PRICE, seats, uint40(block.timestamp + 1 days), "Futsal Kamis");
+        id = pat.createPool(payee, PRICE, seats, uint40(block.timestamp + 1 days), "Thursday football");
     }
 
     function _join(address who, uint256 id, uint16 n) internal {

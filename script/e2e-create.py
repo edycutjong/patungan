@@ -57,7 +57,7 @@ with sync_playwright() as pw:
     step("/new with no wallet: the form renders, creating says to open a wallet app")
     p = page_as(b)
     p.goto(f"{APP}/new")
-    expect(p.locator("h1")).to_contain_text("Buat patungan")
+    expect(p.locator("h1")).to_contain_text("Start a pool")
     p.fill("input[name=title]", "Tanpa dompet")
     p.fill("input[name=payee]", "test.qie")
     expect(p.locator(".resolve")).to_contain_text("resolves to", timeout=15000)
@@ -84,27 +84,27 @@ with sync_playwright() as pw:
     p.screenshot(path=OUT / "1-new-errors.png", full_page=True)
 
     step("create by .qie name → share sheet with WhatsApp text and link")
-    p.fill("input[name=title]", "Futsal Kamis")
+    p.fill("input[name=title]", "Thursday football")
     p.fill("input[name=seats]", "4")
     p.fill("input[name=price]", "0.25")
     p.fill("input[name=payee]", "TEST.qie")  # case-insensitive input
     expect(p.locator(".resolve")).to_contain_text("test.qie resolves to", timeout=15000)
     p.screenshot(path=OUT / "2-new-filled.png", full_page=True)
     p.get_by_role("button", name="Create pool").click()
-    expect(p.locator("#shared .sharetext")).to_contain_text("Futsal Kamis", timeout=30000)
+    expect(p.locator("#shared .sharetext")).to_contain_text("Thursday football", timeout=30000)
     pid = next_id()
     assert pid == n0 + 1
     expect(p.locator(".sharetext")).to_contain_text(f"/p/local/{pid}")
     expect(p.locator("#create")).to_have_count(0)  # the form is gone after a create: no second tx from a stray tap
     expect(p.locator("#shared")).to_contain_text(f"Pool #{pid} created")
     expect(p.locator(".sharetext")).to_contain_text("take their QUSDC back")
-    expect(p.locator(".sharetext")).to_contain_text("4 kursi × 0.25 QUSDC")
+    expect(p.locator(".sharetext")).to_contain_text("4 seats × 0.25 QUSDC")
     href = p.get_by_role("link", name="Share on WhatsApp").get_attribute("href")
     assert href.startswith("https://wa.me/?text="), href
     p.screenshot(path=OUT / "3-share-sheet.png", full_page=True)
     pool = cast("call", PAT, "getPool(uint256)((address,address,uint96,uint40,uint16,uint16,uint8,uint256),string,string,uint256,uint256)", str(pid))
-    assert owner.lower() in pool.lower() and "Futsal Kamis" in pool and '"test"' in pool, pool
-    print(f"  pool #{pid} on chain: payee = test.qie owner, title Futsal Kamis")
+    assert owner.lower() in pool.lower() and "Thursday football" in pool and '"test"' in pool, pool
+    print(f"  pool #{pid} on chain: payee = test.qie owner, title Thursday football")
 
     step("create by plain address (createPool), payee label is the short address")
     p.goto(f"{APP}/new")
@@ -157,6 +157,6 @@ with sync_playwright() as pw:
     step("home has the create button")
     p.goto(f"{APP}/pools")
     p.get_by_role("link", name="Start a pool").click()
-    expect(p.locator("h1")).to_contain_text("Buat patungan")
+    expect(p.locator("h1")).to_contain_text("Start a pool")
     b.close()
 print("E2E CREATE OK: every step passed")

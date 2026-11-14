@@ -88,10 +88,10 @@ with sync_playwright() as pw:
         b, which = pw.chromium.launch(channel="chrome"), "installed Google Chrome"  # Playwright's own build missing
     print(f"browser: {which} {b.version}")
 
-    step("no wallet: PAID pool #1 reads with the LUNAS stamp")
+    step("no wallet: PAID pool #1 reads with the PAID stamp")
     p = page_as(b)
     p.goto(f"{APP}/p/local/1")
-    expect(p.locator(".stamp.lunas")).to_be_visible(timeout=15000)
+    expect(p.locator(".stamp.paidfull")).to_be_visible(timeout=15000)
     expect(p.locator(".paidline")).to_contain_text("Paid in full: 0.75 QUSDC to test.qie")
     expect(p.locator(".roster li")).to_have_count(3)
     expect(p.locator(".roster .tag", has_text="paid in QIE")).to_have_count(2)
@@ -117,7 +117,7 @@ with sync_playwright() as pw:
     p.screenshot(path=OUT / "3-after-qie-join.png", full_page=True)
     p.close()
 
-    step("Erin pays the last seat in QUSDC (approve, pay) and the LUNAS stamp lands")
+    step("Erin pays the last seat in QUSDC (approve, pay) and the PAID stamp lands")
     payee = cast("call", "0x9aab56e7727af53A3131985BFB16d845319b7bdc", "domainOwnerByName(string,string)(address)", "test", "qie")
     before = int(cast("call", QUSDC, "balanceOf(address)(uint256)", payee).split()[0])
     p = page_as(b, ERIN)
@@ -128,7 +128,7 @@ with sync_playwright() as pw:
     p.get_by_role("button", name="1 · Approve").click()
     expect(p.get_by_role("button", name="2 · Pay")).to_be_enabled(timeout=20000)
     p.get_by_role("button", name="2 · Pay").click()
-    expect(p.locator(".stamp.lunas")).to_be_visible(timeout=20000)
+    expect(p.locator(".stamp.paidfull")).to_be_visible(timeout=20000)
     expect(p.locator(".paidline")).to_contain_text("Paid in full: 1.00 QUSDC")
     after = int(cast("call", QUSDC, "balanceOf(address)(uint256)", payee).split()[0])
     assert after - before == 1_000_000, (before, after)
@@ -156,10 +156,10 @@ with sync_playwright() as pw:
     p.get_by_role("button", name="Cancel pool").click()
     expect(p.locator(".status")).to_contain_text("CLOSED, refunds available", timeout=20000)
     p.get_by_role("button", name="Refund everyone").click()
-    expect(p.locator(".stamp.kembali")).to_be_visible(timeout=20000)
+    expect(p.locator(".stamp.refunded")).to_be_visible(timeout=20000)
     p.close()
 
-    step("the short pool passes its deadline: Fran gets her money back; the stamp says DIKEMBALIKAN")
+    step("the short pool passes its deadline: Fran gets her money back; the stamp says REFUNDED")
     cast("rpc", "evm_increaseTime", "700")
     cast("rpc", "evm_mine")
     p = page_as(b, FRAN)
@@ -167,15 +167,15 @@ with sync_playwright() as pw:
     expect(p.locator(".status")).to_contain_text("CLOSED, refunds available", timeout=15000)
     p.screenshot(path=OUT / "5-closed-refunds-available.png", full_page=True)
     p.get_by_role("button", name="Get my money back").click()
-    expect(p.locator(".stamp.kembali")).to_be_visible(timeout=20000)
+    expect(p.locator(".stamp.refunded")).to_be_visible(timeout=20000)
     expect(p.locator(".paidline")).to_contain_text("Everyone was refunded: 1 member")
     p.screenshot(path=OUT / "6-dikembalikan.png", full_page=True)
     p.close()
 
-    step("pool #3, refunded in full by local-flow.sh, reads DIKEMBALIKAN")
+    step("pool #3, refunded in full by local-flow.sh, reads REFUNDED")
     p = page_as(b, FRAN)
     p.goto(f"{APP}/p/local/3")  # pool 3: already fully refunded by local-flow.sh
-    expect(p.locator(".stamp.kembali")).to_be_visible(timeout=15000)
+    expect(p.locator(".stamp.refunded")).to_be_visible(timeout=15000)
     p.close()
 
     step("home lists every pool with its state")

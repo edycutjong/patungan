@@ -63,9 +63,9 @@ contract PatunganTest is PatunganBase {
     function test_createPool_storesEverything_andEmits() public {
         uint40 deadline = uint40(block.timestamp + 1 days);
         vm.expectEmit(address(pat));
-        emit PoolCreated(1, organizer, payee, "", PRICE, 5, deadline, "Futsal Kamis");
+        emit PoolCreated(1, organizer, payee, "", PRICE, 5, deadline, "Thursday football");
         vm.prank(organizer);
-        uint256 id = pat.createPool(payee, PRICE, 5, deadline, "Futsal Kamis");
+        uint256 id = pat.createPool(payee, PRICE, 5, deadline, "Thursday football");
         assertEq(id, 1);
         assertEq(pat.nextId(), 1);
         (
@@ -84,7 +84,7 @@ contract PatunganTest is PatunganBase {
         assertEq(p.filled, 0);
         assertEq(uint8(p.status), uint8(Patungan.Status.Open));
         assertEq(p.held, 0);
-        assertEq(title, "Futsal Kamis");
+        assertEq(title, "Thursday football");
         assertEq(payeeName, "");
         assertEq(mc, 0);
         assertEq(rc, 0);
@@ -126,9 +126,9 @@ contract PatunganTest is PatunganBase {
     function test_createPoolByName_snapshotsOwner_andStoresName() public {
         uint40 d = uint40(block.timestamp + 1 days);
         vm.expectEmit(address(pat));
-        emit PoolCreated(1, organizer, payee, "lapangan", PRICE, 3, d, "Futsal");
+        emit PoolCreated(1, organizer, payee, "lapangan", PRICE, 3, d, "Football");
         vm.prank(organizer);
-        uint256 id = pat.createPoolByName("lapangan", payee, PRICE, 3, d, "Futsal");
+        uint256 id = pat.createPoolByName("lapangan", payee, PRICE, 3, d, "Football");
         (Patungan.Pool memory p,, string memory payeeName,,,) = pat.getPool(id);
         assertEq(p.payee, payee);
         assertEq(payeeName, "lapangan");
