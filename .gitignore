@@ -24,3 +24,34 @@ web/public/deployments.local.json
 # vercel link
 .vercel/
 web/.vercel/
+
+# keys and wallets (belt and braces: real keys live in ~/.config/patungan/)
+*.keystore
+keystore/
+*deployer*.env
+*wallet*.env
+*.secret
+secrets/
+
+# test and tool output
+web/playwright-report/
+web/test-results/
+web/blob-report/
+web/.lighthouseci/
+lcov.info
+coverage.txt
+broadcast/*/1983/
+
+# kitchen and agent files never belong in this public repo
+CLAUDE.md
+AGENTS.md
+.claude/
+graphify-out/
+.impeccable/
+PRODUCT.md
+
+# editors / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
