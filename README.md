@@ -32,9 +32,11 @@
 
 ## 📸 See it in Action
 
-| Join, paying in QIE | Share sheet | Paid in full | Refunded |
+| Start (payee resolved by Zone) | Pay with QIE: one tx | Paid in full | Refunded |
 |---|---|---|---|
-| <img src="web/public/shots/2-join-sheet-qie.webp" alt="Join sheet paying 0.25 QUSDC in QIE with a QIEDEX quote and the Oracle cap" width="190"> | <img src="web/public/shots/3-share-sheet.webp" alt="Organizer's share sheet with the pool link and a ready message" width="190"> | <img src="web/public/shots/4-paid-after-last-seat.webp" alt="Mainnet pool 1 stamped PAID IN FULL" width="190"> | <img src="web/public/shots/6-refunded.webp" alt="Mainnet pool 2 stamped REFUNDED" width="190"> |
+| <img src="web/public/shots/1-start-mainnet.webp" alt="Live create form on QIE mainnet with the payee qkulk75527.qie resolved by Zone" width="190"> | <img src="web/public/shots/2-one-tx-events-mainnet.webp" alt="Live /verify event log: PoolPaid #1 and Joined #1 paid in QIE share tx 0x4bd5c37d" width="190"> | <img src="web/public/shots/4-paid-after-last-seat.webp" alt="Mainnet pool 1 stamped PAID IN FULL" width="190"> | <img src="web/public/shots/6-refunded.webp" alt="Mainnet pool 2 stamped REFUNDED" width="190"> |
+
+All four are the live app on QIE mainnet (the create form was captured before signing).
 
 Live: [PAID pool](https://patungan.edycu.dev/p/mainnet-1/1) · [REFUNDED pool](https://patungan.edycu.dev/p/mainnet-1/2) · [/verify](https://patungan.edycu.dev/verify) · [/judge](https://patungan.edycu.dev/judge)
 
@@ -103,7 +105,7 @@ Numbers (all from [`evidence/`](evidence/)):
 |---|---|---|
 | Contract tests (`forge test`) | 74 passed: 50 on mocks (45 unit, 4 fuzz, 1 invariant suite of 3 properties); 24 read live mainnet state (8 Patungan fork, 16 day-one spike) | `evidence/forge-test-run.txt` |
 | Contract coverage (`forge coverage`, `src/`) | 100% lines (166/166), statements (229/229), branches (37/37), functions (25/25) | CI Stage 1 |
-| Web tests (`npm test`) | 210 passed | `evidence/web-test-run.txt` |
+| Web tests (`npm test`) | 204 passed | `evidence/web-test-run.txt` |
 | Web coverage (`npm run test:coverage`, `web/src`) | 100% statements (1045/1045), branches (631/631), functions (183/183), lines (880/880) | CI Stage 1 |
 | Mutation check | 5 of 5 injected bugs caught | `evidence/mutation-run.txt` |
 | Last-seat `joinWithQIE` (swap + payout), fork | 267,557 gas | `evidence/local-flow-run.txt` |

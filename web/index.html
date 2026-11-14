@@ -55,6 +55,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 v
 ::selection { background: var(--before); color: var(--bg) }
 a { color: inherit }
 :focus-visible { outline: 2px solid var(--before); outline-offset: 3px; border-radius: 2px }
+/* Every text link answers the pointer; class rules below (.proof a:hover, footer a:hover…) still win on specificity. */
+a:where(:not(.btn)) { border-radius: 2px; transition: color 120ms ease, background-color 120ms ease, text-decoration-color 120ms ease }
+a:where(:not(.btn)):hover { text-decoration-thickness: 2px; background-color: color-mix(in srgb, currentColor 10%, transparent) }
 img { max-width: 100%; display: block }
 .wrap { width: min(1180px, 100% - 40px); margin-inline: auto }
 .label { font: 700 12px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
@@ -240,8 +243,12 @@ code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 
 .strip figcaption b { display: block; font: 850 22px/1.1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin-bottom: 4px }
 .strip figcaption .where { display: inline-block; margin-bottom: 6px; font: 700 11px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: 3px; padding: 4px 6px }
 .where.mn { color: var(--bg); background: var(--ink) }
-.where.test { color: var(--ink); border: 1px dashed var(--ink) }
 .strip figcaption a { text-underline-offset: 3px }
+.strip figcaption code { font: 400 13px var(--font-data) }
+/* The two /verify rows that share tx 0x4bd5…: ringed in the slip's vermilion, with its 1 TX tab */
+.shot { position: relative }
+.onetx { position: absolute; left: 3%; right: 3%; top: 65.4%; height: 15.2%; border: 2.5px solid var(--after); border-radius: 6px; box-shadow: 0 0 0 3px rgb(194 58 46 / .12) }
+.onetx i { position: absolute; right: -2px; top: -12px; font: 700 10.5px/1 var(--font-body); font-style: normal; letter-spacing: .1em; color: var(--bg); background: var(--after); border-radius: 999px; padding: 4px 8px }
 
 /* tests: a fork, before mainnet */
 .tests-sec { padding: 72px 0 }
@@ -307,6 +314,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 
 @media (max-width: 1100px) {
   .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 680px; margin-inline: auto }
+  .strip .phone { max-height: 660px }
   .xgrid { grid-template-columns: minmax(0, 1fr); gap: 40px }
   .xray h2.display { max-width: 18ch }
   .slip { transform: none; max-width: 720px }
@@ -342,6 +350,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   .stamp { font-size: 34px; padding: 5px 9px 3px } .stamp .stx { font-size: 9.5px }
   .live dl { grid-template-columns: minmax(0, 1fr); gap: 0 } .live dd { margin-bottom: 8px }
   .strip { grid-template-columns: minmax(0, 1fr); max-width: 340px }
+  .strip .phone { max-height: 660px }
   .xray { padding: 60px 0 }
   .xfacts { grid-template-columns: repeat(2, auto); gap: 14px 26px } .xfacts dd { font-size: 40px }
   .slip { padding: 0 14px 14px } .slip .perf { margin-inline: -14px }
@@ -450,7 +459,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
       <p class="label">The test suite · mocks and a mainnet fork, not mainnet</p>
       <div><b>74</b>contract tests pass; 24 fork QIE mainnet <a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">forge-test-run.txt</a></div>
       <div><b>5 / 5</b>injected bugs caught <a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">mutation-run.txt</a></div>
-      <div><b>210</b>web tests pass <a href="https://github.com/edycutjong/patungan/blob/main/evidence/web-test-run.txt">web-test-run.txt</a></div>
+      <div><b>204</b>web tests pass <a href="https://github.com/edycutjong/patungan/blob/main/evidence/web-test-run.txt">web-test-run.txt</a></div>
       <div><b>+564 bps</b>median over 12 QIE joins on a fork (max +580, guard 1,500) <a href="https://github.com/edycutjong/patungan/blob/main/evidence/bench.md">bench.md</a></div>
     </div>
   </div>
@@ -499,12 +508,12 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 <section class="screens" id="endings" aria-labelledby="screens-h">
   <div class="wrap">
     <p class="label">Sheet 2: one link, two endings</p>
-    <h2 class="display" id="screens-h">Share it, pay in QIE, then paid or refunded</h2>
+    <h2 class="display" id="screens-h">Start it, pay in QIE, then paid or refunded</h2>
     <div class="strip">
-      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet after creating Saturday badminton court, 4 seats at 0.25 QUSDC: the pool link and a ready WhatsApp message" loading="lazy" /></div>
-        <figcaption><span class="where test">Local test run</span><b>Share</b>The organizer creates the pool and sends one link to the group chat. The link shows a local address.</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet for Thursday football, 2 of 4 seats paid: paying 0.25 QUSDC in QIE with a QIEDEX quote and the 15% QIE Oracle cap" loading="lazy" /></div>
-        <figcaption><span class="where test">Local test run</span><b>Pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/1-start-mainnet.webp" width="390" height="900" alt="The live create form on QIE mainnet: Thursday 5-a-side football, 5 seats at 0.25 QUSDC, and the payee qkulk75527.qie resolved by Zone to 0x3e01…3cf7" loading="lazy" /></div>
+        <figcaption><span class="where mn">QIE mainnet · read only</span><b>Start</b>One form. The payee's <code>.qie</code> name resolves through Zone on mainnet, and that address is fixed when the pool is created. Captured before signing, so no pool was made.</figcaption></figure>
+      <figure><div class="phone"><div class="shot"><img src="/shots/2-one-tx-events-mainnet.webp" width="390" height="820" alt="The live /verify event log on QIE mainnet: PoolPaid #1, 0.50 QUSDC to the payee, directly above Joined #1, one seat paid in QIE; both rows link the same transaction 0x4bd5c37d…" loading="lazy" /><span class="onetx" aria-hidden="true"><i>1 TX</i></span></div></div>
+        <figcaption><span class="where mn">QIE mainnet</span><b>Pay with QIE</b>On <a href="/verify">/verify</a>, seat 2's join (paid in QIE) and the 0.50 QUSDC payout carry one hash, <code>0x4bd5c37d…</code>: swap, seat and payout in one transaction.</figcaption></figure>
       <figure><div class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></div>
         <figcaption><span class="where mn">QIE mainnet</span><b>Paid in full</b><a href="/p/mainnet-1/1">Pool #1</a>: the last seat paid 0.50 QUSDC to the payee in its own transaction.</figcaption></figure>
       <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, with a green REFUNDED IN FULL stamp: everyone was refunded, 3 members, 0.75 QUSDC" loading="lazy" /></div>
@@ -650,8 +659,6 @@ Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skippe
 </footer>
 
 <script type="module">
-import { mountVersion } from '/src/version.ts'
-void mountVersion()
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 const RPCS = [1, 2, 3, 4, 5].map((n) => `https://rpc${n}mainnet.qie.digital/`)
 const PATUNGAN = '0x2f4646D52a5393E239f5b880411dC2CA2D945F31'
