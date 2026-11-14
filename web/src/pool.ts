@@ -30,7 +30,7 @@ import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
 import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
-import { connect, hasWallet, metamaskDeepLink, walletFor } from './wallet'
+import { connect, hasWallet, metamaskDeepLink, provider, walletFor } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
@@ -116,9 +116,9 @@ class PoolPage {
     document.body.append(this.sheet)
     await this.ensureGuard().catch(() => undefined) // a failed read is retried by the QIE tab; polling starts anyway
     if (hasWallet()) {
-      const accts = (await window.ethereum!.request({ method: 'eth_accounts' }).catch(() => [])) as Address[]
+      const accts = (await provider()!.request({ method: 'eth_accounts' }).catch(() => [])) as Address[]
       this.account = accts[0]
-      window.ethereum!.on?.('accountsChanged', (a: Address[]) => {
+      provider()!.on?.('accountsChanged', (a: Address[]) => {
         this.account = a[0]
         void this.refresh()
       })
