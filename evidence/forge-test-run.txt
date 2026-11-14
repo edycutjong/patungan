@@ -1,58 +1,64 @@
-Compiling 48 files with Solc 0.8.28
-Solc 0.8.28 finished in 3.11s
+Compiling 1 files with Solc 0.8.28
+Solc 0.8.28 finished in 878.11ms
 Compiler run successful!
 
+Ran 3 tests for test/Patungan.edges.t.sol:PatunganEdgesTest
+[PASS] test_constructor_tokenWithMoreDecimalsThanOraclePlus18_scalesFairValueDown() (gas: 538748)
+[PASS] test_createPoolByName_nameExistsButOwnerIsZero_revertsPayeeNotFound() (gas: 216473)
+[PASS] test_joinWithQIE_routerDrainsMoreNativeThanCeiling_revertsPriceDeviation() (gas: 682855)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 9.35ms (1.66ms CPU time)
+
+Ran 4 tests for test/Patungan.fuzz.t.sol:PatunganFuzzTest
+[PASS] testFuzz_joinWithQIE_spendsQuote_returnsRest(uint16,uint256) (runs: 256, μ: 457171, ~: 457902)
+[PASS] testFuzz_payout_isExactlyPriceTimesSeats(uint96,uint16,uint256) (runs: 256, μ: 1197804, ~: 1051305)
+[PASS] testFuzz_quote_matchesReferenceMath(uint96,uint16,int256) (runs: 256, μ: 228159, ~: 227872)
+[PASS] testFuzz_refunds_returnExactlyWhatWasPaid(uint96,uint16,uint8,uint256) (runs: 256, μ: 990730, ~: 837917)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 58.96ms (147.79ms CPU time)
+
 Ran 42 tests for test/Patungan.t.sol:PatunganTest
-[PASS] test_cancel_beforeFirstJoin_closesPool() (gas: 336782)
-[PASS] test_cancel_rejects() (gas: 566780)
-[PASS] test_cancel_withMembers_opensRefundsAtOnce() (gas: 633588)
-[PASS] test_claimRefund_afterDeadline_returnsQusdc_once() (gas: 984783)
+[PASS] test_cancel_beforeFirstJoin_closesPool() (gas: 336842)
+[PASS] test_cancel_rejects() (gas: 566900)
+[PASS] test_cancel_withMembers_opensRefundsAtOnce() (gas: 633648)
+[PASS] test_claimRefund_afterDeadline_returnsQusdc_once() (gas: 984843)
 [PASS] test_constructor_readsDecimalsAndWqie() (gas: 29250)
 [PASS] test_constructor_rejectsUnboundedGuard() (gas: 13162)
 [PASS] test_createPoolByName_resolvedElsewhere_revertsPayeeChanged() (gas: 84277)
-[PASS] test_createPoolByName_snapshotsOwner_andStoresName() (gas: 625012)
+[PASS] test_createPoolByName_snapshotsOwner_andStoresName() (gas: 625036)
 [PASS] test_createPoolByName_unknownName_reverts() (gas: 119833)
 [PASS] test_createPool_boundsAreInclusive() (gas: 325965)
 [PASS] test_createPool_rejectsBadParams() (gas: 310094)
-[PASS] test_createPool_storesEverything_andEmits() (gas: 202195)
-[PASS] test_getMembers_pages() (gas: 690357)
-[PASS] test_insolvent_joinsRefuse_refundsStayOpen_donationReopens() (gas: 1002305)
+[PASS] test_createPool_storesEverything_andEmits() (gas: 202255)
+[PASS] test_getMembers_pages() (gas: 690417)
+[PASS] test_insolvent_joinsRefuse_refundsStayOpen_donationReopens() (gas: 1002425)
 [PASS] test_isRefundable_unknownPool_false() (gas: 7862)
-[PASS] test_joinWithQIE_expired_reverts() (gas: 196096)
-[PASS] test_joinWithQIE_guardEdge_exactCeilingPasses_oneWeiOverFails() (gas: 618972)
-[PASS] test_joinWithQIE_lastSeat_memberRejectsChange_rollsBackPayout() (gas: 827728)
-[PASS] test_joinWithQIE_lastSeat_paysPayee() (gas: 631046)
-[PASS] test_joinWithQIE_memberRejectsChange_revertsForwardFailed() (gas: 620836)
-[PASS] test_joinWithQIE_oracleBadPrice_reverts() (gas: 305848)
-[PASS] test_joinWithQIE_oracleStale_reverts_qusdcPathStillWorks() (gas: 743802)
-[PASS] test_joinWithQIE_reentryOnChange_isBlocked() (gas: 910617)
-[PASS] test_joinWithQIE_routerAboveOracleBound_revertsPriceDeviation() (gas: 309507)
-[PASS] test_joinWithQIE_routerOverchargingBeyondCeiling_cannotTakeMore() (gas: 289445)
-[PASS] test_joinWithQIE_routerReentersMidSwap_hitsGuard() (gas: 574310)
-[PASS] test_joinWithQIE_swapDeliversShort_reverts() (gas: 352965)
-[PASS] test_joinWithQIE_swapsExactOut_returnsChange() (gas: 473636)
-[PASS] test_joinWithQIE_valueAboveCeiling_swapsAtMostCeiling() (gas: 481093)
-[PASS] test_joinWithQIE_valueTooLow_reverts() (gas: 255772)
+[PASS] test_joinWithQIE_expired_reverts() (gas: 196156)
+[PASS] test_joinWithQIE_guardEdge_exactCeilingPasses_oneWeiOverFails() (gas: 619032)
+[PASS] test_joinWithQIE_lastSeat_memberRejectsChange_rollsBackPayout() (gas: 827788)
+[PASS] test_joinWithQIE_lastSeat_paysPayee() (gas: 631106)
+[PASS] test_joinWithQIE_memberRejectsChange_revertsForwardFailed() (gas: 620896)
+[PASS] test_joinWithQIE_oracleBadPrice_reverts() (gas: 305908)
+[PASS] test_joinWithQIE_oracleStale_reverts_qusdcPathStillWorks() (gas: 743862)
+[PASS] test_joinWithQIE_reentryOnChange_isBlocked() (gas: 910677)
+[PASS] test_joinWithQIE_routerAboveOracleBound_revertsPriceDeviation() (gas: 309567)
+[PASS] test_joinWithQIE_routerOverchargingBeyondCeiling_cannotTakeMore() (gas: 289505)
+[PASS] test_joinWithQIE_routerReentersMidSwap_hitsGuard() (gas: 574370)
+[PASS] test_joinWithQIE_swapDeliversShort_reverts() (gas: 353025)
+[PASS] test_joinWithQIE_swapsExactOut_returnsChange() (gas: 473696)
+[PASS] test_joinWithQIE_valueAboveCeiling_swapsAtMostCeiling() (gas: 481153)
+[PASS] test_joinWithQIE_valueTooLow_reverts() (gas: 255832)
 [PASS] test_join_feeOnTransferToken_revertsTransferShort() (gas: 956354)
-[PASS] test_join_pullsQusdc_andRecordsSeat() (gas: 513390)
-[PASS] test_join_rejects() (gas: 290817)
-[PASS] test_lastSeat_oneMemberTakesEverySeat() (gas: 343221)
-[PASS] test_lastSeat_paysPayee_inSameTx() (gas: 824069)
-[PASS] test_pools_areIsolated() (gas: 843192)
+[PASS] test_join_pullsQusdc_andRecordsSeat() (gas: 513450)
+[PASS] test_join_rejects() (gas: 290877)
+[PASS] test_lastSeat_oneMemberTakesEverySeat() (gas: 343281)
+[PASS] test_lastSeat_paysPayee_inSameTx() (gas: 824129)
+[PASS] test_pools_areIsolated() (gas: 843312)
 [PASS] test_quoteQIE_unknownPool_reverts() (gas: 11039)
 [PASS] test_receive_rejectsAnyoneButRouter() (gas: 38838)
-[PASS] test_refundAll_andGetMembers_hugeRanges_doNotOverflow() (gas: 651355)
-[PASS] test_refundAll_batches_skipsClaimed_exactlyOnce() (gas: 1870346)
-[PASS] test_refundAll_failedTransfer_restoresBalance_andEmitsRefundFailed() (gas: 1067718)
-[PASS] test_twoPools_issuerBurn_firstComeFirstPaid() (gas: 840654)
-Suite result: ok. 42 passed; 0 failed; 0 skipped; finished in 75.34ms (17.83ms CPU time)
-
-Ran 4 tests for test/Patungan.fuzz.t.sol:PatunganFuzzTest
-[PASS] testFuzz_joinWithQIE_spendsQuote_returnsRest(uint16,uint256) (runs: 256, μ: 457528, ~: 457842)
-[PASS] testFuzz_payout_isExactlyPriceTimesSeats(uint96,uint16,uint256) (runs: 256, μ: 1222489, ~: 1052110)
-[PASS] testFuzz_quote_matchesReferenceMath(uint96,uint16,int256) (runs: 256, μ: 228427, ~: 228521)
-[PASS] testFuzz_refunds_returnExactlyWhatWasPaid(uint96,uint16,uint8,uint256) (runs: 256, μ: 1025310, ~: 838125)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 85.24ms (174.29ms CPU time)
+[PASS] test_refundAll_andGetMembers_hugeRanges_doNotOverflow() (gas: 651415)
+[PASS] test_refundAll_batches_skipsClaimed_exactlyOnce() (gas: 1870406)
+[PASS] test_refundAll_failedTransfer_restoresBalance_andEmitsRefundFailed() (gas: 1067778)
+[PASS] test_twoPools_issuerBurn_firstComeFirstPaid() (gas: 840774)
+Suite result: ok. 42 passed; 0 failed; 0 skipped; finished in 59.10ms (12.02ms CPU time)
 
 Ran 1 test for test/invariant/PatunganInvariant.t.sol:PatunganInvariantTest
 [PASS]
@@ -65,24 +71,24 @@ PatunganInvariantTest invariants:
 ╭----------+-------------+-------+---------+----------╮
 | Contract | Selector    | Calls | Reverts | Discards |
 +=====================================================+
-| Handler  | cancel      | 398   | 0       | 0        |
+| Handler  | cancel      | 397   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | claim       | 415   | 0       | 0        |
+| Handler  | claim       | 413   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | create      | 411   | 0       | 0        |
+| Handler  | create      | 386   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | donate      | 411   | 0       | 0        |
+| Handler  | donate      | 417   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | join        | 392   | 0       | 0        |
+| Handler  | join        | 422   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | joinWithQIE | 397   | 0       | 0        |
+| Handler  | joinWithQIE | 368   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | refundAll   | 387   | 0       | 0        |
+| Handler  | refundAll   | 388   | 0       | 0        |
 |----------+-------------+-------+---------+----------|
-| Handler  | warp        | 389   | 0       | 0        |
+| Handler  | warp        | 409   | 0       | 0        |
 ╰----------+-------------+-------+---------+----------╯
 
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.21s (1.19s CPU time)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.13s (1.12s CPU time)
 
 Ran 16 tests for test/spike/Spike.fork.t.sol:SpikeForkTest
 [PASS] test_escrow_createByName_unknownName_reverts() (gas: 38360)
@@ -101,17 +107,17 @@ Ran 16 tests for test/spike/Spike.fork.t.sol:SpikeForkTest
 [PASS] test_zone_inputFormat_lowercaseLabelOnly() (gas: 28305)
 [PASS] test_zone_resolvesRealName() (gas: 19505)
 [PASS] test_zone_unknownName_reverts() (gas: 12476)
-Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.22s (4.59s CPU time)
+Suite result: ok. 16 passed; 0 failed; 0 skipped; finished in 2.34s (5.09s CPU time)
 
 Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
 [PASS] test_fork_constructor_readsLiveDecimalsAndWqie() (gas: 16495)
-[PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 219276)
+[PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 219336)
 [PASS] test_fork_createPoolByName_unknownName_revertsPayeeNotFound() (gas: 47321)
 [PASS] test_fork_createPoolByName_wrongExpected_revertsPayeeChanged() (gas: 53192)
 [PASS] test_fork_deadlineRefund_claimAndBatch() (gas: 1443489)
 [PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() (gas: 1247110)
 [PASS] test_fork_quoteQIE_matchesRouterAndOracle() (gas: 261785)
 [PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() (gas: 1741839)
-Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.30s (3.73s CPU time)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.41s (3.99s CPU time)
 
-Ran 5 test suites in 2.31s (5.89s CPU time): 71 tests passed, 0 failed, 0 skipped (71 total tests)
+Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skipped (74 total tests)
