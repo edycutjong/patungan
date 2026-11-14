@@ -1,15 +1,18 @@
 # Patungan demo and reproduction
 
-**Status: mainnet deployment pending.** Every number below was measured on a local anvil fork of QIE mainnet (chain 1990) or on
-mocks. There is no Patungan contract on mainnet yet, so the mainnet transaction table is empty and is filled after deployment.
+**Status: live on QIE mainnet** (chain 1990). Contract [`0x2f4646D52a5393E239f5b880411dC2CA2D945F31`](https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code),
+source verified on Blockscout. The gas and benchmark sections further down were measured on a local anvil fork of QIE mainnet or on mocks;
+the full mainnet run (every tx, gas, QIE spent) is in [`evidence/mainnet-golive.md`](evidence/mainnet-golive.md).
 
 ## Mainnet transactions
 
-| Outcome | Pool | Tx hash | Explorer |
+| Outcome | Pool | Tx hash | Gas |
 |---|---|---|---|
-| Deploy + verify | n/a | pending | pending |
-| PAID (last seat pays the payee in one tx) | pending | pending | pending |
-| REFUNDED (deadline passed, members refunded) | pending | pending | pending |
+| Deploy + verify | n/a | [`0x78090ff8afbdd9bce055a9ddbaaf8f6fa0b7d8e7486e673820746fa9a7d3c9ce`](https://mainnet.qie.digital/tx/0x78090ff8afbdd9bce055a9ddbaaf8f6fa0b7d8e7486e673820746fa9a7d3c9ce) | 3,001,620 |
+| PAID (last seat pays the payee in one tx) | 1 | [`0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0`](https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0) | 267,557 |
+| REFUNDED (deadline passed, members refunded) | 2 | [`0x7886eba210a403a13e808b236a02c53564684f25332bb7b2db67ebcc8cd69f0a`](https://mainnet.qie.digital/tx/0x7886eba210a403a13e808b236a02c53564684f25332bb7b2db67ebcc8cd69f0a) | 155,766 |
+
+Both demo pools pay `qkulk75527.qie`, the builder's own name (no real seller yet). Every member wallet in them is a builder wallet.
 
 Builder-wallet pools are labelled "builder wallet". They are not users, and distinct wallets are not distinct people.
 
@@ -18,7 +21,7 @@ Builder-wallet pools are labelled "builder wallet". They are not users, and dist
 ```sh
 git submodule update --init --recursive
 forge test -vv            # 71 tests; 24 of them (8 Patungan fork + 16 spike) read live QIE mainnet state (QUSDC, QIEDEX, Zone, Oracle)
-cd web && npm ci && npm test && npm run build     # 33 web tests
+cd web && npm ci && npm test && npm run build     # 40 web tests
 script/mutation-check.sh  # 5 injected bugs, all must be caught
 script/local-flow.sh      # deploy + seed on an anvil fork, prints the receipts
 python3 script/bench.py   # gas and swap-cost tables (header of the file lists the setup)

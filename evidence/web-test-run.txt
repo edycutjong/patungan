@@ -1,9 +1,13 @@
 
+> patungan-web@0.1.0 test
+> vitest run
+
+
  RUN  v5.1.0 build/web
 
 
- Test Files  3 passed (3)
-      Tests  33 passed (33)
-   Start at  03:42:56
-   Duration  301ms (import 88%, tests 6%, transform 4%, worker 2%)
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  16:02:10
+   Duration  233ms (import 86%, transform 6%, tests 6%, worker 2%)
 

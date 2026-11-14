@@ -8,7 +8,7 @@
 <meta name="author" content="Edy Cu Tjong" />
 <meta name="theme-color" content="#FAF6EC" />
 <meta property="og:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
-<meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Built for QIE mainnet; deployment pending." />
+<meta property="og:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone. Live on QIE mainnet, source-verified contract 0x2f4646D52a5393E239f5b880411dC2CA2D945F31." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Patungan" />
 <meta property="og:url" content="https://patungan-qie.vercel.app/" />
@@ -268,7 +268,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div class="load">
       <p class="label">Commerce &amp; Real World · QIE Mainnet Hackathon 3.0</p>
-      <p class="pending" id="hero-status"><b>Status:</b> tested on a fork of QIE mainnet · mainnet deployment pending</p>
+      <p class="pending" id="hero-status"><b>Status:</b> live on QIE mainnet · contract <span class="data">0x2f46…5F31</span></p>
       <h1 id="h1" class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
       <p class="sub"><span class="def"><b>Patungan</b>: Indonesian for chipping in together.</span> Rina books the Thursday 5-a-side football pitch and shares one link; friends pay their seats in QUSDC, QIE's dollar stablecoin, or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
       <div class="ctas">
@@ -310,7 +310,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div>
       <p class="label">Status</p>
-      <p id="dep-status"><b>Mainnet deployment pending.</b> The contract and app are built and tested against the real QUSDC, QIEDEX, Zone and Oracle contracts on a fork of QIE mainnet. This line reads the app's deployment list and changes when the contract is live.</p>
+      <p id="dep-status"><b>Live on QIE mainnet.</b> Contract <a class="data" href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31">0x2f4646D52a5393E239f5b880411dC2CA2D945F31</a>. Every pool, join, payout and refund is on the explorer.</p>
     </div>
     <div class="live">
       <p class="label">QIE mainnet, read by this page just now</p>
@@ -436,7 +436,7 @@ native QIE left in contract: 0</pre>
     <p class="label">Tembusan · <i>the carbon copy we keep</i></p>
     <h2 class="display" id="honest-h">What is not true yet, in our own words</h2>
     <ol>
-      <li id="honest-mainnet"><div><blockquote>Mainnet transactions: none yet (see Status). Everything above ran on a fork or mocks.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li id="honest-mainnet"><div><blockquote>The only mainnet pools so far are the builder's own demo pools, labelled "builder wallet"; they are not users.</blockquote><cite>README · Honest limits</cite></div></li>
       <li><div><blockquote>Distinct wallets are not distinct people. Any usage count we publish counts wallets.</blockquote><cite>README · Honest limits</cite></div></li>
       <li><div><blockquote>QUSDC has an issuer-controlled <code>VAULT_ROLE</code>; if the issuer burns escrowed QUSDC, the pool cannot make everyone whole.</blockquote><cite>README · Honest limits</cite></div></li>
     </ol>
@@ -451,7 +451,7 @@ native QIE left in contract: 0</pre>
     </div>
     <div>
       <details open><summary>Is it on QIE mainnet?</summary>
-        <p id="faq-mainnet">Not yet. Every write path ran on an anvil fork of QIE mainnet, so it executed against the real QUSDC, QIEDEX, Zone and Oracle contracts and their state. Deploying spends real QIE and is the next step; the status line above changes once the deployment is added to the app's deployment list.</p></details>
+        <p id="faq-mainnet">Yes. The contract is 0x2f4646D52a5393E239f5b880411dC2CA2D945F31 on QIE mainnet; every pool, join, payout and refund is on mainnet.qie.digital.</p></details>
       <details><summary>What if the group doesn't fill?</summary>
         <p>Then nobody is paid. After the deadline each member can take their QUSDC back with <code>claimRefund</code>, and anyone can call <code>refundAll</code> to return everyone's at once (in batches for large pools). The organizer can also cancel early, which opens the same refunds. A seat paid in QIE comes back as QUSDC.</p></details>
       <details><summary>Can the organizer run off with the money?</summary>
@@ -539,7 +539,6 @@ async function deployment() {
     const short = `${main.address.slice(0, 6)}…${main.address.slice(-4)}`
     document.getElementById('hero-status').innerHTML = `<b>Status:</b> live on QIE mainnet · contract <span class="data">${short}</span>`
     document.getElementById('faq-mainnet').textContent = `Yes. The contract is ${main.address} on QIE mainnet; every pool, join, payout and refund is on mainnet.qie.digital.`
-    document.getElementById('honest-mainnet').hidden = true
   } catch { /* keep the pending line */ }
 }
 
