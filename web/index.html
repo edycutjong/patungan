@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Patungan · the kitty that pays the court, or pays everyone back</title>
-<meta name="description" content="Group payments with a deadline on QIE: the last seat pays the payee in the same transaction, and a missed deadline refunds everyone." />
+<meta name="description" content="Group payments with a deadline, live on QIE mainnet: the last seat pays the payee in the same transaction, and a missed deadline refunds everyone." />
 <meta name="author" content="Edy Cu Tjong" />
 <meta name="theme-color" content="#FAF6EC" />
 <meta property="og:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
@@ -45,6 +45,7 @@
   --font-display: "Anybody", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-body:    "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
   --font-data:    "Red Hat Mono", ui-monospace, "SFMono-Regular", monospace;
+  --muted-on-copy: color-mix(in srgb, var(--muted) 70%, var(--ink));
 }
 
 *, *::before, *::after { box-sizing: border-box }
@@ -64,6 +65,8 @@ h2.display { font-size: clamp(34px, 4.6vw, 60px); margin: 10px 0 18px; max-width
 section[id] { scroll-margin-top: 64px }
 p { margin: 0 0 14px }
 .lede { max-width: 62ch; font-size: 18px }
+code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 188 / .4); padding: 0 4px; border-radius: 3px }
+.ext::after { content: " ↗"; font-family: var(--font-body) }
 
 /* nav */
 .nav { position: sticky; top: 0; z-index: 10; background: rgb(250 246 236 / .92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule) }
@@ -77,108 +80,184 @@ p { margin: 0 0 14px }
 .btn:active { transform: translateY(1px); box-shadow: none }
 .btn.solid { background: var(--ink); color: var(--bg) }
 .btn.small { min-height: 44px; padding: 0 14px; font-size: 14px }
+.copy-cmd { min-height: 44px; display: inline-flex; align-items: center; font: 400 14px var(--font-data); background: var(--copy); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 10px; color: var(--ink); cursor: pointer; transition: background-color 120ms ease }
+.copy-cmd:hover { background: #F1D6D9 }
+.replay { min-height: 44px; padding: 0 12px; border: 1px solid currentColor; border-radius: 4px; background: transparent; color: inherit; font: 700 13px var(--font-body); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: background-color 120ms ease, color 120ms ease }
+.replay:hover { background: var(--ink); color: var(--bg) }
 
 /* hero: ruled receipt-book paper with a perforated stub */
-.hero { position: relative; padding: 64px 0 72px; background:
+.hero { position: relative; padding: 56px 0 72px; background:
   radial-gradient(circle at 9px 9px, var(--rule) 3px, transparent 3.4px) 0 0 / 18px 18px repeat-y,
   repeating-linear-gradient(to bottom, transparent 0 39px, rgb(220 210 188 / .55) 39px 40px) }
 .hero::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; border-left: 1px dashed var(--rule) }
-.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 56px; align-items: center }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 52px; align-items: center }
 .hero h1 { font-size: clamp(42px, 5.6vw, 80px); margin: 16px 0 20px; text-wrap: balance }
-.hero h1 .hl { text-wrap: balance }
-.pending { display: inline-block; margin: 12px 0 0; padding: 6px 12px; background: var(--copy); border: 1px solid #E9CDD1; border-radius: 4px; font-size: 15px }
-.hero h1 .hl { font-style: italic; color: var(--refund); display: block }
+.hero h1 .hl { font-style: italic; color: var(--refund); display: block; text-wrap: balance }
+.live-pill { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 12px 0 0; padding: 7px 12px; background: var(--copy); border: 1px solid #E9CDD1; border-radius: 4px; font-size: 15px }
+.live-pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--refund); box-shadow: 0 0 0 3px rgb(47 117 80 / .18) }
+.live-pill a { text-underline-offset: 3px }
 .hero .sub { max-width: 58ch; font-size: 18.5px }
 .hero .sub b { font-weight: 700 }
+.def { display: block; margin-bottom: 10px; font-size: 1.05em; color: var(--ink) }
 .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0 16px }
-.proof { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: var(--muted) }
-.copy-cmd { min-height: 44px; display: inline-flex; align-items: center; font: 400 14px var(--font-data); background: var(--copy); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 10px; color: var(--ink); cursor: pointer; transition: background-color 120ms ease }
-.copy-cmd:hover { background: #F1D6D9 }
+.proof { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14.5px; color: var(--muted) }
+.proof a { color: var(--ink); display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 3px; transition: color 120ms ease }
+.proof a:hover { color: var(--before) }
 .load > * { animation: rise 520ms cubic-bezier(.2, .7, .2, 1) both }
 .load > :nth-child(2) { animation-delay: 80ms } .load > :nth-child(3) { animation-delay: 160ms }
-.load > :nth-child(4) { animation-delay: 240ms } .load > :nth-child(5) { animation-delay: 320ms }
+.load > :nth-child(4) { animation-delay: 240ms } .load > :nth-child(5) { animation-delay: 320ms } .load > :nth-child(6) { animation-delay: 400ms }
 @keyframes rise { from { transform: translateY(10px) } }
 .load.settled > * { animation: none }
 
-/* the kuitansi card (hero replay of the fork run) */
-.kuitansi { position: relative; background: #FFFDF7; border: 1px solid var(--rule); border-radius: 4px; box-shadow: 0 1px 0 var(--rule), 0 18px 40px -22px rgb(29 42 71 / .35); padding: 0 22px 20px; margin: 0 }
-.perf { height: 16px; margin: 0 -22px 14px; background: radial-gradient(circle at 8px 8px, var(--bg) 3.4px, transparent 3.8px) 0 0 / 16px 16px repeat-x; border-bottom: 1px dashed var(--rule) }
-.k-title { font: 850 34px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 4px 0 12px }
-.def { display: block; margin-bottom: 10px; font-size: 1.05em; color: var(--ink) }
-.gloss { font: 600 14px var(--font-body); text-transform: none; color: var(--muted); letter-spacing: 0; margin-left: 6px }
+/* the receipt card: mainnet pool #1, re-set from the chain */
+.kuitansi { position: relative; background: #FFFDF7; border: 1px solid var(--rule); border-radius: 4px; box-shadow: 0 1px 0 var(--rule), 0 18px 40px -22px rgb(29 42 71 / .35); padding: 0 22px 18px; margin: 0 }
+.perf { height: 16px; margin: 0 -22px 12px; background: radial-gradient(circle at 8px 8px, var(--bg) 3.4px, transparent 3.8px) 0 0 / 16px 16px repeat-x; border-bottom: 1px dashed var(--rule) }
+.k-head { display: flex; justify-content: space-between; align-items: center; gap: 10px }
+.k-head .label { margin: 0 }
+.mn-tag { white-space: nowrap; font: 700 11px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); border: 1.5px dashed var(--ink); border-radius: 3px; padding: 5px 7px }
+.k-title { font: 850 30px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 8px 0 12px; text-wrap: balance }
 .k-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end }
-.amount { border: 1.5px solid var(--ink); padding: 6px 10px; display: inline-block }
-.amount b { font-size: 21px } .amount small { display: block; font-size: 12.5px; color: var(--muted) }
-.counter { font: 850 64px/1 var(--font-display); font-stretch: 75% }
+.payee { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 2px 0 10px; font-weight: 700; font-size: 19px }
+.paychip { font: 700 13px/1 var(--font-body); color: var(--after); border: 1.5px solid var(--after); border-radius: 999px; padding: 5px 9px; transition: opacity 200ms ease }
+.paychip.off { opacity: 0 }
+.amount { border: 1.5px solid var(--ink); padding: 6px 10px; display: inline-block; margin: 0 }
+.amount b { font-size: 20px } .amount small { display: block; font-size: 12.5px; color: var(--muted) }
+.counter { font: 850 64px/1 var(--font-display); font-stretch: 75%; margin: 0 }
 .counter span { color: var(--muted) }
-.inwords { font-size: 13.5px; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 8px 0 }
-.roster-wrap { position: relative }
-.roster { list-style: none; padding: 0; margin: 12px 0 0; border-top: 1.5px solid var(--ink) }
-.roster li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--rule); font-size: 15px; transition: color 200ms ease }
+.roster { list-style: none; padding: 0; margin: 14px 0 0; border-top: 1.5px solid var(--ink) }
+.roster li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 58px; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 15px; transition: background-color 400ms ease }
+.roster li.flash { background: rgb(45 91 166 / .08) }
 .roster .n { font-weight: 700; font-size: 13px; color: var(--muted) }
-.roster .tag { font: 600 12px var(--font-body); color: var(--before); border: 1px solid var(--before); border-radius: 3px; padding: 1px 5px; margin-left: 6px }
+.roster .who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px }
+.roster .who .data { font-size: 14px }
+.tag { font: 600 12px/1.3 var(--font-body); color: var(--before); border: 1px solid var(--before); border-radius: 3px; padding: 1px 5px }
+.tag.bw { color: var(--muted); border-color: var(--muted) }
+.txl { flex-basis: 100%; font: 400 12.5px var(--font-data); color: var(--muted); text-underline-offset: 3px; transition: color 120ms ease }
+.txl:hover { color: var(--before) }
 .roster .tick { font: 700 12px var(--font-body); letter-spacing: .08em; color: var(--before) }
-.roster li.empty { color: var(--muted); font-style: italic }
+.roster li.empty .who { color: var(--muted); font-style: italic }
 .roster li.empty .tick { visibility: hidden }
-.stamp { position: absolute; left: 47%; top: 22px; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 14px 4px; font: 850 46px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: transparent; color: var(--after); text-align: center; pointer-events: none }
+.settle { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-top: 14px }
+.pot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; padding-bottom: 6px; border-bottom: 3px double var(--rule) }
+.pot .label { margin: 0 }
+.pot b { font: 850 24px/1 var(--font-display); font-stretch: 75%; color: var(--before) }
+.paidline { font-weight: 700; font-size: 15.5px; line-height: 1.4; margin: 0; transition: opacity 200ms ease }
+.paidline.off { opacity: 0 }
+.stamp { transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 12px 4px; margin: 0 6px 0 0; font: 850 40px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); color: var(--after); text-align: center; pointer-events: none }
 .stamp small { display: block; font: 700 12px var(--font-body); letter-spacing: .08em }
-.stamp.refunded { color: var(--refund) }
+.stamp .stx { display: block; margin-top: 3px; font: 400 10.5px var(--font-data); letter-spacing: 0 }
 .stamp.hide { opacity: 0 }
 .stamp.land { animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
 @keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .92 } }
-.paidline { font-weight: 700; font-size: 16px; margin: 16px 0 2px }
-.kuitansi figcaption { font-size: 14px; color: var(--muted); margin-top: 12px; line-height: 1.5 }
+.kuitansi figcaption { font-size: 13.5px; color: var(--muted); margin-top: 12px; line-height: 1.5 }
+.kuitansi figcaption a { color: var(--ink); text-underline-offset: 3px }
+.capfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 4px }
+.capfoot a { display: inline-flex; align-items: center; min-height: 44px }
+.fly { position: fixed; z-index: 20; pointer-events: none; font: 700 13px/1 var(--font-body); color: var(--bg); background: var(--after); border-radius: 999px; padding: 6px 10px; box-shadow: 0 6px 16px -6px rgb(194 58 46 / .6) }
 
 /* status band (the pink carbon duplicate) */
 .status { background: var(--copy); border-block: 1px solid #E9CDD1; padding: 22px 0 }
 .status .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px }
 .status p { margin: 6px 0 0; font-size: 15.5px }
-.live dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 6px 0 0; font-size: 15px }
-.live dt { color: var(--ink) }
 .status .label { color: var(--ink) }
-.shot-cap code, .label code { color: var(--ink) } .live dd { margin: 0; font-weight: 600 }
+.live dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; margin: 6px 0 0; font-size: 15px }
+.live dt { color: var(--ink) } .live dd { margin: 0; font-weight: 600 }
 
-/* receipts */
-.receipts { padding: 64px 0 40px }
+/* receipts: mainnet first, the test suite below it */
+.receipts { padding: 64px 0 44px }
+.rhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; margin-bottom: 10px }
+.rhead .label { margin: 0; color: var(--ink) }
 .receipts .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1.5px solid var(--ink) }
-.receipt { padding: 18px 18px 8px 0; border-right: 1px solid var(--rule) }
+.receipt { padding: 18px 18px 6px 0; border-right: 1px solid var(--rule) }
 .receipt + .receipt { padding-left: 18px } .receipt:last-child { border-right: 0 }
-.receipt .num { font: 850 clamp(44px, 5vw, 68px)/1 var(--font-display); font-stretch: 75% }
-.receipt p { font-size: 15px; margin: 8px 0 6px }
-.receipt a { display: inline-block; padding: 12px 0; font: 400 12.5px var(--font-data); color: var(--muted) }
-.receipt a, footer a, .mark { transition: color 120ms ease, text-decoration-color 120ms ease }
-.receipt a:hover { color: var(--before); text-decoration-thickness: 2px }
-footer a:hover { color: #FFFFFF; text-decoration-thickness: 2px }
-.mark:hover { color: var(--before) }
+.receipt .num { font: 850 clamp(44px, 5vw, 68px)/1 var(--font-display); font-stretch: 75%; margin: 0 }
+.receipt .num small { font-size: .42em; letter-spacing: .02em }
+.receipt p { font-size: 15px; margin: 8px 0 4px }
+.receipt a, .tests a { display: inline-flex; align-items: center; min-height: 44px; font: 400 12.5px var(--font-data); color: var(--muted); text-underline-offset: 3px; transition: color 120ms ease, text-decoration-color 120ms ease }
+.receipt a:hover, .tests a:hover { color: var(--before); text-decoration-thickness: 2px }
+.tests { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 18px; margin-top: 26px; padding-top: 14px; border-top: 1px dashed var(--muted) }
+.tests .label { grid-column: 1 / -1; margin: 0 0 4px }
+.tests div { font-size: 14.5px; line-height: 1.45 }
+.tests b { display: block; font: 850 30px/1.1 var(--font-display); font-stretch: 75% }
 
-/* demo pair */
-.demo { padding: 40px 0 72px }
-.pair { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 18px }
-.phone { margin: 0; border: 10px solid var(--ink); border-radius: 28px; overflow: hidden; background: var(--bg); box-shadow: 0 24px 50px -28px rgb(29 42 71 / .5) }
-.phone img { width: 100%; height: auto }
-.shot-cap { font-size: 13px; color: var(--muted); margin-top: 10px }
-.term { margin: 0; background: var(--ink); color: #E8E4D8; border-radius: 8px; padding: 18px 20px 20px; font: 400 14px/1.75 var(--font-data); overflow-x: auto; min-height: 330px; white-space: pre }
-.term .bar { display: block; color: rgb(232 228 216 / .6); font-size: 12.5px; margin-bottom: 10px; white-space: normal }
-.term .hot { color: #FFFFFF; background: rgb(250 246 236 / .16); padding: 0 3px }
-.steps { list-style: none; counter-reset: s; margin: 22px 0 0; padding: 0; border-top: 1.5px solid var(--ink) }
-.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 15px }
-.steps li::before { content: counter(s); font-weight: 700; font-size: 13px; color: var(--muted) }
-.steps .ok { font: 700 12px var(--font-body); letter-spacing: .08em; color: var(--before) }
-.steps-head { margin: 26px 0 0 }
-.pair > *, .term-wrap { min-width: 0 }
-.term-wrap .shot-cap { margin-top: 10px }
+/* the transaction, opened: navy mat + pink carbon slip */
+.xray { position: relative; background: var(--ink); color: var(--bg); padding: 84px 0; overflow: hidden }
+.xray::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0 39px, rgb(250 246 236 / .045) 39px 40px); pointer-events: none }
+.xgrid { position: relative; display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: 56px; align-items: center }
+.xray h2.display { color: var(--bg); font-size: clamp(38px, 4.8vw, 66px); max-width: 13ch; margin-top: 0 }
+.xray h2 em { font-style: italic; display: block }
+.xray .lede { color: rgb(250 246 236 / .86); font-size: 17.5px }
+.xray .lede b { color: var(--bg) }
+.xfacts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 6px 30px; margin: 26px 0 26px; padding: 16px 0 0; border-top: 1px solid rgb(250 246 236 / .25) }
+.xfacts div { display: grid; align-content: start }
+.xfacts dd { order: -1 }
+.xfacts dt { font: 600 13px/1.35 var(--font-body); color: rgb(250 246 236 / .72); max-width: 15ch }
+.xfacts dd { margin: 0 0 4px; font: 850 46px/1 var(--font-display); font-stretch: 75% }
+.xlinks { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
+.btn.inv { background: transparent; color: var(--bg); border-color: var(--bg) }
+.btn.inv:hover { box-shadow: 0 3px 0 var(--bg) }
+.slip { position: relative; margin: 0; background: var(--copy); color: var(--ink); border-radius: 3px; padding: 0 26px 16px; transform: rotate(-.7deg); box-shadow: 0 34px 60px -24px rgb(0 0 0 / .55), 0 2px 0 rgb(0 0 0 / .2) }
+.slip .perf { margin: 0 -26px 14px; background: radial-gradient(circle at 8px 8px, var(--ink) 3.4px, transparent 3.8px) 0 0 / 16px 16px repeat-x; border-bottom: 1px dashed #E9CDD1 }
+.slip-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: baseline; padding-bottom: 10px; border-bottom: 1.5px solid var(--ink) }
+.slip-head .label { margin: 0; color: var(--muted-on-copy) }
+.slip-head .hash { grid-column: 1; font: 400 17px var(--font-data); margin: 2px 0 0 }
+.slip-head .meta { grid-column: 1 / -1; font-size: 13.5px; color: var(--muted-on-copy); margin: 0 }
+.slip-head .gas { grid-row: 1 / 3; grid-column: 2; text-align: right; margin: 0; font: 850 34px/1 var(--font-display); font-stretch: 75% }
+.slip-head .gas small { display: block; font: 600 11.5px var(--font-body); letter-spacing: .1em; color: var(--muted-on-copy) }
+.slip-body { position: relative; padding-left: 50px }
+.rail { position: absolute; left: 6px; top: 12px; bottom: 12px; width: 16px; border: 3px double var(--after); border-right: 0; transition: clip-path 260ms ease }
+.rail span { position: absolute; top: 50%; left: -22px; transform: translateY(-50%); font: 700 12px/1 var(--font-body); letter-spacing: .1em; color: var(--bg); background: var(--after); border-radius: 999px; padding: 5px 9px; white-space: nowrap }
+.moves { list-style: none; counter-reset: m; padding: 0; margin: 0 }
+.moves li { counter-increment: m; position: relative; display: grid; grid-template-columns: 20px 118px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid rgb(29 42 71 / .14); font-size: 15px; line-height: 1.4; transition: opacity 240ms ease }
+.moves li::before { content: counter(m); font-weight: 700; font-size: 12.5px; color: var(--muted-on-copy) }
+.moves b { font: 850 18px/1.1 var(--font-display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .02em }
+.moves em { font-style: normal; font-weight: 700 }
+.moves i { font: 400 12px var(--font-data); font-style: normal; color: var(--muted-on-copy); white-space: nowrap }
+.moves code { background: rgb(29 42 71 / .07) }
+.moves li.held b, .moves li.held em { color: var(--before) }
+.moves li.back { color: var(--muted-on-copy) }
+.moves li.paid { border-bottom: 0; padding-right: 118px; min-height: 70px; align-items: center }
+.moves li.paid b, .moves li.paid em { font-weight: 850 }
+.moves li.paid em { font-weight: 700 }
+.mini { position: absolute; right: 2px; top: 50%; margin: -24px 0 0; font-size: 26px; padding: 4px 9px 3px; border-width: 3px }
+.mini small { font-size: 9.5px }
+.slip figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 12px; padding-top: 10px; border-top: 1.5px solid var(--ink); font-size: 13px; color: var(--muted-on-copy); line-height: 1.45 }
+.slip figcaption a { color: var(--ink); display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 3px }
+.slip figcaption .replay { margin-left: auto; color: var(--ink) }
+.slip.armed .moves li { opacity: .2 }
+.slip.armed .moves li.on { opacity: 1 }
+.slip.armed .rail { clip-path: inset(0 -60px calc((1 - var(--k, 0)) * 100%) -60px) }
+.slip.armed .mini { opacity: 0 }
+.slip.armed li.on .mini { opacity: .92; animation: land 180ms cubic-bezier(.3, 1.4, .6, 1) both }
 
-/* three screens */
-.screens { background: linear-gradient(var(--bg), #F3EDE0); padding: 64px 0 72px; border-top: 1px solid var(--rule) }
-.strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 28px }
+/* two endings */
+.screens { background: linear-gradient(var(--bg), #F3EDE0); padding: 72px 0; border-top: 1px solid var(--rule) }
+.strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; margin-top: 28px }
 .strip figure { margin: 0 }
-.strip .phone { border-width: 8px; border-radius: 22px; max-height: 560px }
-.strip .phone img { object-fit: cover; object-position: top }
-.strip figcaption { margin-top: 12px; font-size: 15px }
+.phone { margin: 0; border: 8px solid var(--ink); border-radius: 22px; overflow: hidden; background: var(--bg); box-shadow: 0 24px 50px -28px rgb(29 42 71 / .5); max-height: 520px }
+.phone img { width: 100%; height: auto; object-fit: cover; object-position: top }
+.strip figcaption { margin-top: 12px; font-size: 14.5px; line-height: 1.5 }
 .strip figcaption b { display: block; font: 850 22px/1.1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin-bottom: 4px }
+.strip figcaption .where { display: inline-block; margin-bottom: 6px; font: 700 11px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: 3px; padding: 4px 6px }
+.where.mn { color: var(--bg); background: var(--ink) }
+.where.test { color: var(--ink); border: 1px dashed var(--ink) }
+.strip figcaption a { text-underline-offset: 3px }
+
+/* tests: a fork, before mainnet */
+.tests-sec { padding: 72px 0 }
+.pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: start; margin-top: 20px }
+.pair > * { min-width: 0 }
+.term { margin: 0; background: var(--ink); color: #E8E4D8; border-radius: 8px; padding: 18px 20px 20px; font: 400 13.5px/1.75 var(--font-data); overflow-x: auto; min-height: 300px; white-space: pre }
+.term .bar { display: block; color: rgb(232 228 216 / .66); font-size: 12.5px; margin-bottom: 10px; white-space: normal }
+.term .hot { color: #FFFFFF; background: rgb(250 246 236 / .16); padding: 0 3px }
+.shot-cap { font-size: 13.5px; color: var(--muted); margin-top: 10px }
+.shot-cap code, .label code { color: var(--ink) }
+.steps { list-style: none; margin: 8px 0 0; padding: 0; border-top: 1.5px solid var(--ink) }
+.steps li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 15px }
+.steps .ok { font: 700 12px var(--font-body); letter-spacing: .08em; color: var(--before) }
 
 /* how it works: asymmetric bento */
-.how { padding: 72px 0 }
+.how { padding: 72px 0; border-top: 1px solid var(--rule) }
 .bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-top: 26px }
 .card { border: 1px solid var(--rule); background: #FFFDF7; border-radius: 6px; padding: 20px 20px 18px; transition: border-color 140ms ease, transform 140ms ease }
 .card:hover { border-color: var(--ink); transform: translateY(-2px) }
@@ -201,7 +280,7 @@ footer a:hover { color: #FFFFFF; text-decoration-thickness: 2px }
 .honest li::before { content: "0" counter(q); font: 850 30px/1 var(--font-display); font-stretch: 75%; color: rgb(250 246 236 / .5) }
 .honest blockquote { margin: 0; font-size: clamp(19px, 2.1vw, 24px); line-height: 1.45 }
 .honest cite { display: block; font: 600 14px var(--font-body); font-style: normal; color: rgb(250 246 236 / .72); margin-top: 6px }
-.honest code { font-family: var(--font-data); font-size: .85em }
+.honest code { font-family: var(--font-data); font-size: .85em; background: rgb(250 246 236 / .12) }
 
 /* FAQ */
 .faq { padding: 72px 0 }
@@ -213,8 +292,7 @@ summary::-webkit-details-marker { display: none }
 summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font: 850 30px/1 var(--font-display); transition: transform 160ms ease }
 details[open] summary::after { transform: rotate(45deg) }
 summary:hover { color: var(--before) }
-details p { max-width: 68ch; font-size: 16px }
-code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 188 / .4); padding: 0 4px; border-radius: 3px }
+details p { max-width: 68ch; font-size: 16px; overflow-wrap: anywhere }
 
 /* final + footer */
 .final { background: var(--copy); padding: 72px 0; text-align: center; border-top: 1px solid #E9CDD1 }
@@ -222,33 +300,69 @@ code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 
 .final .ctas { justify-content: center }
 footer { background: var(--ink); color: rgb(250 246 236 / .78); padding: 28px 0; font-size: 14px }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between }
-footer a { color: var(--bg); display: inline-flex; align-items: center; min-height: 44px }
+footer a { color: var(--bg); display: inline-flex; align-items: center; min-height: 44px; transition: color 120ms ease, text-decoration-color 120ms ease }
+footer a:hover { color: #FFFFFF; text-decoration-thickness: 2px }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
+.mark { transition: color 120ms ease } .mark:hover { color: var(--before) }
 
+@media (max-width: 1100px) {
+  .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 680px; margin-inline: auto }
+  .xgrid { grid-template-columns: minmax(0, 1fr); gap: 40px }
+  .xray h2.display { max-width: 18ch }
+  .slip { transform: none; max-width: 720px }
+}
 @media (max-width: 900px) {
   .nav nav a.opt { display: none }
-  .hero { padding: 40px 0 52px }
-  .hero .wrap, .status .wrap, .pair, .faq .cols { grid-template-columns: minmax(0, 1fr); gap: 32px }
-  .receipts .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .hero { padding: 32px 0 52px }
+  .hero .wrap { display: flex; flex-direction: column; align-items: stretch; gap: 0 }
+  .load { display: contents }
+  .load > .label { order: 1 } .live-pill { order: 2; align-self: flex-start } .hero h1 { order: 3; margin-bottom: 18px }
+  #hero-card { order: 4; margin-bottom: 26px } .hero .sub { order: 5 } .ctas { order: 6 } .proof { order: 7 }
+  .status .wrap, .pair, .faq .cols { grid-template-columns: minmax(0, 1fr); gap: 32px }
+  .receipts .grid, .tests { grid-template-columns: repeat(2, minmax(0, 1fr)) }
   .receipt:nth-child(2) { border-right: 0 } .receipt:nth-child(3) { padding-left: 0 }
   .receipt:nth-child(n+3) { border-top: 1px solid var(--rule) }
-  .strip { grid-template-columns: minmax(0, 1fr); max-width: 360px; margin-inline: auto }
+  .tests div { margin-bottom: 10px }
   .bento { grid-template-columns: minmax(0, 1fr) }
   .c1, .c2, .c3, .c4, .c5, .c6 { grid-column: auto } .c6 { grid-template-columns: minmax(0, 1fr) }
-  .pair .phone { max-width: 340px }
 }
 @media (max-width: 560px) {
   .nav nav, .nav .btn.opt { display: none }
   .hero::before { display: none }
-  .k-title { font-size: 28px } .counter { font-size: 52px }
+  .hero { padding-top: 22px }
+  .load > .label { display: none }
+  .live-pill { font-size: 14px; gap: 4px 8px; padding: 6px 10px } .live-pill .vtxt { display: none }
+  .hero h1 { font-size: 40px; margin: 14px 0 16px }
+  .kuitansi { padding: 0 16px 14px } .perf { margin-inline: -16px }
+  .k-head .label { font-size: 11px; letter-spacing: .08em }
+  .payee { gap: 4px 8px } .paychip { font-size: 12px; padding: 4px 7px }
+  .txl { display: none }
+  .k-title { font-size: 24px; margin: 6px 0 8px } .counter { font-size: 48px } .payee { font-size: 16px; margin-bottom: 8px }
+  .roster li { min-height: 52px; font-size: 14px } .roster .who .data { font-size: 13px }
+  .stamp { font-size: 34px; padding: 5px 9px 3px } .stamp .stx { font-size: 9.5px }
   .live dl { grid-template-columns: minmax(0, 1fr); gap: 0 } .live dd { margin-bottom: 8px }
-  .stamp { position: relative; left: auto; top: auto; display: block; width: max-content; margin: 16px auto 0; font-size: 44px }
-  .term { font-size: 12px; padding: 14px }
+  .strip { grid-template-columns: minmax(0, 1fr); max-width: 340px }
+  .xray { padding: 60px 0 }
+  .xfacts { grid-template-columns: repeat(2, auto); gap: 14px 26px } .xfacts dd { font-size: 40px }
+  .slip { padding: 0 14px 14px } .slip .perf { margin-inline: -14px }
+  .slip-head .gas { font-size: 26px }
+  .slip-body { padding-left: 34px } .rail { left: 2px; width: 12px }
+  .moves li { grid-template-columns: 18px minmax(0, 1fr); gap: 2px 8px }
+  .moves li > span, .moves li > i { grid-column: 2 }
+  .moves li.paid { padding-right: 0; padding-bottom: 12px }
+  .mini { position: relative; right: auto; top: auto; margin: 8px 0 0; grid-column: 2; justify-self: start; font-size: 24px }
+  .term { font-size: 11.5px; padding: 14px }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important }
+  .replay { display: none }
 }
-@media print { .nav, .ctas, .copy-cmd { display: none } .hero, .status, .final, .honest, footer { -webkit-print-color-adjust: exact; print-color-adjust: exact } }
+@media print {
+  .nav, .ctas, .copy-cmd, .replay { display: none }
+  .hero, .status, .final, .honest, .xray, footer { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+  .slip.armed .moves li, .slip.armed .mini { opacity: 1 !important; transition: none !important }
+  .slip.armed .rail { clip-path: none !important }
+}
 </style>
 </head>
 <body>
@@ -259,7 +373,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
 <header class="nav">
   <div class="wrap">
     <a class="mark" href="/">Patungan</a>
-    <nav aria-label="Sections"><a href="#demo">Demo</a><a href="#how">How it works</a><a class="opt" href="#honest">Honest limits</a><a class="opt" href="#faq">FAQ</a></nav>
+    <nav aria-label="Sections"><a href="#tx">The transaction</a><a href="#endings">Two endings</a><a class="opt" href="#how">How it works</a><a class="opt" href="#faq">FAQ</a></nav>
     <a class="btn small opt" href="/pitch/">Pitch deck</a>
     <a class="btn small solid" href="/pools">Open the app</a>
   </div>
@@ -270,40 +384,42 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div class="load">
       <p class="label">Commerce &amp; Real World · QIE Mainnet Hackathon 3.0</p>
-      <p class="pending" id="hero-status"><b>Status:</b> live on QIE mainnet · contract <span class="data">0x2f46…5F31</span></p>
+      <p class="live-pill" id="hero-status"><span class="dot" aria-hidden="true"></span><b>Live on QIE mainnet</b> <span><span class="vtxt">source-verified contract </span><a class="data ext" href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code">0x2f46…5F31</a></span></p>
       <h1 id="h1" class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
-      <p class="sub"><span class="def"><b>Patungan</b>: Indonesian for chipping in together.</span> Rina books the Thursday 5-a-side football pitch and shares one link; friends pay their seats in QUSDC, QIE's dollar stablecoin, or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
+      <p class="sub"><span class="def"><b>Patungan</b>: Indonesian for chipping in together.</span> Picture Rina booking the Thursday 5-a-side football pitch and sharing one link; friends pay their seats in QUSDC or in QIE. <b>The last seat pays the court owner in that same transaction.</b> If the deadline passes first, <b>everyone takes their QUSDC back.</b></p>
       <div class="ctas">
         <a class="btn" href="https://github.com/edycutjong/patungan">View on GitHub</a>
         <a class="btn" href="/pitch/">Pitch deck</a>
         <a class="btn solid" href="/pools">Open the app</a>
       </div>
-      <p class="proof">No admin key · deadline refunds · <button class="copy-cmd" type="button" data-copy="forge test -vv" title="Copy">forge test -vv</button> <span>forks QIE mainnet through the public RPC</span></p>
+      <p class="proof"><span>On mainnet:</span><a class="data ext" href="https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0">last seat pays · 0x4bd5c37d…a7a0</a><a class="data ext" href="https://mainnet.qie.digital/tx/0x7886eba210a403a13e808b236a02c53564684f25332bb7b2db67ebcc8cd69f0a">everyone refunded · 0x7886eba2…9f0a</a></p>
     </div>
 
-    <figure class="kuitansi" id="hero-card" aria-label="A three-seat pool: seat three fills and the payee test.qie is paid, stamped PAID IN FULL">
+    <figure class="kuitansi" id="hero-card" aria-labelledby="card-cap">
       <div class="perf" aria-hidden="true"></div>
-      <p class="label">Group payment receipt</p>
-      <p class="k-title">Thursday 5-a-side football</p>
+      <div class="k-head"><p class="label">Group payment receipt #1</p><span class="mn-tag">QIE mainnet</span></div>
+      <p class="k-title">Rehearsal PAID (builder wallets)</p>
       <p class="label" style="margin:0">Pays</p>
       <div class="k-row">
         <div>
-          <p style="margin:2px 0 10px;font-weight:700;font-size:19px">test.qie</p>
-          <p class="amount"><b>0.25 QUSDC</b><small>per seat · 0.75 QUSDC in total</small></p>
+          <p class="payee"><span>qkulk75527.qie</span><span class="paychip" id="paychip">+0.50 QUSDC</span></p>
+          <p class="amount"><b>0.25 QUSDC</b><small>per seat · 0.50 QUSDC in total</small></p>
         </div>
-        <p class="counter"><b id="filled">3</b><span>/</span>3</p>
+        <p class="counter" aria-label="2 of 2 seats paid"><b id="filled">2</b><span>/</span>2</p>
       </div>
-      <p class="inwords"><span class="label">Deadline</span> all 3 seats were paid before it, so nobody needed a refund</p>
-      <div class="roster-wrap">
-        <ol class="roster" role="list">
-          <li><span class="n">1</span><span class="who">seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li>
-          <li><span class="n">2</span><span class="who">seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
-          <li><span class="n">3</span><span class="who">seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li>
-        </ol>
-        <div class="stamp" id="stamp" aria-hidden="true">PAID<small>IN FULL</small></div>
+      <ol class="roster" role="list">
+        <li><span class="n">1</span><span class="who"><span class="data">0xc7Fe…4BA1</span><span class="tag bw">builder wallet</span><span class="tag">paid in QUSDC</span><a class="txl" href="https://mainnet.qie.digital/tx/0xf05a375b2a550868b66e8370ee6b8c74f58afbab89cd86f467035df1bca4ac43">join · block 11,895,964</a></span><span class="tick">PAID</span></li>
+        <li id="seat2"><span class="n">2</span><span class="who"><span class="data">0xE1b0…93dC</span><span class="tag bw">builder wallet</span><span class="tag">paid in QIE</span><a class="txl" href="https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0">joinWithQIE · block 11,895,966</a></span><span class="tick">PAID</span></li>
+      </ol>
+      <div class="settle">
+        <div>
+          <p class="pot"><span class="label">Held by the contract</span><b id="pot">0.00 QUSDC</b></p>
+          <p class="paidline" id="paidline">✓ Paid in full: 0.50 QUSDC to qkulk75527.qie, inside seat 2's own transaction</p>
+        </div>
+        <div class="stamp" id="stamp" aria-hidden="true">PAID<small>IN FULL</small><span class="stx">0x4bd5c37d…a7a0</span></div>
       </div>
-      <p class="paidline">✓ Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
-      <figcaption>Replay of a run on a QIE mainnet fork (block 11,883,271). <code>test.qie</code> is a real mainnet name. Source: <code>evidence/local-flow-run.txt</code>.</figcaption>
+      <figcaption id="card-cap">Pool #1 on QIE mainnet, re-set from the chain: the last seat's transaction at block 11,895,966 (2026-11-14 09:01:13 UTC), 267,557 gas. Members and payee are builder wallets, not users.
+        <span class="capfoot"><a href="/p/mainnet-1/1">Live pool page</a><a class="ext" href="https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0">Explorer</a><button class="replay" type="button" id="card-replay">Replay</button></span></figcaption>
     </figure>
   </div>
 </section>
@@ -312,56 +428,117 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   <div class="wrap">
     <div>
       <p class="label">Status</p>
-      <p id="dep-status"><b>Live on QIE mainnet.</b> Contract <a class="data" href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31">0x2f4646D52a5393E239f5b880411dC2CA2D945F31</a>. Every pool, join, payout and refund is on the explorer.</p>
+      <p id="dep-status"><b>Live on QIE mainnet.</b> Contract <a class="data" href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code">0x2f4646D52a5393E239f5b880411dC2CA2D945F31</a>, source verified on Blockscout. Pool #1 was paid, pool #2 was refunded, both run from builder wallets. Real users so far: 0.</p>
     </div>
     <div class="live">
       <p class="label">QIE mainnet, read by this page just now</p>
-      <dl id="live"><dt>Block</dt><dd>reading…</dd><dt>QIE price (QIE Oracle, QIE/USDT feed)</dt><dd>reading…</dd><dt>QIE for a 0.25 QUSDC seat (QIEDEX)</dt><dd>reading…</dd></dl>
+      <dl id="live"><dt>Block</dt><dd>reading…</dd><dt>Pools opened on the contract</dt><dd>reading…</dd><dt>QIE price (QIE Oracle, QIE/USDT feed)</dt><dd>reading…</dd><dt>QIE for a 0.25 QUSDC seat (QIEDEX)</dt><dd>reading…</dd></dl>
     </div>
   </div>
 </section>
 
 <section class="receipts" aria-label="Measured results">
   <div class="wrap">
+    <div class="rhead"><p class="label">Receipts from QIE mainnet</p><p class="label"><i>every figure links to the explorer or the evidence file</i></p></div>
     <div class="grid">
-      <div class="receipt"><p class="num" data-count="74">74</p><p>contract tests pass; 24 of them read live mainnet state</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">evidence/forge-test-run.txt</a></div>
-      <div class="receipt"><p class="num"><span data-count="5">5</span> / 5</p><p>injected bugs caught by the 47 mock-based tests</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">evidence/mutation-run.txt</a></div>
-      <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for the last seat on a mainnet fork: swap, seat and payout in one transaction</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/local-flow-run.txt">evidence/local-flow-run.txt</a></div>
-      <div class="receipt"><p class="num" data-count="4">4</p><p>QIE mainnet components: QUSDC, QIEDEX, Zone <code>.qie</code>, QIE Oracle</p><a href="https://github.com/edycutjong/patungan#the-four-qie-components-it-runs-on">README · components</a></div>
+      <div class="receipt"><p class="num"><span data-count="20">20</span> / 20</p><p>go-live transactions on mainnet, every one successful: deploy, both pools, the payout, the refund</p><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mainnet-trace.md">evidence/mainnet-trace.md</a></div>
+      <div class="receipt"><p class="num" data-count="267557">267,557</p><p>gas for pool #1's last seat: swap, seat and payout in one transaction</p><a class="ext" href="https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0">tx 0x4bd5c37d…a7a0</a></div>
+      <div class="receipt"><p class="num">0.50<small> QUSDC</small></p><p>reached the payee inside that same transaction (the builder's own name, <code>qkulk75527.qie</code>)</p><a class="ext" href="https://mainnet.qie.digital/address/0x3e015c14AE36d81d73ACda34713122CC90Ec3cf7">payee on the explorer</a></div>
+      <div class="receipt"><p class="num"><span data-count="3">3</span> / 3</p><p>members of pool #2 refunded by one <code>refundAll</code> after its deadline</p><a class="ext" href="https://mainnet.qie.digital/tx/0x7886eba210a403a13e808b236a02c53564684f25332bb7b2db67ebcc8cd69f0a">tx 0x7886eba2…9f0a</a></div>
+    </div>
+    <div class="tests">
+      <p class="label">The test suite · mocks and a mainnet fork, not mainnet</p>
+      <div><b>74</b>contract tests pass; 24 fork QIE mainnet <a href="https://github.com/edycutjong/patungan/blob/main/evidence/forge-test-run.txt">forge-test-run.txt</a></div>
+      <div><b>5 / 5</b>injected bugs caught <a href="https://github.com/edycutjong/patungan/blob/main/evidence/mutation-run.txt">mutation-run.txt</a></div>
+      <div><b>210</b>web tests pass <a href="https://github.com/edycutjong/patungan/blob/main/evidence/web-test-run.txt">web-test-run.txt</a></div>
+      <div><b>+564 bps</b>median over 12 QIE joins on a fork (max +580, guard 1,500) <a href="https://github.com/edycutjong/patungan/blob/main/evidence/bench.md">bench.md</a></div>
     </div>
   </div>
 </section>
 
-<section class="demo" id="demo" aria-labelledby="demo-h">
+<section class="xray" id="tx" aria-labelledby="tx-h">
+  <div class="wrap xgrid">
+    <div>
+      <h2 class="display" id="tx-h">One transaction swaps, seats <em>and pays.</em></h2>
+      <p class="lede">Seat 2 of pool #1 paid in QIE. Inside that one mainnet transaction, Patungan read the QIE Oracle, bought exactly 0.25 QUSDC on QIEDEX, <b>paid the whole 0.50 QUSDC pot to the payee</b>, and sent the unspent QIE back. If any check had failed, the whole transaction would have reverted.</p>
+      <dl class="xfacts">
+        <div><dt>calls inside one transaction</dt><dd>18</dd></div>
+        <div><dt>gas on mainnet</dt><dd>267,557</dd></div>
+        <div><dt>over the Oracle's fair value (guard 1,500)</dt><dd>+584<small style="font-size:.5em"> bps</small></dd></div>
+      </dl>
+      <p class="xlinks"><a class="btn inv ext" href="https://mainnet.qie.digital/tx/0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0">Open it on the explorer</a><button class="copy-cmd" type="button" data-copy="python3 script/mainnet-trace.py" title="Copy">python3 script/mainnet-trace.py</button></p>
+    </div>
+
+    <figure class="slip" id="slip" aria-labelledby="slip-cap">
+      <div class="perf" aria-hidden="true"></div>
+      <div class="slip-head">
+        <p class="label">Carbon copy · one mainnet transaction</p>
+        <p class="hash">0x4bd5c37d…a7a0</p>
+        <p class="gas">267,557<small>gas used</small></p>
+        <p class="meta">block 11,895,966 · 2026-11-14 09:01:13 UTC · status success · from <span class="data">0xE1b0…93dC</span> (builder wallet)</p>
+      </div>
+      <div class="slip-body">
+        <div class="rail" aria-hidden="true"><span>1 TX</span></div>
+        <ol class="moves" role="list">
+          <li><b>QIE in</b><span>Seat 2 calls <code>joinWithQIE</code> on pool 1 with <em>1.7224 QIE</em></span><i>call 1</i></li>
+          <li><b>Pot checked</b><span>The contract holds 0.25 QUSDC: seat 1's money is all there</span><i>call 2</i></li>
+          <li><b>Fair price</b><span>QIE Oracle: 0.1552 USDT per QIE, so a seat is worth 1.6112 QIE</span><i>call 3</i></li>
+          <li><b>Quote</b><span>QIEDEX asks 1.7053 QIE for 0.25 QUSDC: +584 bps, inside the 1,500 guard</span><i>calls 4–5</i></li>
+          <li class="held"><b>Swap</b><span>QIE is wrapped; the WQIE/QUSDC pair sends <em>0.25 QUSDC</em> to Patungan</span><i>calls 7–14</i></li>
+          <li class="back"><b>Change</b><span>The router returns 0.0171 QIE it did not need</span><i>call 15</i></li>
+          <li class="held"><b>Delivery checked</b><span>Balance before and after the swap: 0.25 → <em>0.50 QUSDC</em>, the full seat price arrived</span><i>calls 6, 16</i></li>
+          <li class="paid"><b>Payee paid</b><span>Pool full: <em>0.50 QUSDC</em> to qkulk75527.qie</span><i>call 17</i><span class="stamp mini" aria-hidden="true">PAID<small>IN FULL</small></span></li>
+          <li class="back"><b>Change back</b><span>0.0171 QIE back to seat 2</span><i>call 18</i></li>
+        </ol>
+      </div>
+      <figcaption id="slip-cap"><span>Re-set from the output of <code>script/mainnet-trace.py</code>, which reads <code>debug_traceTransaction</code> from the public QIE RPC.</span><a href="https://github.com/edycutjong/patungan/blob/main/evidence/mainnet-trace.md">evidence/mainnet-trace.md</a><button class="replay" type="button" id="slip-replay">Replay</button></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="screens" id="endings" aria-labelledby="screens-h">
   <div class="wrap">
-    <p class="label">Sheet 1: the last seat</p>
-    <h2 class="display" id="demo-h">The last seat fills the roster and pays the seller</h2>
+    <p class="label">Sheet 2: one link, two endings</p>
+    <h2 class="display" id="screens-h">Share it, pay in QIE, then paid or refunded</h2>
+    <div class="strip">
+      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet after creating Saturday badminton court, 4 seats at 0.25 QUSDC: the pool link and a ready WhatsApp message" loading="lazy" /></div>
+        <figcaption><span class="where test">Local test run</span><b>Share</b>The organizer creates the pool and sends one link to the group chat. The link shows a local address.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet for Thursday football, 2 of 4 seats paid: paying 0.25 QUSDC in QIE with a QIEDEX quote and the 15% QIE Oracle cap" loading="lazy" /></div>
+        <figcaption><span class="where test">Local test run</span><b>Pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></div>
+        <figcaption><span class="where mn">QIE mainnet</span><b>Paid in full</b><a href="/p/mainnet-1/1">Pool #1</a>: the last seat paid 0.50 QUSDC to the payee in its own transaction.</figcaption></figure>
+      <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, with a green REFUNDED IN FULL stamp: everyone was refunded, 3 members, 0.75 QUSDC" loading="lazy" /></div>
+        <figcaption><span class="where mn">QIE mainnet</span><b>Refunded</b><a href="/p/mainnet-1/2">Pool #2</a> missed its deadline at 3 of 6 seats; one <code>refundAll</code> at block 11,896,230 returned 0.25 QUSDC to each member.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="tests-sec" id="tests" aria-labelledby="tests-h">
+  <div class="wrap">
+    <p class="label">Sheet 3: before mainnet</p>
+    <h2 class="display" id="tests-h">Rehearsed on a fork of mainnet first</h2>
     <div class="pair">
       <div>
-        <figure class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></figure>
-        <p class="shot-cap">The app after the last seat: <a href="/p/mainnet-1/1">pool #1 on QIE mainnet</a>, read live from the verified contract (members are builder wallets).</p>
+<pre class="term" id="term" role="region" tabindex="0" aria-label="Excerpt of forge test output: the Patungan tests that fork QIE mainnet"><span class="bar">$ forge test -vv · test run, forks QIE mainnet through the public RPC · excerpt</span>Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
+[PASS] test_fork_constructor_readsLiveDecimalsAndWqie() (gas: 16495)
+[PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 219336)
+[PASS] test_fork_createPoolByName_unknownName_revertsPayeeNotFound() (gas: 47321)
+[PASS] test_fork_createPoolByName_wrongExpected_revertsPayeeChanged() (gas: 53192)
+[PASS] test_fork_deadlineRefund_claimAndBatch() (gas: 1443489)
+<span class="hot">[PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() (gas: 1247110)</span>
+[PASS] test_fork_quoteQIE_matchesRouterAndOracle() (gas: 261785)
+[PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() (gas: 1741839)
+Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.41s (3.99s CPU time)
+
+Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skipped (74 total tests)</pre>
+        <p class="shot-cap">Lines from <code>evidence/forge-test-run.txt</code>, in their original order. These are tests on a fork, not mainnet transactions.</p>
       </div>
-      <div class="term-wrap">
-<pre class="term" id="term" role="region" tabindex="0" aria-label="Terminal output of script/local-flow.sh"><span class="bar">$ script/local-flow.sh · anvil fork of QIE mainnet</span>fork block 11883271
-deploy Patungan                              gasUsed 3002560
-createPoolByName (.qie resolve + title)      gasUsed 177664
-join (QUSDC, first seat)                     gasUsed 182829
-joinWithQIE (middle seat)                    gasUsed 248372
-<span class="hot">joinWithQIE (last seat -> payee paid)        gasUsed 267557</span>
-<span class="hot">payee received 750000 QUSDC units in the last-seat tx (expect 750000)</span>
-createPool (address payee)                   gasUsed 128973
-cancel (before first join)                   gasUsed 32930
-claimRefund (one member)                     gasUsed 95422
-refundAll (2 members, 1 skipped)             gasUsed 120539
-pool 3 refundedCount 3
-escrow QUSDC 500000 = totalHeld 500000 (pool 2's two seats)
-native QIE left in contract: 0</pre>
-        <p class="shot-cap">A separate run of <code>script/local-flow.sh</code>, lines from <code>evidence/local-flow-run.txt</code>: the payee (owner of <code>test.qie</code>) gains 0.75 QUSDC inside the last seat's own transaction, and no QIE is left behind in the contract.</p>
-        <p class="label steps-head">Browser run on a mainnet fork · <i>selected steps from <code>evidence/e2e-local-run.txt</code></i></p>
+      <div>
+        <p class="label">Browser tests on a mainnet fork · <i>selected steps from <code>evidence/e2e-local-run.txt</code></i></p>
         <ol class="steps" role="list">
           <li><span>Dave joins pool #2 paying QIE (quote + 1%, one tx)</span><span class="ok">OK</span></li>
-          <li><span>Erin pays the last seat in QUSDC (approve, pay) and the PAID stamp lands<br />payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
-          <li><span>the short pool passes its deadline: Fran gets her money back; the stamp says REFUNDED</span><span class="ok">OK</span></li>
+          <li><span>Erin pays the last seat in QUSDC (approve, pay): payee +1000000 QUSDC units in Erin's tx</span><span class="ok">OK</span></li>
+          <li><span>the short pool passes its deadline: Fran gets her money back</span><span class="ok">OK</span></li>
           <li><span>a double tap on Pay buys exactly one seat (the sheet locks before the wallet prompt)</span><span class="ok">OK</span></li>
           <li><span>a QIEDEX quote above the Oracle guard shows the reason and no QIE Pay button</span><span class="ok">OK</span></li>
         </ol>
@@ -370,24 +547,9 @@ native QIE left in contract: 0</pre>
   </div>
 </section>
 
-<section class="screens" aria-labelledby="screens-h">
-  <div class="wrap">
-    <p class="label">Sheet 2: one link, two endings</p>
-    <h2 class="display" id="screens-h">Share, pay in QIE, or get it back</h2>
-    <div class="strip">
-      <figure><div class="phone"><img src="/shots/3-share-sheet.webp" width="390" height="931" alt="Organizer's share sheet after creating Saturday badminton court, 4 seats at 0.25 QUSDC: the pool link and a ready WhatsApp message" loading="lazy" /></div>
-        <figcaption><b>Share</b>The organizer creates the pool and sends one link to the group chat. (Captured on a local test run, so the link shows a local address.)</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/2-join-sheet-qie.webp" width="390" height="933" alt="Join sheet for Thursday football, 2 of 4 seats paid: paying 0.25 QUSDC in QIE with a QIEDEX quote and the 15% QIE Oracle cap" loading="lazy" /></div>
-        <figcaption><b>Pay with QIE</b>A QIEDEX quote, the Oracle cap, one transaction. Unused QIE comes back.</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, with a green REFUNDED IN FULL stamp: everyone was refunded, 3 members, 0.75 QUSDC" loading="lazy" /></div>
-        <figcaption><b>Refunded</b><a href="/p/mainnet-1/2">Pool #2 on QIE mainnet</a>: the deadline passed at 3 of 6 seats, and one <code>refundAll</code> gave all 3 members their QUSDC back.</figcaption></figure>
-    </div>
-  </div>
-</section>
-
 <section class="how" id="how" aria-labelledby="how-h">
   <div class="wrap">
-    <p class="label">Sheet 3: how it works</p>
+    <p class="label">Sheet 4: how it works</p>
     <h2 class="display" id="how-h">Four QIE contracts, one flow</h2>
     <div class="bento">
       <article class="card c1">
@@ -412,7 +574,7 @@ native QIE left in contract: 0</pre>
       <article class="card c4">
         <p class="label">Price guard</p>
         <h3>The Oracle sets the ceiling</h3>
-        <p>The QIE Oracle's price feed bounds what the swap may cost. It is a sanity bound, never the price paid.</p>
+        <p>The QIE Oracle's price bounds what the swap may cost. Pool #1's swap cost 584 bps over fair value; the mainnet guard is 1,500.</p>
         <span class="chip">QIE Oracle · <code>latestRoundData</code></span>
       </article>
       <article class="card c5">
@@ -423,7 +585,7 @@ native QIE left in contract: 0</pre>
       </article>
       <article class="card c6">
         <div>
-          <p class="label">Peta · <i>the map</i></p>
+          <p class="label">The map</p>
           <h3>Where the money moves</h3>
           <p>Member to escrow, escrow to the payee or back to the member. Patungan has no admin key and no withdraw function.</p>
         </div>
@@ -435,11 +597,11 @@ native QIE left in contract: 0</pre>
 
 <section class="honest" id="honest" aria-labelledby="honest-h">
   <div class="wrap">
-    <p class="label">Tembusan · <i>the carbon copy we keep</i></p>
+    <p class="label">The carbon copy we keep</p>
     <h2 class="display" id="honest-h">What is not true yet, in our own words</h2>
     <ol>
-      <li id="honest-mainnet"><div><blockquote>The only mainnet pools so far are the builder's own demo pools, labelled "builder wallet"; they are not users.</blockquote><cite>README · Honest limits</cite></div></li>
-      <li><div><blockquote>Distinct wallets are not distinct people. Any usage count we publish counts wallets.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li id="honest-mainnet"><div><blockquote>The only mainnet pools so far are the builder's two demo pools. Their member wallets are builder wallets, labelled as such in the app; they are not users. The PAID pool paid the builder's own name <code>qkulk75527.qie</code>, not a real seller.</blockquote><cite>README · Honest limits</cite></div></li>
+      <li><div><blockquote>Unless marked mainnet, the numbers above ran on a fork or mocks.</blockquote><cite>README · Honest limits</cite></div></li>
       <li><div><blockquote>QUSDC has an issuer-controlled <code>VAULT_ROLE</code>; if the issuer burns escrowed QUSDC, the pool cannot make everyone whole.</blockquote><cite>README · Honest limits</cite></div></li>
     </ol>
   </div>
@@ -448,22 +610,22 @@ native QIE left in contract: 0</pre>
 <section class="faq" id="faq" aria-labelledby="faq-h">
   <div class="wrap cols">
     <div>
-      <p class="label">Pertanyaan · <i>questions</i></p>
+      <p class="label">Questions</p>
       <h2 class="display" id="faq-h">What a judge would ask</h2>
     </div>
     <div>
-      <details open><summary>Is it on QIE mainnet?</summary>
-        <p id="faq-mainnet">Yes. The contract is 0x2f4646D52a5393E239f5b880411dC2CA2D945F31 on QIE mainnet; every pool, join, payout and refund is on mainnet.qie.digital.</p></details>
+      <details open><summary>Is it really on QIE mainnet?</summary>
+        <p id="faq-mainnet">Yes. The contract is <a class="data" href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code">0x2f4646D52a5393E239f5b880411dC2CA2D945F31</a>, source verified on Blockscout. Pool #1 was paid by its last seat and pool #2 was refunded after its deadline; every transaction is on mainnet.qie.digital, and <a href="/verify">/verify</a> reads the contract live.</p></details>
+      <details><summary>Who are the users?</summary>
+        <p>None yet: 0 real users. Both mainnet pools ran from builder wallets, and the app labels them as builder wallets. Pool #1 paid the builder's own <code>.qie</code> name, not a seller. The next proof is a real group paying a real booking.</p></details>
       <details><summary>What if the group doesn't fill?</summary>
         <p>Then nobody is paid. After the deadline each member can take their QUSDC back with <code>claimRefund</code>, and anyone can call <code>refundAll</code> to return everyone's at once (in batches for large pools). The organizer can also cancel early, which opens the same refunds. A seat paid in QIE comes back as QUSDC.</p></details>
       <details><summary>Can the organizer run off with the money?</summary>
         <p>The organizer never holds it. QUSDC sits in the contract until the last seat, then goes to the payee fixed when the pool was created. Patungan has no admin key and no withdraw function. The one risk outside our code is QUSDC's issuer role, listed above.</p></details>
       <details><summary>Why swap QIE inside the join?</summary>
-        <p>Members who hold QIE can pay without a separate swap. <code>joinWithQIE</code> buys exactly the seat price and returns unused QIE in the same transaction. It reverts if the swap would cost more than the Oracle's fair value plus a guard set at deploy (1,500 bps in the fork runs; the contract caps it at 2,000).</p></details>
+        <p>Members who hold QIE can pay without a separate swap. <code>joinWithQIE</code> buys exactly the seat price and returns unused QIE in the same transaction. It reverts if the swap would cost more than the Oracle's fair value plus a guard set at deploy (1,500 bps on the mainnet contract; the code caps it at 2,000).</p></details>
       <details><summary>What does the <code>.qie</code> name do?</summary>
-        <p>The organizer types the payee as a name such as <code>test.qie</code>. Patungan resolves it through Zone's <code>domainOwnerByName</code> at creation and stores the address. If the name points somewhere else by the time the transaction is mined, creation reverts with <code>PayeeChanged</code>.</p></details>
-      <details><summary>What is mocked, and who are the users?</summary>
-        <p>The demo path is not mocked: the browser runs and <code>script/local-flow.sh</code> use a mainnet fork. 50 of the 74 contract tests use mocks for speed and fuzzing. There are no real users yet; pools the builder creates will be labelled as builder wallets (the app already supports the label).</p></details>
+        <p>The organizer types the payee as a name, such as pool #1's <code>qkulk75527.qie</code>. Patungan resolves it through Zone's <code>domainOwnerByName</code> at creation and stores the address. If the name points somewhere else by the time the transaction is mined, creation reverts with <code>PayeeChanged</code>.</p></details>
     </div>
   </div>
 </section>
@@ -492,10 +654,12 @@ import { mountVersion } from '/src/version.ts'
 void mountVersion()
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 const RPCS = [1, 2, 3, 4, 5].map((n) => `https://rpc${n}mainnet.qie.digital/`)
+const PATUNGAN = '0x2f4646D52a5393E239f5b880411dC2CA2D945F31'
 const ORACLE = '0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17'
 const ROUTER = '0x08cd2e72e156D8563B4351eb4065C262A9f553Ef'
 // getAmountsIn(250000, [WQIE, QUSDC]): QIE needed for one 0.25 QUSDC seat
 const QUOTE = '0x1f00ca74000000000000000000000000000000000000000000000000000000000003d090000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000087904d95bee9e5f24dc8852804b547981a91390000000000000000000000003f43da82ec9a4f5285f10faf1f26eca7319e5da5'
+const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function rpc(method, params) {
   for (const url of RPCS) {
@@ -513,37 +677,23 @@ const units = (v, d, places) => (Number(v) / 10 ** d).toLocaleString('en-US', { 
 async function live() {
   const dl = document.getElementById('live')
   try {
-    const [block, round, quote] = await Promise.all([
+    const [block, pools, round, quote] = await Promise.all([
       rpc('eth_blockNumber', []),
+      rpc('eth_call', [{ to: PATUNGAN, data: '0x61b8ce8c' }, 'latest']), // nextId()
       rpc('eth_call', [{ to: ORACLE, data: '0xfeaf968c' }, 'latest']),
       rpc('eth_call', [{ to: ROUTER, data: QUOTE }, 'latest']),
     ])
     const hours = Math.max(0, Math.round((Date.now() / 1000 - Number(word(round, 3))) / 3600))
     const rows = [
       ['Block', '#' + BigInt(block).toLocaleString('en-US')],
+      ['Pools opened on the contract', BigInt(pools).toString()],
       ['QIE price (QIE Oracle, QIE/USDT feed)', `${units(word(round, 1), 8, 4)} USDT, updated ${hours} h ago`],
       ['QIE for a 0.25 QUSDC seat (QIEDEX)', `${units(word(quote, 2), 18, 4)} QIE`],
     ]
     dl.replaceChildren(...rows.flatMap(([k, v]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd] }))
-  } catch (e) {
+  } catch {
     dl.innerHTML = '<dt>QIE mainnet</dt><dd>not answering right now; try again in a minute</dd>'
   }
-}
-
-async function deployment() {
-  try {
-    const { deployments } = await (await fetch('/deployments.json', { cache: 'no-store' })).json()
-    const main = (deployments || []).find((d) => d.chainId === 1990 && !d.rpc)
-    if (!main) return
-    const el = document.getElementById('dep-status')
-    el.innerHTML = '<b>Live on QIE mainnet.</b> Contract <a class="data"></a>. Every pool, join, payout and refund is on the explorer.'
-    const a = el.querySelector('a')
-    a.href = `https://mainnet.qie.digital/address/${main.address}`
-    a.textContent = main.address
-    const short = `${main.address.slice(0, 6)}…${main.address.slice(-4)}`
-    document.getElementById('hero-status').innerHTML = `<b>Status:</b> live on QIE mainnet · contract <span class="data">${short}</span>`
-    document.getElementById('faq-mainnet').textContent = `Yes. The contract is ${main.address} on QIE mainnet; every pool, join, payout and refund is on mainnet.qie.digital.`
-  } catch { /* keep the pending line */ }
 }
 
 function countUps() {
@@ -566,6 +716,95 @@ function countUps() {
   els.forEach((el) => io.observe(el))
 }
 
+// Hero: replay mainnet pool #1 from seat 1 HELD to the PAID IN FULL stamp. The markup is the final state (no-JS, print, reduced motion).
+const card = {
+  seat2: document.getElementById('seat2'),
+  who2: document.querySelector('#seat2 .who'),
+  ticks: [...document.querySelectorAll('#hero-card .tick')],
+  filled: document.getElementById('filled'),
+  pot: document.getElementById('pot'),
+  chip: document.getElementById('paychip'),
+  line: document.getElementById('paidline'),
+  stamp: document.getElementById('stamp'),
+}
+const who2 = card.who2.innerHTML
+let cardRun = 0
+async function replayCard() {
+  const run = ++cardRun
+  const alive = () => run === cardRun
+  card.who2.textContent = 'open seat'
+  card.seat2.classList.add('empty')
+  card.ticks.forEach((t) => (t.textContent = 'HELD'))
+  card.filled.textContent = '1'
+  card.pot.textContent = '0.25 QUSDC'
+  card.chip.classList.add('off'); card.line.classList.add('off')
+  card.stamp.classList.remove('land'); card.stamp.classList.add('hide')
+  await wait(900); if (!alive()) return
+  card.who2.innerHTML = who2
+  card.seat2.classList.remove('empty'); card.seat2.classList.add('flash')
+  card.filled.textContent = '2'
+  card.pot.textContent = '0.50 QUSDC'
+  await wait(650); if (!alive()) return
+  card.seat2.classList.remove('flash')
+  const from = card.pot.getBoundingClientRect()
+  const to = card.chip.getBoundingClientRect()
+  const fly = document.createElement('span')
+  fly.className = 'fly'
+  fly.textContent = '0.50 QUSDC'
+  fly.setAttribute('aria-hidden', 'true')
+  fly.style.left = `${from.left}px`; fly.style.top = `${from.top - 4}px`
+  document.body.append(fly)
+  card.pot.textContent = '0.00 QUSDC'
+  const dx = to.left - from.left, dy = to.top - from.top + 4
+  const anim = fly.animate([
+    { transform: 'translate(0, 0) scale(1)' },
+    { transform: `translate(${dx * 0.55}px, ${dy * 0.5 - 40}px) scale(1.08)`, offset: 0.55 },
+    { transform: `translate(${dx}px, ${dy}px) scale(1)` },
+  ], { duration: 720, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' })
+  await anim.finished.catch(() => {})
+  fly.remove()
+  if (!alive()) return
+  card.chip.classList.remove('off')
+  card.ticks.forEach((t) => (t.textContent = 'PAID'))
+  card.stamp.classList.remove('hide'); card.stamp.classList.add('land')
+  await wait(200); if (!alive()) return
+  card.line.classList.remove('off')
+}
+
+// The carbon slip: print the 9 moves of the mainnet transaction in order, the 1 TX rail growing with them; the stamp lands on move 8.
+const slip = document.getElementById('slip')
+const moves = [...slip.querySelectorAll('.moves li')]
+let slipRun = 0
+async function replaySlip() {
+  const run = ++slipRun
+  slip.classList.add('armed')
+  moves.forEach((li) => li.classList.remove('on'))
+  slip.style.setProperty('--k', '0')
+  await wait(250)
+  for (let k = 0; k < moves.length; k++) {
+    if (run !== slipRun) return
+    moves[k].classList.add('on')
+    slip.style.setProperty('--k', String((k + 1) / moves.length))
+    await wait(moves[k].classList.contains('paid') ? 700 : 330)
+  }
+  if (run === slipRun) slip.classList.remove('armed')
+}
+
+function hero() {
+  setTimeout(() => document.querySelector('.load').classList.add('settled'), 1100)
+  if (reduce) return
+  setTimeout(replayCard, 500)
+  document.getElementById('card-replay').addEventListener('click', replayCard)
+  document.getElementById('slip-replay').addEventListener('click', replaySlip)
+  if (!('IntersectionObserver' in window)) return
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return
+    io.disconnect()
+    void replaySlip()
+  }, { threshold: 0.35 })
+  io.observe(slip)
+}
+
 function replayTerm() {
   const pre = document.getElementById('term')
   if (reduce || !('IntersectionObserver' in window)) return
@@ -576,45 +815,26 @@ function replayTerm() {
     io.disconnect()
     let i = 0
     pre.innerHTML = bar
-    const next = () => { pre.innerHTML += (i ? '\n' : '') + lines[i++]; if (i < lines.length) setTimeout(next, 240) }
+    const next = () => { pre.innerHTML += (i ? '\n' : '') + lines[i++]; if (i < lines.length) setTimeout(next, 200) }
     next()
   }, { threshold: 0.4 })
   io.observe(pre)
 }
 
-function replayHero() {
-  setTimeout(() => document.querySelector('.load').classList.add('settled'), 1100)
-  if (reduce) return
-  const rows = [...document.querySelectorAll('#hero-card .roster li')]
-  const filled = document.getElementById('filled')
-  const stamp = document.getElementById('stamp')
-  const full = rows.map((li) => li.querySelector('.who').innerHTML)
-  const set = (i, on) => {
-    rows[i].classList.toggle('empty', !on)
-    rows[i].querySelector('.who').innerHTML = on ? full[i] : 'open seat'
-  }
-  rows.forEach((li) => (li.querySelector('.tick').textContent = 'HELD'))
-  set(1, false); set(2, false)
-  filled.textContent = '1'
-  stamp.classList.add('hide')
-  setTimeout(() => { set(1, true); filled.textContent = '2' }, 500)
-  setTimeout(() => { set(2, true); filled.textContent = '3' }, 1000)
-  setTimeout(() => {
-    rows.forEach((li) => (li.querySelector('.tick').textContent = 'PAID'))
-    stamp.classList.remove('hide'); stamp.classList.add('land')
-  }, 1250)
-  setTimeout(() => stamp.classList.remove('land'), 1600)
-}
-
 document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(b.dataset.copy); const t = b.textContent; b.textContent = 'copied'; setTimeout(() => (b.textContent = t), 1200) } catch { /* clipboard blocked */ }
 }))
+function finalCard() {
+  card.who2.innerHTML = who2; card.seat2.classList.remove('empty', 'flash'); card.ticks.forEach((t) => (t.textContent = 'PAID'))
+  card.filled.textContent = '2'; card.pot.textContent = '0.00 QUSDC'; card.chip.classList.remove('off'); card.line.classList.remove('off')
+  card.stamp.classList.remove('hide', 'land'); document.querySelectorAll('.fly').forEach((f) => f.remove())
+}
+addEventListener('beforeprint', () => { cardRun++; slipRun++; slip.classList.remove('armed'); finalCard() })
 
-replayHero()
+hero()
 countUps()
 replayTerm()
 void live()
-void deployment()
 </script>
 </body>
 </html>

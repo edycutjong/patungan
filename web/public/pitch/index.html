@@ -3,15 +3,15 @@
   Patungan pitch deck · single file · 1920×1080 stage scaled to the viewport
   Keys: → / Space / PageDown next · ← / PageUp previous · Home / End · Esc overview grid · P presenter mode (speaker notes)
   Print: Cmd/Ctrl+P → Save as PDF → one slide per page (16in × 9in)
-  Images: ../shots/4-paid-after-last-seat.webp, ../shots/6-refunded.webp, ../shots/2-join-sheet-qie.webp (4 and 6 are
-  live QIE mainnet pools; 2 runs on a local mainnet fork) · QR: inline SVG for https://patungan-qie.vercel.app/
+  Images: ../shots/6-refunded.webp (live QIE mainnet pool #2) · QR: inline SVG for https://patungan.edycu.dev/
+  Slide 4 is re-set from evidence/mainnet-trace.md (script/mainnet-trace.py, the mainnet call trace of pool #1's last seat)
 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Patungan · pitch deck</title>
-<meta name="description" content="Patungan pitch deck: group payments with a deadline on QIE. The last seat pays the payee; a missed deadline refunds everyone." />
+<meta name="description" content="Patungan pitch deck: group payments with a deadline, live on QIE mainnet. The last seat pays the payee; a missed deadline refunds everyone." />
 <meta property="og:title" content="Patungan · pitch deck" />
 <meta property="og:description" content="Group payments with a deadline on QIE: the last seat pays the payee in the same transaction, and a missed deadline refunds everyone." />
 <meta property="og:type" content="website" />
@@ -97,13 +97,56 @@ p { margin: 0 }
 .roster .n { font-weight: 700; font-size: 22px; color: var(--muted) }
 .tag { font: 600 20px var(--font-body); color: var(--before); border: 1.5px solid var(--before); border-radius: 4px; padding: 1px 8px; margin-left: 10px }
 .tick { font: 700 20px var(--font-body); letter-spacing: .1em; color: var(--before) }
-.belum { color: var(--muted); font-style: italic }
 .roster-wrap { position: relative }
-.stamp { position: absolute; left: 41%; top: 30px; transform: rotate(-6deg); border: 5px double currentColor; padding: 8px 24px 6px; font: 850 84px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .9; filter: url(#ink); color: var(--after); text-align: center }
+.stamp { position: absolute; left: 41%; top: 30px; transform: rotate(-6deg); border: 5px double currentColor; padding: 8px 24px 6px; font: 850 84px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .95; filter: url(#ink); color: var(--after); text-align: center }
 .stamp small { display: block; font: 700 20px var(--font-body); letter-spacing: .1em }
 .slide.on .stamp.lands { animation: land 200ms 450ms cubic-bezier(.3, 1.4, .6, 1) both }
-@keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .9 } }
+@keyframes land { from { transform: rotate(-6deg) scale(1.15); opacity: 0 } to { transform: rotate(-6deg) scale(1); opacity: .95 } }
 .paidline { font-weight: 700; font-size: 30px; margin-top: 22px }
+
+.k-head { display: flex; justify-content: space-between; align-items: center; gap: 16px }
+.k-head .label { margin: 0 }
+.mn-tag { font: 700 18px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; border: 2px dashed var(--ink); border-radius: 4px; padding: 8px 10px; white-space: nowrap }
+.who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px }
+.who .data { font-size: 26px }
+.tag.bw { color: var(--muted); border-color: var(--muted) }
+.tag { margin-left: 0 }
+.settle { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; margin-top: 22px }
+.settle .stamp { position: static; left: auto; top: auto; margin-right: 10px }
+.stamp .stx { display: block; margin-top: 4px; font: 400 17px var(--font-data); letter-spacing: 0 }
+.pot { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0 0 10px; padding-bottom: 10px; border-bottom: 4px double var(--rule) }
+.pot .label { margin: 0 }
+.pot b { font: 850 44px/1 var(--font-display); font-stretch: 75%; color: var(--before) }
+.settle .paidline { margin-top: 0; font-size: 28px; line-height: 1.35 }
+.chipline { display: flex; flex-wrap: wrap; align-items: center; gap: 14px }
+.paychip { font: 700 24px/1 var(--font-body); color: var(--after); border: 2px solid var(--after); border-radius: 999px; padding: 8px 14px }
+
+/* slide 4: the mainnet transaction, opened (navy mat + pink carbon slip) */
+.slip { position: relative; background: var(--copy); color: var(--ink); border-radius: 4px; padding: 0 40px 22px; box-shadow: 0 40px 70px -30px rgb(0 0 0 / .6); transform: rotate(-.5deg) }
+.slip .perf { margin: 0 -40px 18px; background: radial-gradient(circle at 13px 13px, var(--ink) 5.5px, transparent 6px) 0 0 / 26px 26px repeat-x; border-bottom: 1.5px dashed #E9CDD1 }
+.slip-head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-bottom: 12px; border-bottom: 2.5px solid var(--ink); font-size: 24px }
+.slip-head .data { font-size: 28px }
+.slip-body { position: relative; padding-left: 84px }
+.rail { position: absolute; left: 14px; top: 14px; bottom: 14px; width: 24px; border: 5px double var(--after); border-right: 0 }
+.rail span { position: absolute; top: 50%; left: -36px; transform: translateY(-50%); font: 700 22px/1 var(--font-body); letter-spacing: .1em; color: var(--bg); background: var(--after); border-radius: 999px; padding: 8px 14px; white-space: nowrap }
+.moves { list-style: none; counter-reset: m; padding: 0; margin: 0 }
+.moves li { counter-increment: m; position: relative; display: grid; grid-template-columns: 40px 330px 1fr auto; gap: 20px; align-items: baseline; padding: 11px 0; border-bottom: 1.5px solid rgb(29 42 71 / .14); font-size: 30px }
+.moves li::before { content: counter(m); font-weight: 700; font-size: 22px; color: color-mix(in srgb, var(--muted) 70%, var(--ink)) }
+.moves b { font: 850 38px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase }
+.moves em { font-style: normal; font-weight: 700 }
+.moves li > span { white-space: nowrap }
+.moves i { font: 400 20px var(--font-data); font-style: normal; color: color-mix(in srgb, var(--muted) 70%, var(--ink)) }
+.moves li.held b, .moves li.held em { color: var(--before) }
+.moves li.back { color: #5A574D }
+.moves li.paid { border-bottom: 0; padding-right: 230px; min-height: 96px; align-items: center }
+.moves .stamp { position: absolute; left: auto; right: 8px; top: 50%; margin-top: -42px; font-size: 52px; padding: 6px 14px 4px; border-width: 4px }
+.moves .stamp small { font-size: 19px }
+.slide.on .moves .stamp.lands { animation: land 200ms 650ms cubic-bezier(.3, 1.4, .6, 1) both }
+.x-cols { display: grid; grid-template-columns: 520px 1fr; gap: 70px; align-items: center; height: 100% }
+.x-cols h2.display { color: var(--bg); font-size: 84px; margin-bottom: 36px }
+.x-facts { list-style: none; padding: 0; margin: 0; border-top: 1.5px solid rgb(250 246 236 / .3) }
+.x-facts li { padding: 18px 0; border-bottom: 1.5px solid rgb(250 246 236 / .3); font-size: 26px; color: rgb(250 246 236 / .8) }
+.x-facts b { display: block; font: 850 76px/1 var(--font-display); font-stretch: 75%; color: var(--bg) }
 
 /* slide-specific */
 .pains { list-style: none; padding: 0; margin: 0; border-top: 2.5px solid var(--ink) }
@@ -134,7 +177,7 @@ p { margin: 0 }
 .num { padding: 30px 30px 0 0; border-right: 1.5px solid rgb(250 246 236 / .25) }
 .num + .num { padding-left: 30px } .num:last-child { border-right: 0 }
 .num b { display: block; font: 850 150px/1 var(--font-display); font-stretch: 75% }
-.num:first-child b { font-size: 210px }
+.num:first-child b { font-size: 176px }
 .num p { font-size: 29px; line-height: 1.35; margin-top: 14px }
 .num .src { font: 400 18px var(--font-data); color: rgb(250 246 236 / .6); margin-top: 12px }
 .zero { font: 850 300px/.85 var(--font-display); font-stretch: 75% }
@@ -154,7 +197,7 @@ p { margin: 0 }
 .links { margin-top: 48px; font: 600 30px/1.7 var(--font-body) }
 
 /* chrome */
-.counter-ui { position: fixed; right: 132px; bottom: 16px; font: 600 15px var(--font-body); color: var(--muted); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
+.counter-ui { position: fixed; right: 132px; bottom: 16px; font: 600 15px var(--font-body); color: var(--ink); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
 .navbtn { position: fixed; bottom: 10px; width: 48px; height: 44px; border: 1.5px solid var(--ink); border-radius: 6px; background: rgb(250 246 236 / .92); color: var(--ink); font: 700 20px var(--font-body); cursor: pointer; z-index: 5; transition: transform 120ms ease, background-color 120ms ease }
 .navbtn:hover { transform: translateY(-1px); background: #FFFFFF } .navbtn:focus-visible { outline: 2px solid var(--before); outline-offset: 2px }
 #prev { right: 74px } #next { right: 18px }
@@ -173,7 +216,7 @@ body.overview .viewport { position: static; overflow: visible }
 body.overview .deck { position: static; transform: none !important; width: auto; height: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 18px; padding: 18px }
 body.overview .slide { position: relative; opacity: 1; visibility: visible; transform: scale(.2); transform-origin: 0 0; width: 1920px; height: 1080px; margin: 0 -1536px -864px 0; cursor: pointer; outline: 6px solid transparent }
 body.overview .slide:hover { outline-color: var(--before) }
-@media (prefers-reduced-motion: reduce) { .slide { transition: none } .slide.on .stamp.lands { animation: none } }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none } .slide.on .stamp.lands, .slide.on .moves .stamp.lands { animation: none } }
 @page { size: 16in 9in; margin: 0 }
 @media print {
   html, body { overflow: visible; height: auto; background: none }
@@ -193,31 +236,32 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div>
       <p class="label">QIE Mainnet Hackathon 3.0 · <i>Commerce &amp; Real World</i></p>
       <h1 class="display">The kitty that pays the court, <span class="hl">or pays everyone back.</span></h1>
-      <p class="big" style="margin-top:40px;font-weight:600">Patungan: group payments with a deadline, on QIE.</p>
-      <p class="status"><b>Status:</b> the card replays a run on a QIE mainnet fork · now live on QIE mainnet, contract 0x2f46…5F31 (source verified)</p>
+      <p class="big" style="margin-top:40px;font-weight:600">Patungan: group payments with a deadline, live on QIE mainnet.</p>
+      <p class="status"><b>Live on QIE mainnet:</b> verified contract <span class="data">0x2f46…5F31</span> · pool #1 paid, pool #2 refunded</p>
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
-      <p class="label">Group payment receipt</p>
-      <p class="k-title">Thursday 5-a-side football</p>
-      <div class="k-row"><div><p class="label" style="margin:0">Pays</p><p class="payee">test.qie</p><p class="amount">0.25 QUSDC<small>per seat · 0.75 in total</small></p></div><p class="counter">3<span>/</span>3</p></div>
-      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">PAID<small>IN FULL</small></div></div>
+      <div class="k-head"><p class="label">Group payment receipt #1</p><span class="mn-tag">QIE mainnet</span></div>
+      <p class="k-title" style="margin-top:14px">Rehearsal PAID (builder wallets)</p>
+      <div class="k-row"><div><p class="label" style="margin:0">Pays</p><p class="payee chipline">qkulk75527.qie <span class="paychip">+0.50 QUSDC</span></p><p class="amount">0.25 QUSDC<small>per seat · 0.50 in total</small></p></div><p class="counter">2<span>/</span>2</p></div>
+      <ol class="roster"><li><span class="n">1</span><span class="who"><span class="data">0xc7Fe…4BA1</span><span class="tag bw">builder wallet</span><span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span class="who"><span class="data">0xE1b0…93dC</span><span class="tag bw">builder wallet</span><span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol>
+      <div class="settle"><p class="pot"><span class="label">Held by the contract</span><b>0.00 QUSDC</b></p><div class="stamp lands">PAID<small>IN FULL</small><span class="stx">0x4bd5c37d…a7a0</span></div></div>
     </div>
   </div>
   <div class="foot"><span>patungan.edycu.dev · <a data-version href="https://github.com/edycutjong/patungan/releases/latest" style="color:inherit">%PATUNGAN_VERSION%</a> · built 2026-11-14</span></div>
-  <aside class="speaker-notes">Patungan is the Indonesian word for chipping in. One link per group: friends pay seats, and the pool either pays the venue in the last seat's transaction or gives every friend their money back.</aside>
+  <aside class="speaker-notes">Patungan is the Indonesian word for chipping in. One link per group: friends pay seats, and the pool either pays the venue in the last seat's transaction or gives every friend their money back. The card is pool #1 on QIE mainnet, run from builder wallets.</aside>
 </section>
 
 <section class="slide pink" data-n="2" aria-label="Problem">
   <div class="cols" style="grid-template-columns: .95fr 1.05fr">
     <div>
-      <p class="label">Masalahnya · <i>the problem</i></p>
+      <p class="label">The group chat, today</p>
       <h2 class="display">Group money lives in a chat</h2>
     </div>
     <ul class="pains">
       <li>The organizer fronts the money<span>on trust</span></li>
-      <li>Someone chases every friend<span>"belum transfer" · not paid yet</span></li>
-      <li>If the plan dies, refunds go by hand<span>one transfer at a time</span></li>
+      <li>Someone chases every friend<span>"have you paid yet?", one at a time</span></li>
+      <li>If the plan dies, refunds go by hand<span>one transfer per friend</span></li>
     </ul>
   </div>
   <div class="foot"><span>Patungan</span></div>
@@ -228,33 +272,51 @@ body.overview .slide:hover { outline-color: var(--before) }
   <div class="cols" style="grid-template-columns: .8fr 1.2fr">
     <div>
       <p class="label">Sheet 1: the last seat</p>
-      <h2 class="display" style="font-size:84px">Seat three fills. <span style="text-transform:none">test.qie</span> is paid in that same transaction.</h2>
-      <p class="cap">Recorded on a QIE mainnet fork, block 11,883,271.</p>
+      <h2 class="display" style="font-size:84px">Seat two fills. <span style="text-transform:none">qkulk75527.qie</span> is paid in that same transaction.</h2>
+      <p class="cap">QIE mainnet, pool #1, block 11,895,966. Members and payee are builder wallets.</p>
     </div>
     <div class="kuitansi">
       <div class="perf"></div>
-      <div class="k-row"><div><p class="k-title" style="margin-bottom:6px">Thursday 5-a-side football</p><p class="payee">→ test.qie</p></div><p class="counter">3<span>/</span>3</p></div>
-      <div class="roster-wrap"><ol class="roster"><li><span class="n">1</span><span>seat 1 <span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span>seat 2 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li><li><span class="n">3</span><span>seat 3 <span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol><div class="stamp lands">PAID<small>IN FULL</small></div></div>
-      <p class="paidline">Paid in full: 0.75 QUSDC to test.qie, inside seat 3's transaction</p>
+      <div class="k-head"><p class="label">Group payment receipt #1</p><span class="mn-tag">QIE mainnet</span></div>
+      <div class="k-row" style="margin-top:14px"><div><p class="k-title" style="margin-bottom:6px">Rehearsal PAID (builder wallets)</p><p class="payee chipline">→ qkulk75527.qie <span class="paychip">+0.50 QUSDC</span></p></div><p class="counter">2<span>/</span>2</p></div>
+      <ol class="roster"><li><span class="n">1</span><span class="who"><span class="data">0xc7Fe…4BA1</span><span class="tag bw">builder wallet</span><span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span class="who"><span class="data">0xE1b0…93dC</span><span class="tag bw">builder wallet</span><span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol>
+      <div class="settle"><p class="paidline">Paid in full: 0.50 QUSDC to qkulk75527.qie, inside seat 2's own transaction</p><div class="stamp lands">PAID<small>IN FULL</small><span class="stx">0x4bd5c37d…a7a0</span></div></div>
     </div>
   </div>
-  <div class="foot"><span>evidence/local-flow-run.txt</span></div>
-  <aside class="speaker-notes">This is the moment the product exists for. The third friend pays in QIE, the contract swaps it, seats them, and pays the court owner's .qie name, all in one transaction. Nobody presses release.</aside>
+  <div class="foot"><span><span class="data">tx 0x4bd5c37de92855d3993a88698543c9d7c51dccde97f0fcd8d484450cd359a7a0</span> · evidence/mainnet-golive.md</span></div>
+  <aside class="speaker-notes">This is the moment the product exists for, on mainnet. The second wallet pays in QIE; the contract swaps it, seats it and pays the payee's .qie name, all in one transaction. Nobody presses release. Here the payee is the builder's own name, because no real seller has signed up yet.</aside>
 </section>
 
-<section class="slide v" data-n="4" aria-label="Inside the one transaction">
-  <h2 class="display" style="max-width:none">One transaction, six moves</h2>
-  <div class="steps">
-    <div class="step"><b>1</b><h3>QIE in</h3><p><code>joinWithQIE</code></p></div>
-    <div class="step"><b>2</b><h3>Oracle ceiling</h3><p>Caps the spend.</p></div>
-    <div class="step"><b>3</b><h3>QIEDEX swap</h3><p><code>swapETHForExactTokens</code></p></div>
-    <div class="step"><b>4</b><h3>Seat recorded</h3><p>QUSDC held.</p></div>
-    <div class="step paid"><b>5</b><h3>Payee paid</h3><p><code>PoolPaid</code></p></div>
-    <div class="step"><b>6</b><h3>Change back</h3><p>0 QIE left behind.</p></div>
+<section class="slide ink" data-n="4" aria-label="Inside the one mainnet transaction">
+  <div class="x-cols">
+    <div>
+      <h2 class="display">One mainnet transaction, nine moves</h2>
+      <ul class="x-facts">
+        <li><b>18</b>calls inside it</li>
+        <li><b>267,557</b>gas on mainnet</li>
+      </ul>
+    </div>
+    <div class="slip">
+      <div class="perf"></div>
+      <div class="slip-head"><span class="data">tx 0x4bd5c37d…a7a0</span><span>block 11,895,966 · success</span></div>
+      <div class="slip-body">
+        <div class="rail"><span>1 TX</span></div>
+        <ol class="moves">
+          <li><b>QIE in</b><span><em>1.7224 QIE</em></span><i>call 1</i></li>
+          <li><b>Pot checked</b><span>0.25 QUSDC held</span><i>call 2</i></li>
+          <li><b>Fair price</b><span>Oracle 0.1552 USDT</span><i>call 3</i></li>
+          <li><b>Quote</b><span>QIEDEX 1.7053 QIE</span><i>calls 4–5</i></li>
+          <li class="held"><b>Swap</b><span><em>0.25 QUSDC</em> in</span><i>calls 7–14</i></li>
+          <li class="back"><b>Change</b><span>0.0171 QIE</span><i>call 15</i></li>
+          <li class="held"><b>Delivery checked</b><span><em>0.50 QUSDC</em> held</span><i>calls 6, 16</i></li>
+          <li class="paid"><b>Payee paid</b><span><em>0.50 QUSDC</em></span><i>call 17</i><span class="stamp lands">PAID<small>IN FULL</small></span></li>
+          <li class="back"><b>Change back</b><span>0.0171 QIE</span><i>call 18</i></li>
+        </ol>
+      </div>
+    </div>
   </div>
-  <p class="gasline"><b>267,557</b>gas on a mainnet fork, all six moves (paying in QIE)</p>
-  <div class="foot"><span>src/Patungan.sol · evidence/local-flow-run.txt</span></div>
-  <aside class="speaker-notes">The swap is invisible to the member. The Oracle is a ceiling, never the price paid: if the pool's quote is too far above fair value, the join reverts instead of overpaying.</aside>
+  <div class="foot"><span>debug_traceTransaction, public QIE RPC · script/mainnet-trace.py · evidence/mainnet-trace.md</span></div>
+  <aside class="speaker-notes">This is the real call trace of pool #1's last seat on mainnet. The member attached QIE. The contract checked its own balance, read the QIE Oracle, took a QIEDEX quote 584 basis points over fair value, inside the 1,500 guard, swapped for exactly 0.25 QUSDC and checked it arrived, counted the last seat, paid the whole 0.50 QUSDC to the payee and sent the unspent QIE back. One transaction; any failed check reverts all of it.</aside>
 </section>
 
 <section class="slide v" data-n="5" aria-label="Four QIE components">
@@ -266,7 +328,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     <li class="comp"><h3>QIE Oracle</h3><p>Caps the swap's cost. Read only.</p><span class="addr">0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17</span></li>
   </ul>
   <div class="foot"><span>chain id 1990 · mainnet.qie.digital</span></div>
-  <aside class="speaker-notes">All four are live on QIE mainnet today, and every Patungan write path was tested against their real state on a fork. The QIEDEX router's source is unverified on the explorer, so the Oracle bound matters.</aside>
+  <aside class="speaker-notes">All four are live QIE mainnet contracts. QUSDC, QIEDEX and the Oracle were called inside slide 4's transaction; Zone resolved the payee name when pool #1 was created. The QIEDEX router's source is unverified on the explorer, so the Oracle bound matters.</aside>
 </section>
 
 <section class="slide" data-n="6" aria-label="Refund">
@@ -275,50 +337,50 @@ body.overview .slide:hover { outline-color: var(--before) }
       <p class="label">Refunded</p>
       <h2 class="display">Miss the deadline, everyone is paid back</h2>
       <ul class="facts">
-        <li><span>Each member claims their own</span><span class="data">claimRefund · 95,422 gas (fork)</span></li>
-        <li><span>Anyone can refund the whole pool</span><span class="data">refundAll, 2 members · 120,539 gas (fork)</span></li>
-        <li><span>A seat paid in QIE comes back as QUSDC</span><span class="data">same refund</span></li>
+        <li><span>Anyone can refund the whole pool</span><span class="data">refundAll, 3 members · 155,766 gas (mainnet)</span></li>
+        <li><span>A seat paid in QIE comes back as QUSDC</span><span class="data">pool #2, seat 3 (mainnet)</span></li>
+        <li><span>Or each member claims their own</span><span class="data">claimRefund · 95,422 gas (fork run)</span></li>
       </ul>
     </div>
     <div class="phone"><img src="../shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, stamped REFUNDED IN FULL: everyone was refunded, 3 members, 0.75 QUSDC" /></div>
   </div>
-  <div class="foot"><span>gas: evidence/local-flow-run.txt (fork) · screen: pool #2 on QIE mainnet</span></div>
-  <aside class="speaker-notes">The refund is the trust half. The organizer can cancel early, and after the deadline nobody has to wait for anyone: each friend claims, or one call refunds them all.</aside>
+  <div class="foot"><span>mainnet: refundAll tx <span class="data">0x7886eba2…9f0a</span>, block 11,896,230 · fork run: script/local-flow.sh, evidence/local-flow-run.txt</span></div>
+  <aside class="speaker-notes">The refund is the trust half. Pool #2 missed its deadline on mainnet at 3 of 6 seats, and one refundAll returned 0.25 QUSDC to each of the three builder wallets, including the one that paid in QIE. The organizer can also cancel early.</aside>
 </section>
 
 <section class="slide v ink" data-n="7" aria-label="Evidence">
-  <h2 class="display" style="max-width:none">Tested before it is claimed</h2>
+  <h2 class="display" style="max-width:none">On mainnet, then in the tests</h2>
   <div class="nums">
-    <div class="num"><b>74</b><p>contract tests pass; 24 read live mainnet state</p></div>
-    <div class="num"><b>5/5</b><p>injected bugs caught</p></div>
-    <div class="num"><b>11</b><p>browser steps pass on a mainnet fork</p></div>
-    <div class="num"><b>12/12</b><p>QIE joins inside the 15% Oracle guard on a fork (median +5.64%)</p></div>
+    <div class="num"><b>20/20</b><p>mainnet go-live transactions succeeded</p></div>
+    <div class="num"><b>3/3</b><p>mainnet members refunded in one call</p></div>
+    <div class="num"><b>74</b><p>contract tests pass (test suite; 24 fork mainnet)</p></div>
+    <div class="num"><b>5/5</b><p>injected bugs caught (test suite)</p></div>
   </div>
-  <div class="foot"><span>evidence/ · forge-test-run.txt · mutation-run.txt · e2e-local-run.txt · bench.md</span></div>
-  <aside class="speaker-notes">Seventy-one Foundry tests including fuzz and invariants, a mutation check where every injected bug is caught, and a browser click-through of join, payout and refund on a mainnet fork.</aside>
+  <div class="foot"><span>evidence/ · mainnet-trace.md · forge-test-run.txt · mutation-run.txt</span></div>
+  <aside class="speaker-notes">Mainnet first: twenty go-live transactions, every one successful, re-read from the chain by script/mainnet-trace.py. Then the test suite: 74 Foundry tests including fuzz and invariants, 24 of them forking mainnet, and a mutation check where every injected bug is caught.</aside>
 </section>
 
 <section class="slide" data-n="8" aria-label="Traction">
   <div class="cols" style="grid-template-columns: .7fr 1.3fr">
     <div>
-      <p class="label">Pengguna · <i>users</i></p>
+      <p class="label">Users</p>
       <p class="zero">0</p>
       <p class="mid" style="margin-top:24px">real members so far.</p>
     </div>
     <ul class="honest-list">
-      <li><b>Builder wallets</b>Demo pools will come from builder wallets, labelled as such. Not users.</li>
+      <li><b>Builder wallets</b>Both mainnet pools ran from builder wallets, labelled in the app. Not users.</li>
       <li><b>Wallets are not people</b>Any count we publish counts wallets.</li>
       <li><b>Next</b>One real group pays a real booking on mainnet.</li>
     </ul>
   </div>
   <div class="foot"><span>README · Honest limits</span></div>
-  <aside class="speaker-notes">We are not padding the numbers. The next proof is a real group of friends paying a real court booking on mainnet, and that pool will be linked from the README when it happens.</aside>
+  <aside class="speaker-notes">We are not padding the numbers. The two mainnet pools are rehearsals from builder wallets, and pool #1 paid the builder's own name. The next proof is a real group of friends paying a real court booking on mainnet, linked from the README when it happens.</aside>
 </section>
 
 <section class="slide v" data-n="9" aria-label="Roadmap">
   <h2 class="display" style="max-width:none">To the 90-day milestones</h2>
   <div class="road">
-    <div><h3>Dec 1–5</h3><p>Demo week: the live flow, on mainnet once deployed.</p></div>
+    <div><h3>Dec 1–5</h3><p>Demo week: the live flow on QIE mainnet.</p></div>
     <div><h3>Dec 10</h3><p>Winners announced.</p></div>
     <div><h3>To Mar 10, 2027</h3>
       <ul class="miles">
@@ -338,10 +400,10 @@ body.overview .slide:hover { outline-color: var(--before) }
       <h2 class="display" style="font-size:100px;max-width:19ch">Everyone chips in, <span class="hl">or everyone gets their money back.</span></h2>
       <p class="links">patungan.edycu.dev<br /><a href="/judge" style="color:inherit">patungan.edycu.dev/judge</a> (for judges)<br />github.com/edycutjong/patungan</p>
     </div>
-    <div><svg class="qr" role="img" aria-label="QR code for https://patungan-qie.vercel.app/" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#fffdf7" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#1d2a47" d="M2 2.5h7m1 0h1m1 0h1m1 0h2m4 0h3m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h2m2 0h1m3 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m1 0h1m5 0h3m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m6 0h2m1 0h1m-19 1h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h5m-29 1h1m2 0h1m1 0h1m1 0h2m5 0h2m1 0h1m2 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m1 0h4m2 0h2m2 0h1m9 0h4m-29 1h2m1 0h3m5 0h1m1 0h1m2 0h7m4 0h1m-28 1h1m3 0h4m1 0h2m1 0h2m3 0h1m2 0h1m1 0h2m-24 1h3m2 0h1m3 0h1m2 0h1m1 0h4m2 0h4m4 0h1m-29 1h1m4 0h3m1 0h2m2 0h2m1 0h1m1 0h1m1 0h4m2 0h3m-29 1h2m5 0h1m2 0h6m1 0h3m3 0h1m-23 1h1m3 0h2m1 0h4m1 0h1m1 0h3m2 0h4m1 0h1m1 0h1m-27 1h1m1 0h2m4 0h4m2 0h1m2 0h1m1 0h1m1 0h1m2 0h4m-29 1h1m4 0h2m1 0h2m2 0h1m4 0h1m3 0h1m3 0h4m-28 1h3m1 0h1m2 0h1m4 0h2m1 0h2m4 0h1m1 0h1m2 0h1m-28 1h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m2 0h5m3 0h1m-21 1h1m3 0h1m1 0h1m1 0h2m2 0h1m3 0h1m2 0h2m-29 1h7m1 0h1m2 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m1 0h1m-29 1h1m5 0h1m2 0h3m1 0h3m1 0h1m2 0h1m3 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h2m2 0h6m1 0h1m-28 1h1m1 0h3m1 0h1m4 0h4m2 0h2m1 0h2m2 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h1m3 0h4m1 0h1m-29 1h1m5 0h1m1 0h8m1 0h5m1 0h1m1 0h1m1 0h1m-28 1h7m2 0h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h2"/></svg><p class="cap" style="margin-top:14px;text-align:center">Scan to open the app</p></div>
+    <div><svg class="qr" role="img" aria-label="QR code for https://patungan.edycu.dev/" shape-rendering="crispEdges" viewBox="0 0 33 33"><path fill="#fffdf7" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#1d2a47" d="M2 2.5h7m2 0h1m3 0h2m1 0h1m1 0h1m3 0h7m-29 1h1m5 0h1m1 0h1m1 0h6m1 0h2m3 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h5m5 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h2m1 0h4m1 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m3 0h1m1 0h2m2 0h4m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m2 0h1m1 0h5m3 0h2m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h2m2 0h1m1 0h3m2 0h1m-20 1h3m1 0h2m3 0h2m1 0h3m3 0h1m6 0h2m-25 1h3m2 0h3m1 0h1m2 0h1m2 0h2m1 0h2m1 0h2m2 0h1m-29 1h2m3 0h2m3 0h1m2 0h2m2 0h2m1 0h1m1 0h1m2 0h3m-27 1h3m1 0h1m2 0h5m2 0h1m2 0h1m1 0h1m2 0h1m4 0h1m-27 1h1m3 0h1m1 0h1m1 0h1m3 0h1m2 0h1m3 0h1m1 0h1m2 0h3m-25 1h2m1 0h2m1 0h1m5 0h1m2 0h1m2 0h2m1 0h2m1 0h1m-29 1h3m1 0h5m1 0h1m1 0h8m1 0h1m1 0h3m1 0h2m-29 1h4m5 0h4m4 0h2m2 0h2m1 0h2m1 0h2m-26 1h2m1 0h2m2 0h1m5 0h3m2 0h1m2 0h2m1 0h2m-27 1h2m1 0h1m2 0h2m6 0h2m2 0h1m2 0h1m-24 1h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h3m2 0h1m1 0h2m-22 1h1m2 0h1m4 0h1m2 0h2m2 0h1m3 0h3m1 0h4m-28 1h1m1 0h4m2 0h1m1 0h1m2 0h1m1 0h9m1 0h1m-19 1h2m2 0h2m2 0h1m1 0h3m3 0h2m1 0h2m-29 1h7m3 0h1m2 0h2m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m-27 1h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m2 0h1m1 0h7m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m1 0h1m3 0h4m4 0h1m2 0h1m-28 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h4m1 0h1m2 0h1m4 0h1m-29 1h1m5 0h1m1 0h1m1 0h3m3 0h1m3 0h1m3 0h2m1 0h1m-28 1h7m3 0h1m2 0h1m1 0h1m2 0h3m2 0h1m3 0h1"/></svg><p class="cap" style="margin-top:14px;text-align:center">Scan to open the app</p></div>
   </div>
   <div class="foot"><span>Patungan · MIT · release <a data-version href="https://github.com/edycutjong/patungan/releases/latest" style="color:inherit">%PATUNGAN_VERSION%</a></span></div>
-  <aside class="speaker-notes">Thank you. The QR opens the app (staging until the mainnet deploy); the repo has the contract, the tests and every evidence file quoted in this deck.</aside>
+  <aside class="speaker-notes">Thank you. The QR opens the live app on QIE mainnet; the repo has the contract, the tests and every evidence file quoted in this deck.</aside>
 </section>
 
 </div></main>
