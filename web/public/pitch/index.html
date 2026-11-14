@@ -135,7 +135,7 @@ p { margin: 0 }
 .moves b { font: 850 38px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase }
 .moves em { font-style: normal; font-weight: 700 }
 .moves li > span { white-space: nowrap }
-.moves i { font: 400 20px var(--font-data); font-style: normal; color: color-mix(in srgb, var(--muted) 70%, var(--ink)) }
+.moves i { font: 400 20px var(--font-data); font-style: normal; color: color-mix(in srgb, var(--muted) 70%, var(--ink)); white-space: nowrap }
 .moves li.held b, .moves li.held em { color: var(--before) }
 .moves li.back { color: #5A574D }
 .moves li.paid { border-bottom: 0; padding-right: 230px; min-height: 96px; align-items: center }
@@ -169,7 +169,7 @@ p { margin: 0 }
 .phone { border: 16px solid var(--ink); border-radius: 44px; overflow: hidden; background: var(--bg); box-shadow: 0 30px 60px -30px rgb(29 42 71 / .5) }
 .phone img { display: block; width: 100%; height: auto }
 .refund-cols { display: grid; grid-template-columns: 1fr 520px; gap: 90px; height: 100% }
-.refund-cols .phone { height: 820px; margin-top: -10px }
+.refund-cols .phone { height: 872px; margin-top: -24px }
 .facts { list-style: none; padding: 0; margin: 40px 0 0; border-top: 2.5px solid var(--ink) }
 .facts li { display: flex; justify-content: space-between; gap: 20px; font-size: 28px; padding: 18px 0; border-bottom: 1.5px solid var(--rule) }
 .facts li .data { font-size: 24px; color: var(--muted) }
@@ -196,12 +196,60 @@ p { margin: 0 }
 .qr { width: 400px; height: 400px; display: block; border-radius: 8px }
 .links { margin-top: 48px; font: 600 30px/1.7 var(--font-body) }
 
+/* slide 2: the group chat it replaces (an example, labelled) */
+.chat { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; max-width: 760px }
+.bub { max-width: 600px; padding: 12px 20px 10px; border-radius: 20px; font-size: 26px; line-height: 1.32; box-shadow: 0 12px 24px -20px rgb(29 42 71 / .6) }
+.bub b { display: block; font: 700 16px var(--font-body); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px }
+.bub small { display: block; margin-top: 4px; font: 600 16px var(--font-body); text-align: right }
+.bub.me { align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 5px }
+.bub.me b, .bub.me small { color: rgb(250 246 236 / .78) }
+.bub.them { align-self: flex-start; background: #FFFDF7; border: 1.5px solid #E9CDD1; border-bottom-left-radius: 5px }
+.bub.them b, .bub.them small { color: var(--muted) }
+.chat-cap { font: 600 17px var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 6px }
+
+/* slide 5: each component, stamped with where mainnet called it */
+.comp-head { display: grid; grid-template-columns: 300px 1fr 560px; gap: 40px; font: 700 18px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding-bottom: 12px }
+.comps.hits .comp { grid-template-columns: 300px 1fr 560px; gap: 40px; padding: 24px 0 }
+.comps.hits .addr { display: block; text-align: left; margin-top: 8px; font-size: 19px }
+.hit { margin: 0; border: 4px double var(--ink); border-radius: 4px; padding: 10px 18px; transform: rotate(-.7deg) }
+.comps.hits .comp:nth-child(even) .hit { transform: rotate(.45deg) }
+.hit b { display: block; font: 850 40px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .03em; filter: url(#ink) }
+.hit span { display: block; font-size: 21px; line-height: 1.35; margin-top: 6px }
+
+/* slide 8: the next page of the receipt book, left blank on purpose */
+.blank .k-title { margin-bottom: 18px }
+.fill { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: end; margin: 0 0 6px }
+.fill .label { margin: 0 }
+.line { display: block; height: 30px; border-bottom: 2px dotted var(--muted) }
+.roster.empty li { grid-template-columns: 44px 1fr 40px; gap: 18px; min-height: 66px }
+.roster.empty .line { height: 34px }
+.box { width: 30px; height: 30px; border: 2.5px solid var(--ink); border-radius: 4px }
+.ghost { position: absolute; right: 120px; top: 452px; transform: rotate(-7deg); text-transform: uppercase; background: #FFFDF7; border: 4px dashed var(--muted); border-radius: 4px; padding: 6px 18px 4px; font: 850 54px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; color: var(--muted) }
+.blank .cap { margin-top: 20px; font-size: 22px }
+
+/* slide 9: the calendar strip */
+.tl { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-template-columns: 1fr 1fr 1.15fr 1fr 1.25fr; position: relative }
+.tl::before { content: ""; position: absolute; left: 0; right: 20%; top: 15px; border-top: 3px solid var(--ink) }
+.tl::after { content: ""; position: absolute; left: 80%; right: 0; top: 15px; border-top: 3px dashed var(--ink) }
+.tl li { position: relative; padding: 52px 28px 0 0 }
+.tl li::before { content: ""; position: absolute; left: 0; top: 4px; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--ink); background: var(--bg) }
+.tl li.done::before { background: var(--ink) }
+.tl b { display: inline-block; position: relative; font: 850 72px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase }
+.tl li.ring b::after { content: ""; position: absolute; inset: -18px -28px -14px -34px; border: 3px solid var(--ink); border-radius: 50%; transform: rotate(-5deg) }
+.tl span { display: block; font-size: 27px; line-height: 1.35; margin-top: 14px; max-width: 13em }
+.tl i { display: block; font: 400 19px var(--font-data); font-style: normal; color: var(--muted); margin-top: 8px }
+.boxes { list-style: none; padding: 0; margin: 64px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2.5px solid var(--ink) }
+.boxes li { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; padding: 24px 30px 22px 0; font-size: 28px; line-height: 1.35; border-bottom: 1.5px solid var(--rule) }
+.boxes li + li { padding-left: 30px; border-left: 1.5px solid var(--rule) }
+.boxes .box { margin-top: 4px }
+.boxes b { display: block; font: 850 40px/1.05 var(--font-display); font-stretch: 75%; text-transform: uppercase }
+
 /* chrome */
 .counter-ui { position: fixed; right: 132px; bottom: 16px; font: 600 15px var(--font-body); color: var(--ink); background: rgb(250 246 236 / .85); padding: 4px 10px; border-radius: 4px; z-index: 5 }
 .navbtn { position: fixed; bottom: 10px; width: 48px; height: 44px; border: 1.5px solid var(--ink); border-radius: 6px; background: rgb(250 246 236 / .92); color: var(--ink); font: 700 20px var(--font-body); cursor: pointer; z-index: 5; transition: transform 120ms ease, background-color 120ms ease }
 .navbtn:hover { transform: translateY(-1px); background: #FFFFFF } .navbtn:focus-visible { outline: 2px solid var(--before); outline-offset: 2px }
 #prev { right: 74px } #next { right: 18px }
-.hint { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); font: 600 14px var(--font-body); color: var(--ink); background: rgb(250 246 236 / .95); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 12px; z-index: 5; transition: opacity 300ms ease; white-space: nowrap }
+.hint { position: fixed; bottom: 15px; right: 196px; font: 600 14px var(--font-body); color: var(--ink); background: rgb(250 246 236 / .95); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 12px; z-index: 5; transition: opacity 300ms ease; white-space: nowrap }
 .hint.gone { opacity: 0; pointer-events: none }
 .status { display: inline-block; margin-top: 30px; padding: 8px 18px; background: var(--copy); border: 1.5px solid #E9CDD1; border-radius: 6px; font: 600 26px var(--font-body) }
 body.overview .navbtn, body.overview .hint, body.overview .counter-ui { display: none }
@@ -242,7 +290,8 @@ body.overview .slide:hover { outline-color: var(--before) }
     <div class="kuitansi">
       <div class="perf"></div>
       <div class="k-head"><p class="label">Group payment receipt #1</p><span class="mn-tag">QIE mainnet</span></div>
-      <p class="k-title" style="margin-top:14px">Rehearsal PAID (builder wallets)</p>
+      <p class="k-title" style="margin:14px 0 4px">Pool #1 · two seats</p>
+      <p class="cap" style="margin-bottom:18px">On-chain title "Rehearsal PAID (builder wallets)": members and payee are builder wallets.</p>
       <div class="k-row"><div><p class="label" style="margin:0">Pays</p><p class="payee chipline">qkulk75527.qie <span class="paychip">+0.50 QUSDC</span></p><p class="amount">0.25 QUSDC<small>per seat · 0.50 in total</small></p></div><p class="counter">2<span>/</span>2</p></div>
       <ol class="roster"><li><span class="n">1</span><span class="who"><span class="data">0xc7Fe…4BA1</span><span class="tag bw">builder wallet</span><span class="tag">paid in QUSDC</span></span><span class="tick">PAID</span></li><li><span class="n">2</span><span class="who"><span class="data">0xE1b0…93dC</span><span class="tag bw">builder wallet</span><span class="tag">paid in QIE</span></span><span class="tick">PAID</span></li></ol>
       <div class="settle"><p class="pot"><span class="label">Held by the contract</span><b>0.00 QUSDC</b></p><div class="stamp lands">PAID<small>IN FULL</small><span class="stx">0x4bd5c37d…a7a0</span></div></div>
@@ -256,7 +305,14 @@ body.overview .slide:hover { outline-color: var(--before) }
   <div class="cols" style="grid-template-columns: .95fr 1.05fr">
     <div>
       <p class="label">The group chat, today</p>
-      <h2 class="display">Group money lives in a chat</h2>
+      <h2 class="display" style="font-size:84px;margin-bottom:30px">Group money lives in a chat</h2>
+      <div class="chat" aria-label="An example group chat">
+        <p class="bub me"><b>Rina</b>Court's booked for Thursday. I paid it all, send me your share please<small>Mon 09:12</small></p>
+        <p class="bub me">Budi, Sari, Dewi: still waiting on yours<small>Wed 21:40 · read by 4</small></p>
+        <p class="bub them"><b>Budi</b>payday is Friday, I'll send it then<small>Wed 22:03</small></p>
+        <p class="bub me">Rain. Game's off. Refunding everyone, one transfer at a time<small>Thu 16:30</small></p>
+      </div>
+      <p class="chat-cap">An example chat · names made up</p>
     </div>
     <ul class="pains">
       <li>The organizer fronts the money<span>on trust</span></li>
@@ -265,7 +321,7 @@ body.overview .slide:hover { outline-color: var(--before) }
     </ul>
   </div>
   <div class="foot"><span>Patungan</span></div>
-  <aside class="speaker-notes">Picture a Thursday football group, an arisan or an office collection where one person pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
+  <aside class="speaker-notes">Picture a Thursday football group, an arisan (a rotating savings circle) or an office collection where one person pays first and then collects. Nothing makes the friends pay, and nothing guarantees the refunds if the booking falls through.</aside>
 </section>
 
 <section class="slide" data-n="3" aria-label="The last seat pays">
@@ -321,13 +377,14 @@ body.overview .slide:hover { outline-color: var(--before) }
 
 <section class="slide v" data-n="5" aria-label="Four QIE components">
   <h2 class="display" style="max-width:none">Four QIE components, each with a job</h2>
-  <ul class="comps">
-    <li class="comp"><h3>QUSDC</h3><p>Escrow: held, paid out or refunded.</p><span class="addr">0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5</span></li>
-    <li class="comp"><h3>QIEDEX</h3><p>Swaps QIE inside the join.</p><span class="addr">0x08cd2e72e156D8563B4351eb4065C262A9f553Ef</span></li>
-    <li class="comp"><h3>Zone .qie</h3><p>The payee's name becomes an address.</p><span class="addr">0x9aab56e7727af53A3131985BFB16d845319b7bdc</span></li>
-    <li class="comp"><h3>QIE Oracle</h3><p>Caps the swap's cost. Read only.</p><span class="addr">0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17</span></li>
+  <div class="comp-head"><span>Component</span><span>Its job</span><span>Patungan's calls to it on mainnet</span></div>
+  <ul class="comps hits">
+    <li class="comp"><h3>QUSDC</h3><div><p>Escrow: held, paid out or refunded.</p><span class="addr">0x3F43DA82eC9A4f5285F10FaF1F26EcA7319E5DA5</span></div><p class="hit"><b>Calls 2 · 6 · 16 · 17</b><span>three balance checks, then 0.50 QUSDC to the payee</span></p></li>
+    <li class="comp"><h3>QIEDEX</h3><div><p>Swaps QIE inside the join.</p><span class="addr">0x08cd2e72e156D8563B4351eb4065C262A9f553Ef</span></div><p class="hit"><b>Calls 4 · 7</b><span>quote 1.7053 QIE, then the exact-out swap</span></p></li>
+    <li class="comp"><h3>QIE Oracle</h3><div><p>Caps the swap's cost. Read only.</p><span class="addr">0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17</span></div><p class="hit"><b>Call 3</b><span>0.1552 USDT per QIE: the quote was +584 bps, inside 1,500</span></p></li>
+    <li class="comp"><h3>Zone .qie</h3><div><p>The payee's name becomes an address.</p><span class="addr">0x9aab56e7727af53A3131985BFB16d845319b7bdc</span></div><p class="hit"><b>At create</b><span>qkulk75527.qie → 0x3e01…3cf7, pool #1's createPoolByName</span></p></li>
   </ul>
-  <div class="foot"><span>chain id 1990 · mainnet.qie.digital</span></div>
+  <div class="foot"><span>call numbers: evidence/mainnet-trace.md, tx 0x4bd5c37d…a7a0 (pool #1's last seat) · chain id 1990</span></div>
   <aside class="speaker-notes">All four are live QIE mainnet contracts. QUSDC, QIEDEX and the Oracle were called inside slide 4's transaction; Zone resolved the payee name when pool #1 was created. The QIEDEX router's source is unverified on the explorer, so the Oracle bound matters.</aside>
 </section>
 
@@ -361,17 +418,31 @@ body.overview .slide:hover { outline-color: var(--before) }
 </section>
 
 <section class="slide" data-n="8" aria-label="Traction">
-  <div class="cols" style="grid-template-columns: .7fr 1.3fr">
+  <div class="cols" style="grid-template-columns: .85fr 1.15fr">
     <div>
       <p class="label">Users</p>
       <p class="zero">0</p>
-      <p class="mid" style="margin-top:24px">real members so far.</p>
+      <p class="mid" style="margin-top:20px;font-weight:700">real members so far.</p>
+      <ul class="honest-list" style="margin-top:34px">
+        <li><b>Builder wallets</b>Both mainnet pools ran from builder wallets, labelled in the app. Not users.</li>
+        <li><b>Wallets are not people</b>Any count we publish counts wallets.</li>
+      </ul>
     </div>
-    <ul class="honest-list">
-      <li><b>Builder wallets</b>Both mainnet pools ran from builder wallets, labelled in the app. Not users.</li>
-      <li><b>Wallets are not people</b>Any count we publish counts wallets.</li>
-      <li><b>Next</b>One real group pays a real booking on mainnet.</li>
-    </ul>
+    <div class="kuitansi blank">
+      <div class="perf"></div>
+      <div class="k-head"><p class="label">Group payment receipt · next page</p><span class="mn-tag">Blank</span></div>
+      <p class="k-title" style="margin-top:14px">A real group, a real booking</p>
+      <p class="fill"><span class="label">Pays</span><span class="line"></span></p>
+      <ol class="roster empty" aria-label="Five empty seat rows">
+        <li><span class="n">1</span><span class="line"></span><span class="box"></span></li>
+        <li><span class="n">2</span><span class="line"></span><span class="box"></span></li>
+        <li><span class="n">3</span><span class="line"></span><span class="box"></span></li>
+        <li><span class="n">4</span><span class="line"></span><span class="box"></span></li>
+        <li><span class="n">5</span><span class="line"></span><span class="box"></span></li>
+      </ol>
+      <span class="ghost" aria-hidden="true">Not yet</span>
+      <p class="cap">Next: one real group pays one real booking on mainnet. Its pool goes on this page, and the README links it.</p>
+    </div>
   </div>
   <div class="foot"><span>README · Honest limits</span></div>
   <aside class="speaker-notes">We are not padding the numbers. The two mainnet pools are rehearsals from builder wallets, and pool #1 paid the builder's own name. The next proof is a real group of friends paying a real court booking on mainnet, linked from the README when it happens.</aside>
@@ -379,17 +450,18 @@ body.overview .slide:hover { outline-color: var(--before) }
 
 <section class="slide v" data-n="9" aria-label="Roadmap">
   <h2 class="display" style="max-width:none">To the 90-day milestones</h2>
-  <div class="road">
-    <div><h3>Dec 1–5</h3><p>Demo week: the live flow on QIE mainnet.</p></div>
-    <div><h3>Dec 10</h3><p>Winners announced.</p></div>
-    <div><h3>The next 90 days</h3>
-      <ul class="miles">
-        <li><b>Recurring users:</b> weekly pools.</li>
-        <li><b>Merchants:</b> venues as <code class="data">.qie</code> payees.</li>
-        <li><b>Volume and wallets:</b> on the explorer.</li>
-      </ul>
-    </div>
-  </div>
+  <ol class="tl">
+    <li class="done"><b>Nov 14</b><span>Live on QIE mainnet</span><i>2 pools settled</i></li>
+    <li><b>Nov 30</b><span>Submissions close</span></li>
+    <li><b>Dec 1–5</b><span>Demo week: the live flow on QIE mainnet</span></li>
+    <li class="ring"><b>Dec 10</b><span>Winners announced</span></li>
+    <li><b>+90 days</b><span>Three milestones</span></li>
+  </ol>
+  <ul class="boxes" aria-label="The three milestones, none done yet">
+    <li><span class="box"></span><p><b>Recurring users</b>weekly pools</p></li>
+    <li><span class="box"></span><p><b>Merchants</b>venues as <code class="data">.qie</code> payees</p></li>
+    <li><span class="box"></span><p><b>Volume and wallets</b>on the explorer</p></li>
+  </ul>
   <div class="foot"><span>milestones named in the hackathon's prize terms: 3 milestones within 90 days</span></div>
   <aside class="speaker-notes">The organizers pay the second half of each prize after three traction milestones within 90 days. Our plan maps to the ones they name: recurring users, merchants, transaction volume and wallet growth.</aside>
 </section>
@@ -411,16 +483,6 @@ body.overview .slide:hover { outline-color: var(--before) }
 <button class="navbtn" id="prev" type="button" aria-label="Previous slide">←</button><button class="navbtn" id="next" type="button" aria-label="Next slide">→</button>
 <div class="hint" id="hint">← → keys, the buttons, or click the slide · Esc for all slides</div></nav>
 <div class="notes-panel" id="notes"></div>
-<script>
-// Latest GitHub release tag over the build-time fallback (same rules as web/src/version.ts); fails silently.
-fetch('https://api.github.com/repos/edycutjong/patungan/releases/latest', { headers: { accept: 'application/vnd.github+json' } })
-  .then((r) => (r.ok ? r.json() : null))
-  .then((b) => {
-    const m = b && typeof b.tag_name === 'string' && b.tag_name.trim().match(/^v?(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.-]+)?$/)
-    if (m) for (const el of document.querySelectorAll('[data-version]')) el.textContent = `v${m[1]}.${m[2]}.${m[3]}${m[4] ?? ''}`
-  })
-  .catch(() => {})
-</script>
 <script>
 (() => {
   const deck = document.getElementById('deck')
@@ -457,6 +519,7 @@ fetch('https://api.github.com/repos/edycutjong/patungan/releases/latest', { head
   const hint = document.getElementById('hint')
   const origShow = show
   show = (n) => { if (n !== i) hint.classList.add('gone'); origShow(n) }
+  setTimeout(() => hint.classList.add('gone'), 6000)
   addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i + 1) }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1) }
