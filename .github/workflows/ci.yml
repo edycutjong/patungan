@@ -1,44 +1,209 @@
-name: ci
+name: CI/CD Pipeline
 
+# Six stages:
+#   1 Quality (contracts + web, parallel) ─┐
+#   2 Security (secrets, slither, audit)  ─┼─> 3 Build ─> 4 E2E ─┐
+#                                          │            └> 5 Performance (advisory)
+#                                          └──────────────────────> 6 Deploy Gate (main only, needs all)
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  contracts:
-    name: forge test (unit + QIE mainnet fork)
+  # ── STAGE 1 · Quality ──────────────────────────────────────────────
+  contracts-quality:
+    name: "Stage 1 · Contracts (fmt, build, tests, 100% coverage)"
     runs-on: ubuntu-latest
     env:
       FOUNDRY_PROFILE: ci
       # Public QIE mainnet RPC; the fork tests read real QUSDC / QIEDEX / Zone / Oracle state.
       QIE_RPC_URL: https://rpc1mainnet.qie.digital/
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: foundry-rs/foundry-toolchain@v1
       - run: forge --version
-      - run: forge fmt --check
-      - run: forge build --sizes
-      - run: forge test -vv
+      - name: Format check
+        run: forge fmt --check
+      - name: Build (with contract sizes)
+        run: forge build --sizes
+      - name: Tests (unit, fuzz, invariants, QIE mainnet fork)
+        run: forge test -vv
+      - name: Coverage gate (src/ must be 100% lines, statements, branches, functions)
+        env:
+          FOUNDRY_PROFILE: default
+        run: |
+          forge coverage --report summary --no-match-coverage '(script|test|lib)/' \
+            --no-match-path 'test/fork/*' --no-match-contract 'Spike|Fork' | tee coverage.txt
+          total=$(grep -E '^\| Total' coverage.txt)
+          echo "$total"
+          n=$(echo "$total" | grep -o '100.00%' | wc -l)
+          [ "$n" -eq 4 ] || { echo "::error::src/ coverage is below 100%"; exit 1; }
 
-  web:
-    name: web build + unit tests
+  web-quality:
+    name: "Stage 1 · Web (typecheck, unit tests, 100% coverage)"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit tests with coverage (thresholds 100%)
+        run: npm run test:coverage
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: web-coverage
+          path: web/coverage/
+          retention-days: 7
+
+  # ── STAGE 2 · Security ─────────────────────────────────────────────
+  secret-scan:
+    name: "Stage 2 · Secret scan (gitleaks, full history)"
+    uses: ./.github/workflows/gitleaks.yml
+
+  slither:
+    name: "Stage 2 · Slither (Solidity static analysis)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install slither-analyzer
+      # Findings are triaged in docs/security.md; fail on any High except the two triaged false positives.
+      - run: slither . --filter-paths "lib|test|script" --exclude reentrancy-eth,reentrancy-balance --fail-high
+
+  dependency-audit:
+    name: "Stage 2 · Dependency audit (npm audit)"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm audit --audit-level=high
+
+  # ── STAGE 3 · Build ────────────────────────────────────────────────
+  build:
+    name: "Stage 3 · Build (vite + bundle budget)"
+    needs: [web-quality]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # tags: the build stamps the latest release tag
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Production build
+        run: npm run build
+      - name: Bundle budget
+        run: npm run budget
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-dist
+          path: web/dist/
+          retention-days: 7
+
+  # ── STAGE 4 · E2E ──────────────────────────────────────────────────
+  e2e:
+    name: "Stage 4 · E2E (Playwright vs live QIE mainnet reads)"
+    needs: [build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: web-dist
+          path: web/dist
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 7
+
+  # ── STAGE 5 · Performance (advisory) ───────────────────────────────
+  lighthouse:
+    name: "Stage 5 · Lighthouse CI (advisory)"
+    needs: [build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: web-dist
+          path: web/dist
+      - name: Lighthouse (performance, accessibility, best practices, SEO)
+        continue-on-error: true
+        run: npx --yes @lhci/cli@0.15.1 autorun
+
+  # ── STAGE 6 · Deploy Gate ──────────────────────────────────────────
+  deploy-gate:
+    name: "Stage 6 · Deploy gate (main only)"
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [contracts-quality, web-quality, secret-scan, slither, dependency-audit, build, e2e, lighthouse]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every stage passed
+        run: echo "Stages 1-5 green on ${GITHUB_SHA}."
+      - name: Production is up and serves the mainnet deployment
+        run: |
+          set -euo pipefail
+          for path in / /judge /pitch/ /verify /p/mainnet-1/1; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://patungan.edycu.dev${path}")
+            echo "${path} -> ${code}"; [ "$code" = 200 ]
+          done
+          curl -sf https://patungan.edycu.dev/deployments.json | grep -q 0x2f4646D52a5393E239f5b880411dC2CA2D945F31

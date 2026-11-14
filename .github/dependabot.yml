@@ -2,11 +2,23 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /web
-    schedule: { interval: weekly }
+    schedule:
+      interval: monthly
     open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      # Major bumps are migrations, not maintenance; they are done by hand on a branch.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
-    schedule: { interval: weekly }
-  - package-ecosystem: gitsubmodule
-    directory: /
-    schedule: { interval: monthly }
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns: ["*"]
+# No gitsubmodule ecosystem on purpose: lib/openzeppelin-contracts and lib/forge-std stay pinned to the commits the
+# mainnet contract 0x2f4646D52a5393E239f5b880411dC2CA2D945F31 was compiled and Blockscout-verified from.
