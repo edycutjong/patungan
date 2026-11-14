@@ -30,7 +30,7 @@ import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
 import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
-import { connect, hasWallet, metamaskDeepLink, provider, walletFor } from './wallet'
+import { connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
@@ -262,7 +262,7 @@ class PoolPage {
       ${this.dep.rpc ? `<p class="localnote">Local test chain (anvil fork of QIE mainnet). Not mainnet; amounts are test data.</p>` : ''}
       <div class="topline">
         <p class="label">Group payment receipt <span class="data">#${this.id}</span></p>
-        ${this.account ? `<span class="data acct" title="${this.account}">${shortAddr(this.account)}</span>` : hasWallet() ? `<button class="link" data-act="connect">Connect wallet</button>` : ''}
+        ${this.account ? `<span class="data acct" title="${this.account}">${shortAddr(this.account)}</span>${wallets().length > 1 ? ` <button class="link" data-act="switch-wallet">Switch wallet</button>` : ''}` : hasWallet() ? `<button class="link" data-act="connect">Connect wallet</button>` : ''}
       </div>
       <h1>${esc(d.title) || `Pool #${this.id}`}</h1>
       <p class="label">Pays</p>
@@ -422,6 +422,12 @@ class PoolPage {
         await this.ensureAccount()
         return void this.refresh()
       }
+      if (what === 'switch-wallet') {
+        forgetWallet()
+        this.account = undefined
+        await this.ensureAccount()
+        return void this.refresh()
+      }
       const account = await this.ensureAccount()
       const d = this.data!
       if (what === 'claim') await this.send(account, 'claimRefund', [this.id], 'Refund sent')
@@ -473,6 +479,8 @@ class PoolPage {
       if (e.walk((x) => x instanceof UserRejectedRequestError)) name = 'UserRejected'
     } else if (e instanceof Error && e.message === 'NoWallet') {
       return this.openSheet()
+    } else if (e instanceof Error && e.message === 'WalletPickCancelled') {
+      return this.paint()
     }
     this.setMsg(esc(revertSentence(name, this.maxDevBps)))
     console.warn(e)

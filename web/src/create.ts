@@ -233,6 +233,7 @@ function txLink(dep: Deployment, hash: string) {
 
 function createError(e: unknown): string {
   if (e instanceof Error && e.message === 'NoWallet') return 'Open this page in a wallet app (QIE Wallet or MetaMask) to create a pool.'
+  if (e instanceof Error && e.message === 'WalletPickCancelled') return 'No wallet chosen. Nothing was sent.'
   if (e instanceof BaseError) {
     if (e.walk((x) => x instanceof UserRejectedRequestError)) return 'You cancelled in the wallet. Nothing was sent.'
     const rev = e.walk((x) => x instanceof ContractFunctionRevertedError)

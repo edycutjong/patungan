@@ -46,8 +46,82 @@ const savedChoice = () => {
   }
 }
 
-/** Wallet extensions that announced themselves (EIP-6963). */
-export const wallets = () => found.slice()
+/** Pure: QIE Wallet first (the chain's own wallet), then the rest in the order they announced. */
+export function orderWallets(list: WalletDetail[]): WalletDetail[] {
+  const isQie = (d: WalletDetail) => /qie/i.test(d.info.name) || /qie/i.test(d.info.rdns)
+  return [...list.filter(isQie), ...list.filter((d) => !isQie(d))]
+}
+
+/** Wallet extensions that announced themselves (EIP-6963), QIE Wallet first. */
+export const wallets = () => orderWallets(found)
+
+/** Forget the remembered wallet so the next connect shows the picker again. */
+export function forgetWallet() {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* nothing stored */
+  }
+}
+
+const safeIcon = (icon: string) => (/^data:image\/(svg\+xml|png|webp|jpeg|gif)[;,]/i.test(icon) ? icon : '')
+
+/** Show the picker when 2+ wallets are installed and none is remembered (or the remembered one is gone). */
+async function ensureChosen(): Promise<void> {
+  const list = wallets()
+  if (list.length < 2) return
+  const saved = savedChoice()
+  if (saved && list.some((d) => d.info.rdns === saved)) return
+  await new Promise<void>((resolve, reject) => {
+    const dlg = document.createElement('dialog')
+    dlg.className = 'joinsheet walletsheet'
+    dlg.setAttribute('aria-labelledby', 'walletsheet-h')
+    dlg.innerHTML = `<h2 id="walletsheet-h">Choose a wallet</h2><ul class="walletlist"></ul><button type="button" class="link" data-cancel>Cancel</button>`
+    const ul = dlg.querySelector('ul')!
+    list.forEach((d, i) => {
+      const li = document.createElement('li')
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.className = 'walletbtn'
+      const icon = safeIcon(d.info.icon)
+      if (icon) {
+        const img = document.createElement('img')
+        img.src = icon
+        img.alt = ''
+        img.width = 32
+        img.height = 32
+        b.append(img)
+      }
+      const name = document.createElement('span')
+      name.className = 'walletname'
+      name.textContent = d.info.name
+      b.append(name)
+      if (i === 0 && /qie/i.test(d.info.name + d.info.rdns)) {
+        const tag = document.createElement('span')
+        tag.className = 'mini recommended'
+        tag.textContent = 'Recommended'
+        b.append(tag)
+      }
+      b.addEventListener('click', () => {
+        chooseWallet(d.info.rdns)
+        settled = true
+        dlg.close()
+        resolve()
+      })
+      li.append(b)
+      ul.append(li)
+    })
+    let settled = false
+    dlg.querySelector('[data-cancel]')!.addEventListener('click', () => dlg.close())
+    dlg.addEventListener('close', () => {
+      dlg.remove()
+      if (!settled) reject(new Error('WalletPickCancelled'))
+    })
+    document.body.append(dlg)
+    dlg.showModal()
+    ul.querySelector<HTMLButtonElement>('button')?.focus()
+  })
+}
 
 /** Remember the wallet the user picked (by EIP-6963 rdns). */
 export function chooseWallet(rdns: string) {
@@ -65,6 +139,8 @@ export const hasWallet = () => !!provider()
 
 /** Ask the wallet for an account and make sure it is on QIE mainnet (adds the chain if the wallet lacks it). */
 export async function connect(): Promise<{ account: Address; wallet: ReturnType<typeof walletFor> }> {
+  if (!provider()) throw new Error('NoWallet')
+  await ensureChosen()
   const eth = provider()
   if (!eth) throw new Error('NoWallet')
   const [account] = (await eth.request({ method: 'eth_requestAccounts' })) as Address[]
