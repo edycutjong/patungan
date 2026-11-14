@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Patungan: a seat roster receipt with every row ticked in carbon blue and a vermilion PAID IN FULL stamp landing across it">
+  <!-- Patungan mark: the kuitansi seat roster, torn from the receipt book, stamped when the last seat pays.
+       Three shapes survive 16 px: paper slip (navy outline holds on white, paper fill holds on #0d1117), the tilted vermilion stamp
+       overhanging its right edge, and the roster texture. Colours use var(token, hex) fallbacks: the hex applies when rasterized standalone. -->
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color: var(--bg-card, #FFFDF7)"/>
+      <stop offset="100%" style="stop-color: var(--bg, #F4EEDF)"/>
+    </linearGradient>
+    <linearGradient id="inkline" gradientUnits="userSpaceOnUse" x1="166" y1="0" x2="262" y2="0">
+      <stop offset="0%" style="stop-color: var(--ink, #1D2A47)"/>
+      <stop offset="100%" style="stop-color: var(--primary, #2D5BA6)"/>
+    </linearGradient>
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <!-- the slip: torn zigzag top, rounded foot -->
+  <path d="M120 92 L137 72 L154 92 L171 72 L188 92 L205 72 L222 92 L239 72 L256 92 L273 72 L290 92 L307 72 L324 92 L341 72 L358 92 L375 72 L392 92 L392 418 Q392 448 362 448 L150 448 Q120 448 120 418 Z"
+        fill="url(#paper)" style="stroke: var(--ink, #1D2A47)" stroke-width="20" stroke-linejoin="round"/>
+
+  <!-- header: the pre-printed title bar -->
+  <rect x="160" y="124" width="136" height="22" rx="11" style="fill: var(--ink, #1D2A47)"/>
+  <rect x="160" y="156" width="78" height="10" rx="5" style="fill: var(--muted, #6E6A5E)" opacity="0.55"/>
+
+  <!-- roster: three written names, ruled, each ticked in carbon blue (HELD) -->
+  <g stroke-linecap="round" fill="none">
+    <line x1="156" y1="222" x2="356" y2="222" style="stroke: var(--rule, #DCD2BC)" stroke-width="4"/>
+    <line x1="156" y1="274" x2="356" y2="274" style="stroke: var(--rule, #DCD2BC)" stroke-width="4"/>
+    <line x1="156" y1="326" x2="356" y2="326" style="stroke: var(--rule, #DCD2BC)" stroke-width="4"/>
+    <line x1="166" y1="200" x2="262" y2="200" stroke="url(#inkline)" stroke-width="14"/>
+    <line x1="166" y1="252" x2="240" y2="252" stroke="url(#inkline)" stroke-width="14"/>
+    <line x1="166" y1="304" x2="252" y2="304" stroke="url(#inkline)" stroke-width="14"/>
+    <path d="M300 199 l11 11 l25 -26" style="stroke: var(--held, #2D5BA6)" stroke-width="13" stroke-linejoin="round"/>
+    <path d="M300 251 l11 11 l25 -26" style="stroke: var(--held, #2D5BA6)" stroke-width="13" stroke-linejoin="round"/>
+    <path d="M300 303 l11 11 l25 -26" style="stroke: var(--held, #2D5BA6)" stroke-width="13" stroke-linejoin="round"/>
+  </g>
+
+  <!-- the stamp: PAID IN FULL, rotated −8°, double border, ink-textured, overhanging the slip -->
+  <g transform="rotate(-8 300 384)" filter="url(#ink)" opacity="0.94">
+    <rect x="184" y="336" width="236" height="96" rx="12" style="fill: var(--bg-card, #FFFDF7); stroke: var(--accent, #C23A2E)" stroke-width="12"/>
+    <rect x="200" y="352" width="204" height="64" rx="6" fill="none" style="stroke: var(--accent, #C23A2E)" stroke-width="5"/>
+    <path d="M250 384 l24 22 l58 -46" fill="none" style="stroke: var(--accent, #C23A2E)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="docs/icon.svg" alt="Patungan Icon" width="144">
+  <img src="docs/assets/icon-animated.svg" alt="Patungan — a seat roster receipt that gets stamped PAID IN FULL" width="144">
   <h1>Patungan 🧾</h1>
   <p><em>Group payments with a deadline. Everyone chips in, or everyone gets their money back. Built for QIE mainnet.</em></p>
-  <img src="web/public/og.png" alt="Patungan — the kitty that pays the court, or pays everyone back" width="100%">
+  <img src="docs/assets/readme-hero-animated.svg" alt="Patungan — Seat five of five fills, and the court owner is paid in that same transaction: PAID IN FULL. If the deadline passes first, every member is refunded." width="100%">
 
-  <p><b>Live on QIE mainnet:</b> contract <a href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code"><code>0x2f4646D52a5393E239f5b880411dC2CA2D945F31</code></a>, source verified on Blockscout. One PAID and one REFUNDED pool ran on mainnet. Reproduce: <code>forge test -vv</code> forks QIE mainnet through the public RPC, no keys.</p>
+  <p><b>Live on QIE mainnet:</b> contract <a href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code"><code>0x2f4646D52a5393E239f5b880411dC2CA2D945F31</code></a>, source verified on Blockscout. One PAID and one REFUNDED pool ran on mainnet; in the PAID pool, swap + last seat + payout happened in one tx (<code>0x4bd5c37d…a7a0</code>, linked below). Reproduce: <code>forge test -vv</code> forks QIE mainnet through the public RPC, no keys.</p>
 
   <br/>
 
@@ -15,6 +15,8 @@
 
   <br/>
 
+  [![CI](https://github.com/edycutjong/patungan/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/patungan/actions/workflows/ci.yml)
+  [![Release](https://img.shields.io/github/v/release/edycutjong/patungan?sort=semver)](https://github.com/edycutjong/patungan/releases/latest)
   [![Contract verified on QIE mainnet](https://img.shields.io/badge/QIE%20mainnet-verified%20contract-2ea44f?style=flat)](https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code)
   ![Solidity](https://img.shields.io/badge/Solidity-0.8.28-363636?style=flat&logo=solidity)
   ![Foundry](https://img.shields.io/badge/Foundry-forge-1f2937?style=flat)
@@ -23,8 +25,6 @@
   ![viem](https://img.shields.io/badge/viem-2-1e1e20?style=flat)
   ![Coverage](https://img.shields.io/badge/coverage-100%25-2ea44f?style=flat)
   [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat)](LICENSE)
-  [![CI](https://github.com/edycutjong/patungan/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/patungan/actions/workflows/ci.yml)
-  [![Release](https://img.shields.io/github/v/release/edycutjong/patungan?sort=semver)](https://github.com/edycutjong/patungan/releases/latest)
 
 </div>
 
