@@ -17,14 +17,14 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Patungan" />
 <meta property="og:url" content="https://patungan.edycu.dev/pitch/" />
-<meta property="og:image" content="https://patungan.edycu.dev/og.png?v=20261114r2" />
+<meta property="og:image" content="https://patungan.edycu.dev/og.png?v=20261114r3" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: an example five-seat Patungan receipt stamped PAID IN FULL in front of an example six-seat receipt stamped REFUNDED" />
+<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: pool #1's real QIE mainnet receipt, two seats stamped PAID IN FULL with 0.50 QUSDC to qkulk75527.qie and its tx 0x4bd5c37d…a7a0, in front of pool #2's receipt stamped REFUNDED (builder wallets)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Patungan · pitch deck" />
 <meta name="twitter:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone." />
-<meta name="twitter:image" content="https://patungan.edycu.dev/og.png?v=20261114r2" />
+<meta name="twitter:image" content="https://patungan.edycu.dev/og.png?v=20261114r3" />
 <meta name="theme-color" content="#FAF6EC" />
 <link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" type="image/svg+xml" href="/icon.svg" />
@@ -252,7 +252,18 @@ p { margin: 0 }
 .hint { position: fixed; bottom: 15px; right: 196px; font: 600 14px var(--font-body); color: var(--ink); background: rgb(250 246 236 / .95); border: 1px solid var(--rule); border-radius: 4px; padding: 5px 12px; z-index: 5; transition: opacity 300ms ease; white-space: nowrap }
 .hint.gone { opacity: 0; pointer-events: none }
 .status { display: inline-block; margin-top: 30px; padding: 8px 18px; background: var(--copy); border: 1.5px solid #E9CDD1; border-radius: 6px; font: 600 26px var(--font-body) }
-body.overview .navbtn, body.overview .hint, body.overview .counter-ui { display: none }
+body.overview .navbtn, body.overview .hint, body.overview .counter-ui, body.overview .phone-note { display: none !important }
+/* phone, portrait: the 16:9 stage is a strip, so a receipt-style note above it says so and points at the phone-sized page */
+.phone-note { display: none }
+@media (max-width: 700px) and (orientation: portrait) {
+  .phone-note { display: block; position: fixed; top: 14px; left: 14px; right: 14px; z-index: 5; background: var(--bg); border: 1px solid var(--rule); border-top: 2px dotted var(--rule); border-radius: 0 0 6px 6px; padding: 14px 16px 16px }
+  .pn-label { font: 700 11px/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px }
+  .pn-head { font: 850 30px/1 var(--font-display); font-stretch: 75%; text-transform: uppercase; margin: 0 0 8px }
+  .pn-text { font: 500 15px/1.45 var(--font-body); margin: 0 0 12px }
+  .pn-link { display: inline-block; font: 700 15px/1 var(--font-body); color: var(--bg); background: var(--ink); border-radius: 6px; padding: 12px 14px; text-decoration: none; transition: transform 120ms ease, background-color 120ms ease }
+  .pn-link:hover { transform: translateY(-1px); background: #2A3A60 } .pn-link:focus-visible { outline: 2px solid var(--before); outline-offset: 3px }
+  .hint { left: 12px; right: 12px; bottom: 64px; white-space: normal; text-align: center }
+}
 .speaker-notes { display: none }
 body.presenter .viewport { bottom: 20vh }
 body.presenter .notes-panel { display: block }
@@ -271,7 +282,7 @@ body.overview .slide:hover { outline-color: var(--before) }
   html, body, .slide { -webkit-print-color-adjust: exact; print-color-adjust: exact }
   .viewport { position: static } .deck { position: static; transform: none !important; width: auto; height: auto }
   .slide { position: relative; opacity: 1; visibility: visible; width: 16in; height: 9in; zoom: .48; page-break-after: always; break-after: page; break-inside: avoid; page-break-inside: avoid; transition: none }
-  .counter-ui, .notes-panel, .speaker-notes, .navbtn, .hint { display: none !important }
+  .counter-ui, .notes-panel, .speaker-notes, .navbtn, .hint, .phone-note { display: none !important }
 }
 </style>
 </head>
@@ -482,6 +493,7 @@ body.overview .slide:hover { outline-color: var(--before) }
 <nav aria-label="Slide controls"><div class="counter-ui" id="count" aria-live="polite">01 / 10</div>
 <button class="navbtn" id="prev" type="button" aria-label="Previous slide">←</button><button class="navbtn" id="next" type="button" aria-label="Next slide">→</button>
 <div class="hint" id="hint">← → keys, the buttons, or click the slide · Esc for all slides</div></nav>
+<aside class="phone-note" id="phone-note" aria-label="About viewing this deck on a phone"><p class="pn-label">Pitch deck · 10 slides · 16:9</p><p class="pn-head">Best on a laptop</p><p class="pn-text">On a phone the slides shrink to a strip. Turn the phone sideways for bigger slides, or read the landing page, which is laid out for a phone.</p><a class="pn-link" href="/">Open the phone-sized page →</a></aside>
 <div class="notes-panel" id="notes"></div>
 <script>
 (() => {
@@ -498,6 +510,10 @@ body.overview .slide:hover { outline-color: var(--before) }
     const h = document.documentElement.clientHeight * (presenter ? 0.8 : 1)
     const s = Math.min(w / 1920, h / 1080)
     deck.style.transform = `translate(-50%, -50%) scale(${s})`
+    // phone portrait: centre the stage in the space under the note instead of behind it
+    const note = document.getElementById('phone-note')
+    const below = getComputedStyle(note).display === 'none' ? 0 : note.getBoundingClientRect().bottom + 16 + 540 * s
+    deck.style.top = below > h / 2 ? `${below}px` : ''
   }
   function show(n) {
     i = Math.max(0, Math.min(slides.length - 1, n))
@@ -519,6 +535,7 @@ body.overview .slide:hover { outline-color: var(--before) }
   const hint = document.getElementById('hint')
   const origShow = show
   show = (n) => { if (n !== i) hint.classList.add('gone'); origShow(n) }
+  if (matchMedia('(pointer: coarse), (hover: none)').matches) hint.textContent = 'Swipe or tap the slide to step through'
   setTimeout(() => hint.classList.add('gone'), 6000)
   addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i + 1) }
