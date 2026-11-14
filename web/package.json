@@ -20,7 +20,7 @@
     "viem": "2.57.19"
   },
   "devDependencies": {
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.65.0",
     "@vitest/coverage-v8": "5.1.0",
     "happy-dom": "21.0.4",
     "typescript": "7.0.2",
