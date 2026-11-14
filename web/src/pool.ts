@@ -492,8 +492,7 @@ class PoolPage {
 
   // ------------------------------------------------------------------ join sheet
   private async openSheet() {
-    const d0 = this.data
-    if (!d0) return
+    const d0 = this.data! // the Join button and every path here exist only once a pool has been read
     const s = this.sheet
     if (!hasWallet()) {
       s.innerHTML = `<form method="dialog">
@@ -533,8 +532,8 @@ class PoolPage {
     }
     if (!active()) return
     const render = async () => {
-      if (!active()) return
-      const d = this.data ?? d0
+      // every caller checks active()/current() first; a stale sheet's buttons are gone with its innerHTML
+      const d = this.data!
       const why = closedReason(d)
       if (why) return void showClosed(why)
       const left = d.seats - d.filled
@@ -578,16 +577,19 @@ class PoolPage {
       }
       // One write at a time: the lock is taken before the wallet prompt, and every control in the sheet is disabled
       // until the write settles, so a double tap can't start a second purchase.
-      const lock = (on: boolean) =>
-        s.querySelectorAll<HTMLButtonElement>('[data-pay], [data-n], [data-tab]').forEach((b) => {
-          if (on) {
+      const lock = (on: boolean) => {
+        if (on)
+          s.querySelectorAll<HTMLButtonElement>('[data-pay], [data-n], [data-tab]').forEach((b) => {
             b.dataset.was = b.disabled ? '1' : '0' // unlocking restores this, e.g. "2 · Pay" stays off until approved
             b.disabled = true
-          } else if (b.dataset.was !== undefined) {
+          })
+        // only what lock(true) touched is restored
+        else
+          s.querySelectorAll<HTMLButtonElement>('[data-was]').forEach((b) => {
             b.disabled = b.dataset.was === '1'
             delete b.dataset.was
-          }
-        })
+          })
+      }
       const run = async (fn: (a: Address) => Promise<'requote' | void>) => {
         if (this.busy) return
         this.busy = true
@@ -595,12 +597,13 @@ class PoolPage {
         try {
           const a = await this.ensureAccount()
           if (!current()) return // closed while the wallet was connecting: start nothing
-          const latest = this.data ?? d0
+          const latest = this.data!
           if (closedReason(latest) || latest.seats - latest.filled < seats) return void (await render()) // shows why
           if ((await fn(a)) === 'requote') {
             if (!current()) return
             await render() // still holding the lock: the finally below releases it after the fresh quote is up
-            if (current()) sheetMsg('That price was more than a minute old, so here is a fresh one. Check your max, then tap Pay again.')
+            // active(), not current(): render() just started a newer generation, and its fresh quote is the one to annotate
+            if (active()) sheetMsg('That price was more than a minute old, so here is a fresh one. Check your max, then tap Pay again.')
             return
           }
           if (current()) s.close()
