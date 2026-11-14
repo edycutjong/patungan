@@ -12,14 +12,14 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Patungan" />
 <meta property="og:url" content="https://patungan.edycu.dev/" />
-<meta property="og:image" content="https://patungan.edycu.dev/og.png?v=20261114r2" />
+<meta property="og:image" content="https://patungan.edycu.dev/og.png?v=20261114r3" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: an example five-seat Patungan receipt stamped PAID IN FULL in front of an example six-seat receipt stamped REFUNDED" />
+<meta property="og:image:alt" content="The kitty that pays the court, or pays everyone back: pool #1's real QIE mainnet receipt, two seats stamped PAID IN FULL with 0.50 QUSDC to qkulk75527.qie and its tx 0x4bd5c37d…a7a0, in front of pool #2's receipt stamped REFUNDED (builder wallets)" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Patungan · the kitty that pays the court, or pays everyone back" />
 <meta name="twitter:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone." />
-<meta name="twitter:image" content="https://patungan.edycu.dev/og.png?v=20261114r2" />
+<meta name="twitter:image" content="https://patungan.edycu.dev/og.png?v=20261114r3" />
 <link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" type="image/svg+xml" href="/icon.svg" />
 <link rel="apple-touch-icon" href="/icon-512.png" />
@@ -254,9 +254,15 @@ code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 
 .tests-sec { padding: 72px 0 }
 .pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: start; margin-top: 20px }
 .pair > * { min-width: 0 }
-.term { margin: 0; background: var(--ink); color: #E8E4D8; border-radius: 8px; padding: 18px 20px 20px; font: 400 13.5px/1.75 var(--font-data); overflow-x: auto; min-height: 300px; white-space: pre }
-.term .bar { display: block; color: rgb(232 228 216 / .66); font-size: 12.5px; margin-bottom: 10px; white-space: normal }
-.term .hot { color: #FFFFFF; background: rgb(250 246 236 / .16); padding: 0 3px }
+.term { margin: 0; background: var(--ink); color: #E8E4D8; border-radius: 8px; padding: 18px 20px 20px; font: 400 13.5px/1.75 var(--font-data); overflow-x: auto; min-height: 300px; white-space: normal }
+.term .bar { display: block; color: rgb(232 228 216 / .66); font-size: 12.5px; margin-bottom: 10px }
+/* one block per output line: long lines wrap under a hanging indent, as a narrow terminal would, so nothing hides past the right edge */
+.term .ln { display: block; white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 2ch; text-indent: -2ch }
+.term .ln.gap { height: 1.75em }
+.term .ln.pending { visibility: hidden }
+.term .gas { white-space: nowrap; color: rgb(232 228 216 / .7) }
+.term .hot { color: #FFFFFF; background: rgb(250 246 236 / .16); margin: 0 -6px; padding-left: calc(2ch + 6px); padding-right: 6px; border-radius: 3px }
+.term .hot .gas { color: inherit }
 .shot-cap { font-size: 13.5px; color: var(--muted); margin-top: 10px }
 .shot-cap code, .label code { color: var(--ink) }
 .steps { list-style: none; margin: 8px 0 0; padding: 0; border-top: 1.5px solid var(--ink) }
@@ -274,6 +280,12 @@ code { font-family: var(--font-data); font-size: .88em; background: rgb(220 210 
 .chip { display: inline-block; font: 600 13px var(--font-body); border: 1px solid var(--rule); background: var(--bg); border-radius: 3px; padding: 2px 7px; margin: 2px 4px 0 0 }
 .c1 { grid-column: span 4 } .c2 { grid-column: span 2 } .c3 { grid-column: span 2 } .c4 { grid-column: span 2 } .c5 { grid-column: span 2 }
 .c6 { grid-column: span 6; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 2fr); gap: 24px; align-items: center }
+.map { margin: 0; min-width: 0 }
+.map-scroll { overflow-x: auto; border-radius: 4px; overscroll-behavior-x: contain }
+.map-scroll:focus-visible { outline: 2px solid var(--before); outline-offset: 3px }
+.map-scroll img { display: block; width: 100%; height: auto }
+.map figcaption { display: flex; justify-content: flex-end; gap: 16px; margin-top: 8px; font-size: 13.5px; color: var(--muted) }
+.map-swipe { display: none; margin-right: auto }
 .c1 .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 6px; font-weight: 700; font-size: 15px }
 .c1 .flow span { border: 1.5px solid var(--ink); border-radius: 4px; padding: 4px 10px; background: var(--bg) }
 .c1 .flow i { font-style: normal; color: var(--muted) }
@@ -361,6 +373,11 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   .moves li.paid { padding-right: 0; padding-bottom: 12px }
   .mini { position: relative; right: auto; top: auto; margin: 8px 0 0; grid-column: 2; justify-self: start; font-size: 24px }
   .term { font-size: 11.5px; padding: 14px }
+  /* the map keeps legible labels: 640 px wide inside a sideways scroller, with a fade on the edge that still has more */
+  .map-scroll { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent) }
+  .map-scroll.end { -webkit-mask-image: none; mask-image: none }
+  .map-scroll img { width: 640px; max-width: none }
+  .map-swipe { display: inline }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important }
@@ -514,7 +531,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
         <figcaption><span class="where mn">QIE mainnet · read only</span><b>Start</b>One form. The payee's <code>.qie</code> name resolves through Zone on mainnet, and that address is fixed when the pool is created. Captured before signing, so no pool was made.</figcaption></figure>
       <figure><div class="phone"><div class="shot"><img src="/shots/2-one-tx-events-mainnet.webp" width="390" height="820" alt="The live /verify event log on QIE mainnet: PoolPaid #1, 0.50 QUSDC to the payee, directly above Joined #1, one seat paid in QIE; both rows link the same transaction 0x4bd5c37d…" loading="lazy" /><span class="onetx" aria-hidden="true"><i>1 TX</i></span></div></div>
         <figcaption><span class="where mn">QIE mainnet</span><b>Pay with QIE</b>On <a href="/verify">/verify</a>, seat 2's join (paid in QIE) and the 0.50 QUSDC payout carry one hash, <code>0x4bd5c37d…</code>: swap, seat and payout in one transaction.</figcaption></figure>
-      <figure><div class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="1040" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></div>
+      <figure><div class="phone"><img src="/shots/4-paid-after-last-seat.webp" width="390" height="865" alt="Live QIE mainnet pool after the last seat: 2 of 2 seats paid, a red PAID IN FULL stamp, and the line Paid in full: 0.50 QUSDC to qkulk75527.qie" loading="lazy" /></div>
         <figcaption><span class="where mn">QIE mainnet</span><b>Paid in full</b><a href="/p/mainnet-1/1">Pool #1</a>: the last seat paid 0.50 QUSDC to the payee in its own transaction.</figcaption></figure>
       <figure><div class="phone"><img src="/shots/6-refunded.webp" width="390" height="918" alt="Live QIE mainnet pool past its deadline at 3 of 6 seats, with a green REFUNDED IN FULL stamp: everyone was refunded, 3 members, 0.75 QUSDC" loading="lazy" /></div>
         <figcaption><span class="where mn">QIE mainnet</span><b>Refunded</b><a href="/p/mainnet-1/2">Pool #2</a> missed its deadline at 3 of 6 seats; one <code>refundAll</code> at block 11,896,230 returned 0.25 QUSDC to each member.</figcaption></figure>
@@ -528,18 +545,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
     <h2 class="display" id="tests-h">Rehearsed on a fork of mainnet first</h2>
     <div class="pair">
       <div>
-<pre class="term" id="term" role="region" tabindex="0" aria-label="Excerpt of forge test output: the Patungan tests that fork QIE mainnet"><span class="bar">$ forge test -vv · test run, forks QIE mainnet through the public RPC · excerpt</span>Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest
-[PASS] test_fork_constructor_readsLiveDecimalsAndWqie() (gas: 16495)
-[PASS] test_fork_createPoolByName_realName_snapshotsOwner() (gas: 219336)
-[PASS] test_fork_createPoolByName_unknownName_revertsPayeeNotFound() (gas: 47321)
-[PASS] test_fork_createPoolByName_wrongExpected_revertsPayeeChanged() (gas: 53192)
-[PASS] test_fork_deadlineRefund_claimAndBatch() (gas: 1443489)
-<span class="hot">[PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() (gas: 1247110)</span>
-[PASS] test_fork_quoteQIE_matchesRouterAndOracle() (gas: 261785)
-[PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() (gas: 1741839)
-Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.41s (3.99s CPU time)
-
-Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skipped (74 total tests)</pre>
+<pre class="term" id="term" role="region" tabindex="0" aria-label="Excerpt of forge test output: the Patungan tests that fork QIE mainnet"><span class="bar">$ forge test -vv · test run, forks QIE mainnet through the public RPC · excerpt</span><span class="ln">Ran 8 tests for test/fork/Patungan.fork.t.sol:PatunganForkTest</span><span class="ln">[PASS] test_fork_constructor_readsLiveDecimalsAndWqie() <span class="gas">(gas: 16495)</span></span><span class="ln">[PASS] test_fork_createPoolByName_realName_snapshotsOwner() <span class="gas">(gas: 219336)</span></span><span class="ln">[PASS] test_fork_createPoolByName_unknownName_revertsPayeeNotFound() <span class="gas">(gas: 47321)</span></span><span class="ln">[PASS] test_fork_createPoolByName_wrongExpected_revertsPayeeChanged() <span class="gas">(gas: 53192)</span></span><span class="ln">[PASS] test_fork_deadlineRefund_claimAndBatch() <span class="gas">(gas: 1443489)</span></span><span class="ln hot">[PASS] test_fork_fullFlow_qusdcAndQie_lastSeatPaysRealName() <span class="gas">(gas: 1247110)</span></span><span class="ln">[PASS] test_fork_quoteQIE_matchesRouterAndOracle() <span class="gas">(gas: 261785)</span></span><span class="ln">[PASS] test_fork_twoPools_issuerBurn_firstComeFirstPaid() <span class="gas">(gas: 1741839)</span></span><span class="ln">Suite result: ok. 8 passed; 0 failed; 0 skipped; finished in 2.41s (3.99s CPU time)</span><span class="ln gap"></span><span class="ln">Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skipped (74 total tests)</span></pre>
         <p class="shot-cap">Lines from <code>evidence/forge-test-run.txt</code>, in their original order. These are tests on a fork, not mainnet transactions.</p>
       </div>
       <div>
@@ -598,7 +604,10 @@ Ran 6 test suites in 2.42s (6.00s CPU time): 74 tests passed, 0 failed, 0 skippe
           <h3>Where the money moves</h3>
           <p>Member to escrow, escrow to the payee or back to the member. Patungan has no admin key and no withdraw function.</p>
         </div>
-        <img src="/architecture.svg" width="960" height="470" alt="Architecture: a member joins with QUSDC or QIE; QIE is swapped through QIEDEX within the Oracle bound; Patungan escrows QUSDC; the last seat pays the payee resolved from Zone; past the deadline members are refunded" loading="lazy" />
+        <figure class="map">
+          <div class="map-scroll" role="region" tabindex="0" aria-label="Architecture diagram (scrolls sideways on a narrow screen)"><img src="/architecture.svg" width="960" height="470" alt="Architecture: a member joins with QUSDC or QIE; QIE is swapped through QIEDEX within the Oracle bound; Patungan escrows QUSDC; the last seat pays the payee resolved from Zone; past the deadline members are refunded" loading="lazy" /></div>
+          <figcaption><span class="map-swipe" aria-hidden="true">Swipe sideways ⟷</span><a class="ext" href="/architecture.svg" target="_blank" rel="noopener">Open full size</a></figcaption>
+        </figure>
       </article>
     </div>
   </div>
@@ -815,14 +824,14 @@ function hero() {
 function replayTerm() {
   const pre = document.getElementById('term')
   if (reduce || !('IntersectionObserver' in window)) return
-  const bar = pre.querySelector('.bar').outerHTML
-  const lines = pre.innerHTML.replace(bar, '').split('\n')
+  const lines = [...pre.querySelectorAll('.ln')]
   const io = new IntersectionObserver(([e]) => {
     if (!e.isIntersecting) return
     io.disconnect()
+    // the lines keep their boxes while hidden, so the replay never shifts the layout
+    lines.forEach((l) => l.classList.add('pending'))
     let i = 0
-    pre.innerHTML = bar
-    const next = () => { pre.innerHTML += (i ? '\n' : '') + lines[i++]; if (i < lines.length) setTimeout(next, 200) }
+    const next = () => { lines[i++].classList.remove('pending'); if (i < lines.length) setTimeout(next, 200) }
     next()
   }, { threshold: 0.4 })
   io.observe(pre)
@@ -836,7 +845,10 @@ function finalCard() {
   card.filled.textContent = '2'; card.pot.textContent = '0.00 QUSDC'; card.chip.classList.remove('off'); card.line.classList.remove('off')
   card.stamp.classList.remove('hide', 'land'); document.querySelectorAll('.fly').forEach((f) => f.remove())
 }
-addEventListener('beforeprint', () => { cardRun++; slipRun++; slip.classList.remove('armed'); finalCard() })
+addEventListener('beforeprint', () => { cardRun++; slipRun++; slip.classList.remove('armed'); finalCard(); document.querySelectorAll('.term .pending').forEach((l) => l.classList.remove('pending')) })
+
+const mapScroll = document.querySelector('.map-scroll')
+mapScroll?.addEventListener('scroll', () => mapScroll.classList.toggle('end', mapScroll.scrollLeft + mapScroll.clientWidth >= mapScroll.scrollWidth - 4), { passive: true })
 
 hero()
 countUps()
