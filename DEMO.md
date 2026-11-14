@@ -51,4 +51,4 @@ the router quote (+0.00%). The deployed guard allows up to 1,500 bps; the constr
 
 ## Screens
 
-Pool page, join sheet, PAID stamp, refund state: `evidence/e2e-local/`. Create form and share sheet: `evidence/e2e-create/`.
+Pool page, join sheet, PAID stamp, refund state: `evidence/e2e-local/`. Create form and share sheet: `evidence/e2e-create/`. These fork runs were recorded before the UI copy moved to English, so their screenshots show the earlier Indonesian labels; the current English screens are `web/public/shots/` (PAID and REFUNDED from the live mainnet pools).
