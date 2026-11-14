@@ -47,7 +47,8 @@ h1 { font: 850 30px/1 var(--font-display); font-stretch: 75%; text-transform: up
 
 .stampwrap { position: relative; text-align: center; margin: 18px 0 6px }
 .stamp { display: inline-block; transform: rotate(-6deg); border: 3px double currentColor; padding: 6px 18px 4px; font: 850 56px/1 var(--font-display); font-stretch: 75%; letter-spacing: .04em; opacity: .92; filter: url(#ink); background: rgb(250 246 236 / .35) }
-.stamp small { display: block; font: 600 14px var(--font-body); letter-spacing: .06em }
+/* the 14 px gloss sits under the stamp's 92% ink opacity: a touch of navy keeps it at ≥ 4.5:1 on the paper (axe measured 4.40 / 4.42 without) */
+.stamp small { display: block; font: 600 14px var(--font-body); letter-spacing: .06em; color: color-mix(in srgb, currentColor 84%, var(--ink)) }
 .stamp.paidfull { color: var(--after) }
 .stamp.refunded { color: var(--refund); font-size: 38px }
 .stamp.cancelled { color: var(--muted); transform: none; border-style: solid; border-width: 2px; filter: none; font-size: 34px }
