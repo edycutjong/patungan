@@ -36,9 +36,9 @@ export async function renderCreate(root: HTMLElement) {
           <input name="price" inputmode="decimal" autocomplete="off" placeholder="2" value="2" required><span class="err" aria-live="polite" data-err="price"></span></label>
       </div>
       <div class="two">
-        <label class="field"><span class="label">Deadline date <i>(WIB, UTC+7)</i></span>
+        <label class="field"><span class="label">Deadline date <i>(UTC+7, Jakarta time)</i></span>
           <input name="date" type="date" value="${defaultDeadline.date}" required></label>
-        <label class="field"><span class="label">Time <i>(WIB, UTC+7)</i></span>
+        <label class="field"><span class="label">Time <i>(UTC+7, Jakarta time)</i></span>
           <input name="time" type="time" value="20:00" required></label>
       </div>
       <span class="err" aria-live="polite" data-err="deadline"></span>

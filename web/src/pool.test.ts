@@ -280,7 +280,7 @@ describe('pool page: loading', () => {
     expect($('.amount small')!.textContent).toContain('10.00 QUSDC in total')
     expect($('.counter')!.getAttribute('aria-label')).toBe('2 of 5 seats paid')
     expect($('.inwords')!.textContent).toContain('two point zero zero QUSDC per seat')
-    expect($('.deadline')!.textContent).toMatch(/closes .* WIB · 1 d 0 h left|closes .* WIB · 23 h/)
+    expect($('.deadline')!.textContent).toMatch(/closes .* UTC\+7 · 1 d 0 h left|closes .* UTC\+7 · 23 h/)
     expect($('.status')!.textContent).toContain('2 of 5 seats paid')
     expect($('footer a')!.getAttribute('href')).toBe(`https://mainnet.qie.digital/address/${MAIN.address}`)
     expect($('footer')!.textContent).toContain('organizer 0x616F…69D7')

@@ -101,14 +101,14 @@ export function qieOffer(qieIn: bigint, maxAllowed: bigint): QieOffer {
 
 const WIB_OFFSET = 7 * 3600
 
-/** "Wed 20:00 WIB" for a unix deadline (Indonesia Western Time, UTC+7, no DST). */
+/** "Wed 18 Nov 20:00 UTC+7" for a unix deadline (Jakarta time, UTC+7, no DST; spelled as the offset so a global reader needs no zone shorthand). */
 export function fmtWib(deadline: bigint): string {
   const d = new Date((Number(deadline) + WIB_OFFSET) * 1000)
   const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getUTCDay()]
   const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getUTCMonth()]
   const hh = String(d.getUTCHours()).padStart(2, '0')
   const mm = String(d.getUTCMinutes()).padStart(2, '0')
-  return `${day} ${d.getUTCDate()} ${mon} ${hh}:${mm} WIB`
+  return `${day} ${d.getUTCDate()} ${mon} ${hh}:${mm} UTC+7`
 }
 
 /** "2 d 3 h left", "45 min left", "closed". */

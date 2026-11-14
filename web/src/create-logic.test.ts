@@ -55,7 +55,7 @@ describe('checkCreate', () => {
   it('asks for a price the contract accepts and for a deadline when the inputs are empty', () => {
     const c = checkCreate({ ...ok, price: 'two', date: '', time: '' })
     expect(c.errors.price).toMatch(/price per seat in QUSDC/)
-    expect(c.errors.deadline).toBe('Pick a deadline date and time (WIB).')
+    expect(c.errors.deadline).toBe('Pick a deadline date and time (UTC+7).')
     expect(c.price).toBeUndefined()
   })
   it('bounds the deadline to 10 minutes .. 90 days from chain time', () => {
@@ -70,7 +70,7 @@ describe('share', () => {
   it('is English first with one Indonesian line, carries the link, the deadline in WIB and the refund promise', () => {
     expect(t).toContain('Thursday football')
     expect(t).toContain('12 seats × 2.00 QUSDC')
-    expect(t).toContain('Fri 20 Nov 20:00 WIB')
+    expect(t).toContain('Fri 20 Nov 20:00 UTC+7')
     expect(t).toContain('sebelum Jum 20 Nov 20:00 WIB')
     expect(t).toContain('mengambil kembali QUSDC')
     expect(t).toContain('take their QUSDC back')

@@ -65,7 +65,7 @@ export function checkCreate(i: CreateInput): CreateChecked {
   const price = parseQusdc(i.price)
   if (price === undefined) errors.price = 'Enter a price per seat in QUSDC, up to 6 decimals, e.g. 2 or 0.25.'
   const deadline = wibToUnix(i.date, i.time)
-  if (deadline === undefined) errors.deadline = 'Pick a deadline date and time (WIB).'
+  if (deadline === undefined) errors.deadline = 'Pick a deadline date and time (UTC+7).'
   else if (deadline < i.chainNow + MIN_DURATION_S + 60) errors.deadline = 'The deadline must be at least 10 minutes from now.'
   else if (deadline > i.chainNow + MAX_DURATION_S - 60) errors.deadline = 'The deadline can be at most 90 days from now.'
   return { errors, price, deadline }
