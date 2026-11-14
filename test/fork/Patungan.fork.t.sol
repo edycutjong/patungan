@@ -66,7 +66,8 @@ contract PatunganForkTest is QieMainnet {
 
     function test_fork_createPoolByName_realName_snapshotsOwner() public {
         vm.prank(organizer);
-        uint256 id = pat.createPoolByName(NAME, NAME_OWNER, PRICE, 3, uint40(block.timestamp + 1 days), "Thursday football");
+        uint256 id =
+            pat.createPoolByName(NAME, NAME_OWNER, PRICE, 3, uint40(block.timestamp + 1 days), "Thursday football");
         (Patungan.Pool memory p, string memory title, string memory payeeName,,,) = pat.getPool(id);
         assertEq(p.payee, NAME_OWNER);
         assertEq(payeeName, NAME);
