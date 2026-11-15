@@ -2,18 +2,18 @@
   <img src="docs/assets/icon-animated.svg" alt="Patungan — a seat roster receipt that gets stamped PAID IN FULL" width="144">
   <h1>Patungan 🧾</h1>
   <p><em>Group payments with a deadline. Everyone chips in, or everyone gets their money back. Built for QIE mainnet.</em></p>
-  <img src="docs/assets/readme-hero-animated.svg" alt="Patungan — Seat five of five fills, and the court owner is paid in that same transaction: PAID IN FULL. If the deadline passes first, every member is refunded." width="100%">
+  <img src="docs/assets/readme-hero-animated.svg" alt="Patungan (illustration) — Seat five of five fills, and the court owner is paid in that same transaction: PAID IN FULL. If the deadline passes first, every member is refunded." width="100%">
 
   <p><b>Live on QIE mainnet:</b> contract <a href="https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code"><code>0x2f4646D52a5393E239f5b880411dC2CA2D945F31</code></a>, source verified on Blockscout. One PAID and one REFUNDED pool ran on mainnet; in the PAID pool, swap + last seat + payout happened in one tx (<code>0x4bd5c37d…a7a0</code>, linked below). Reproduce: <code>forge test -vv</code> forks QIE mainnet through the public RPC, no keys.</p>
 
   <br/>
 
   [![For Judges](https://img.shields.io/badge/⚖️_For-Judges-2ea44f?style=for-the-badge)](https://patungan.edycu.dev/judge)
-  [![Live Demo](https://img.shields.io/badge/🚀_Live-Demo-06b6d4?style=for-the-badge)](https://patungan.edycu.dev)
   [![Demo Video](https://img.shields.io/badge/▶️_Demo-Video-ef4444?style=for-the-badge)](https://youtu.be/3zRlpNRRk2M)
+  [![Live Demo](https://img.shields.io/badge/🚀_Live-Demo-06b6d4?style=for-the-badge)](https://patungan.edycu.dev)
+  [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://patungan.edycu.dev/pitch/)
   [![Launch thread on X](https://img.shields.io/badge/𝕏_Launch-Thread-000000?style=for-the-badge)](https://x.com/edycutjong/status/2121898812113604722)
   [![Write-up on dev.to](https://img.shields.io/badge/DEV-Write--up-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white)](https://dev.to/edycutjong/the-last-seat-pays-the-seller-one-transaction-that-swaps-seats-and-pays-on-qie-mainnet-4h48)
-  [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://patungan.edycu.dev/pitch/)
   [![Built for QIE Mainnet Hackathon 3](https://img.shields.io/badge/QIE-Mainnet_Hackathon_3-8b5cf6?style=for-the-badge)](https://hackathon.qie.digital/)
   [![Track: Commerce & Real World](https://img.shields.io/badge/🛒_Track-Commerce_%26_Real_World-C23A2E?style=for-the-badge)](https://hackathon.qie.digital/)
 
@@ -42,9 +42,9 @@
 
 ## 📸 See it in Action
 
-[![Patungan in 12 seconds: seat 2 pays 1.7224 QIE, the pool fills 2/2 and the contract pays 0.50 QUSDC to qkulk75527.qie in the same transaction, stamped PAID IN FULL (1 TX: swap, seat, pay). The other ending: pool 2 had 3 of 6 seats by its deadline, so every seat was refunded and the seller got nothing. Both are builder-wallet rehearsal pools on QIE mainnet. Click for the full demo video.](docs/assets/broll.gif)](https://youtu.be/3zRlpNRRk2M)
+[![Patungan in 12 seconds: the last seat pays in QIE and the seller is paid 0.50 QUSDC in that same transaction (PAID IN FULL), or the pool misses its deadline and every seat is refunded.](docs/assets/broll.gif)](https://youtu.be/3zRlpNRRk2M)
 
-<sub>A silent loop cut from the demo video: the one-transaction cold open at half speed, then the refund ending. Click it for the narrated video.</sub>
+<sub>A silent loop cut from the demo video: the last seat's one transaction at half speed (swap, seat, pay), then the other ending, a pool refunded at its deadline. Both are builder-wallet rehearsal pools on QIE mainnet. Click for the narrated video.</sub>
 
 | Start (payee resolved by Zone) | Pay with QIE: one tx | Paid in full | Refunded |
 |---|---|---|---|
