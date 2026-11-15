@@ -115,7 +115,8 @@ class PoolPage {
     this.sheet.className = 'joinsheet'
     this.sheet.addEventListener('close', () => void ++this.sheetSession)
     document.body.append(this.sheet)
-    await this.ensureGuard().catch(() => undefined) // a failed read is retried by the QIE tab; polling starts anyway
+    // In parallel with the first read, not before it: the receipt never waits an extra RPC round trip for the guard.
+    void this.ensureGuard().catch(() => undefined) // a failed read is retried by the QIE tab
     if (hasWallet()) {
       const accts = (await provider()!.request({ method: 'eth_accounts' }).catch(() => [])) as Address[]
       this.account = accts[0]

@@ -19,6 +19,9 @@
     <meta name="twitter:description" content="The last seat pays the payee in the same transaction. A missed deadline refunds everyone." />
     <meta name="twitter:image" content="https://patungan.edycu.dev/og.png?v=20261114r3" />
     <meta name="twitter:creator" content="@edycutjong" />
+    <!-- every app route reads the manifest, then QIE's first RPC: start both before the bundle runs (pool page LCP) -->
+    <link rel="preload" href="/deployments.json" as="fetch" crossorigin />
+    <link rel="preconnect" href="https://rpc1mainnet.qie.digital" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/icon-512.png" />
