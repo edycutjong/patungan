@@ -15,19 +15,26 @@
   [![Write-up on dev.to](https://img.shields.io/badge/DEV-Write--up-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white)](https://dev.to/edycutjong/the-last-seat-pays-the-seller-one-transaction-that-swaps-seats-and-pays-on-qie-mainnet-4h48)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://patungan.edycu.dev/pitch/)
   [![Built for QIE Mainnet Hackathon 3](https://img.shields.io/badge/QIE-Mainnet_Hackathon_3-8b5cf6?style=for-the-badge)](https://hackathon.qie.digital/)
+  [![Track: Commerce & Real World](https://img.shields.io/badge/🛒_Track-Commerce_%26_Real_World-C23A2E?style=for-the-badge)](https://hackathon.qie.digital/)
 
   <br/>
 
   [![CI](https://github.com/edycutjong/patungan/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/patungan/actions/workflows/ci.yml)
-  [![Release](https://img.shields.io/github/v/release/edycutjong/patungan?sort=semver)](https://github.com/edycutjong/patungan/releases/latest)
+  [![CodeQL](https://github.com/edycutjong/patungan/actions/workflows/codeql.yml/badge.svg)](https://github.com/edycutjong/patungan/actions/workflows/codeql.yml)
   [![Contract verified on QIE mainnet](https://img.shields.io/badge/QIE%20mainnet-verified%20contract-2ea44f?style=flat)](https://mainnet.qie.digital/address/0x2f4646D52a5393E239f5b880411dC2CA2D945F31#code)
   ![Solidity](https://img.shields.io/badge/Solidity-0.8.28-363636?style=flat&logo=solidity)
   ![Foundry](https://img.shields.io/badge/Foundry-forge-1f2937?style=flat)
+  ![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-5.7.0-4E5EE4?style=flat&logo=openzeppelin&logoColor=white)
   ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat&logo=vite&logoColor=white)
   ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?style=flat&logo=typescript&logoColor=white)
   ![viem](https://img.shields.io/badge/viem-2-1e1e20?style=flat)
+  ![Vitest](https://img.shields.io/badge/Vitest-5-6E9F18?style=flat&logo=vitest&logoColor=white)
+  ![Playwright](https://img.shields.io/badge/Playwright-1.65-2EAD33?style=flat&logo=playwright&logoColor=white)
+  [![Vercel](https://img.shields.io/badge/Vercel-hosted-000000?style=flat&logo=vercel&logoColor=white)](https://patungan.edycu.dev)
+  ![Tests](https://img.shields.io/badge/tests-74_forge_·_204_web-2ea44f?style=flat)
   ![Coverage](https://img.shields.io/badge/coverage-100%25-2ea44f?style=flat)
   [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat)](LICENSE)
+  [![Release](https://img.shields.io/github/v/release/edycutjong/patungan?sort=semver)](https://github.com/edycutjong/patungan/releases/latest)
 
 </div>
 
