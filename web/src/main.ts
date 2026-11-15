@@ -1,4 +1,4 @@
-import '@fontsource-variable/anybody/wdth.css'
+import './fonts/anybody.css'
 import '@fontsource/plus-jakarta-sans/400.css'
 import '@fontsource/plus-jakarta-sans/600.css'
 import '@fontsource/plus-jakarta-sans/700.css'
