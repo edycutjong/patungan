@@ -2,7 +2,7 @@
 # Production deploy of web/ with the footer release read from the git tag on HEAD, never typed by hand.
 # `vercel deploy` uploads web/ without .git and builds remotely, so vite.config.ts takes the tag from PATUNGAN_VERSION,
 # passed with --build-env; this script sets it.
-# The release workflow tags main on every feat/fix push: push, let it tag, then run this. It refuses an untagged HEAD
+# The release workflow tags main on every feat/fix push (and commits the matching web/package.json bump): push, let it tag, `git pull`, then run this. It refuses an untagged HEAD
 # (a footer naming an older release than the one GitHub lists as latest) unless ALLOW_UNTAGGED=1.
 # After the deploy it checks that /, /judge and /pitch/ all show the tag.
 set -euo pipefail

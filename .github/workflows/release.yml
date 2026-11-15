@@ -52,15 +52,22 @@ jobs:
           echo "bump=$BUMP"  >> "$GITHUB_OUTPUT"
           echo "skip=false"  >> "$GITHUB_OUTPUT"
 
-      - name: Tag and publish the release
+      - name: Bump web/package.json, tag and publish the release
         if: steps.ver.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT: ${{ steps.ver.outputs.next }}
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ steps.ver.outputs.next }}" -m "${{ steps.ver.outputs.next }}"
-          git push origin "${{ steps.ver.outputs.next }}"
-          gh release create "${{ steps.ver.outputs.next }}" \
-            --generate-notes --title "${{ steps.ver.outputs.next }}"
+          # Keep package.json / package-lock.json in step with the tag, so the repo never shows a stale version.
+          # A GITHUB_TOKEN push does not trigger workflows, so this commit cannot loop back into this job.
+          npm --prefix web version "${NEXT#v}" --no-git-tag-version --allow-same-version
+          if ! git diff --quiet -- web/package.json web/package-lock.json; then
+            git commit -m "chore(release): ${NEXT} [skip ci]" -- web/package.json web/package-lock.json
+          fi
+          git tag -a "$NEXT" -m "$NEXT"
+          # Atomic: main and the tag land together, or neither does (e.g. main moved during the run; the next push retries).
+          git push --atomic origin HEAD:main "$NEXT"
+          gh release create "$NEXT" --generate-notes --title "$NEXT"
