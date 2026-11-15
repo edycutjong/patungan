@@ -42,6 +42,10 @@
 
 ## 📸 See it in Action
 
+[![Patungan in 12 seconds: seat 2 pays 1.7224 QIE, the pool fills 2/2 and the contract pays 0.50 QUSDC to qkulk75527.qie in the same transaction, stamped PAID IN FULL (1 TX: swap, seat, pay). The other ending: pool 2 had 3 of 6 seats by its deadline, so every seat was refunded and the seller got nothing. Both are builder-wallet rehearsal pools on QIE mainnet. Click for the full demo video.](docs/assets/broll.gif)](https://youtu.be/3zRlpNRRk2M)
+
+<sub>A silent loop cut from the demo video: the one-transaction cold open at half speed, then the refund ending. Click it for the narrated video.</sub>
+
 | Start (payee resolved by Zone) | Pay with QIE: one tx | Paid in full | Refunded |
 |---|---|---|---|
 | <img src="web/public/shots/1-start-mainnet.webp" alt="Live create form on QIE mainnet with the payee qkulk75527.qie resolved by Zone" width="190"> | <img src="web/public/shots/2-one-tx-events-mainnet.webp" alt="Live /verify event log: PoolPaid #1 and Joined #1 paid in QIE share tx 0x4bd5c37d" width="190"> | <img src="web/public/shots/4-paid-after-last-seat.webp" alt="Mainnet pool 1 stamped PAID IN FULL" width="190"> | <img src="web/public/shots/6-refunded.webp" alt="Mainnet pool 2 stamped REFUNDED" width="190"> |
