@@ -26,6 +26,7 @@ vi.mock('./wallet', async (orig) => {
     provider: m.provider,
     walletFor: m.walletFor,
     wallets: m.wallets,
+    warmWrites: real.warmWrites,
   }
 })
 
@@ -673,6 +674,7 @@ describe('pool page: actions', () => {
       ['a rejection in the wallet', rejected(), 'You cancelled in the wallet. Nothing was sent.'],
       ['a mined but reverted tx', 'receipt-reverted', 'The transaction failed.'],
       ['anything else', new Error('boom'), 'The transaction failed.'],
+      ['the write code failing to download', new Error('AppNotLoaded'), "Part of the app didn't download, so nothing was sent. Check the connection and reload the page."],
     ]
     it.each(cases)('%s', async (_n, error, sentence) => {
       await open({ account: ALICE, state: { refundable: true, deadline: TS - 1 } })
@@ -764,6 +766,13 @@ describe('organizer gas drip (0.02 QIE)', () => {
     expect(await send(BOB)).toBe('You cancelled in the wallet. Nothing was sent.')
     wallet.sendTransaction.mockRejectedValueOnce(new BaseError('rpc'))
     expect(await send(BOB)).toBe('Could not send the QIE. Nothing moved except, if it was mined, the network fee.')
+  })
+
+  it('says so when the wallet code fails to download, and that nothing was sent', async () => {
+    await open({ account: ORG })
+    m.connect.mockResolvedValue({ account: ORG })
+    m.walletFor.mockRejectedValueOnce(new Error('AppNotLoaded'))
+    expect(await send(BOB)).toBe("Part of the app didn't download, so nothing was sent. Check the connection and reload the page.")
   })
 })
 

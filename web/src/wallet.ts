@@ -3,8 +3,8 @@
  * Several wallet extensions fight over window.ethereum (MetaMask usually wins), so wallets are discovered with
  * EIP-6963 and QIE Wallet is preferred when present; a choice the user made is remembered.
  */
-import { createWalletClient, custom, numberToHex, type Address, type EIP1193Provider } from 'viem'
-import { QIE_RPCS, qieMainnet } from './chain'
+import { numberToHex, type Address, type EIP1193Provider } from 'viem'
+import { NOT_LOADED, QIE_RPCS, qieMainnet, writeActions } from './chain'
 
 declare global {
   interface Window {
@@ -144,7 +144,7 @@ export const provider = (): EIP1193Provider | undefined =>
 export const hasWallet = () => !!provider()
 
 /** Ask the wallet for an account and make sure it is on QIE mainnet (adds the chain if the wallet lacks it). */
-export async function connect(): Promise<{ account: Address; wallet: ReturnType<typeof walletFor> }> {
+export async function connect(): Promise<{ account: Address; wallet: Awaited<ReturnType<typeof walletFor>> }> {
   if (!provider()) throw new Error('NoWallet')
   await ensureChosen()
   const eth = provider()
@@ -172,12 +172,22 @@ export async function connect(): Promise<{ account: Address; wallet: ReturnType<
       })
     }
   }
-  return { account, wallet: walletFor(account) }
+  return { account, wallet: await walletFor(account) }
 }
 
-export function walletFor(account: Address) {
+/** The signing client. viem's wallet actions load with the first write, not with the page (the pages read without one). */
+export async function walletFor(account: Address) {
+  const { createWalletClient, custom } = await walletClient()
   return createWalletClient({ account, chain: qieMainnet, transport: custom(provider()!) })
 }
+
+const walletClient = () =>
+  import('./wallet-client').catch(() => {
+    throw new Error(NOT_LOADED)
+  })
+
+/** Start fetching everything a payment needs (pool page, when the Join sheet opens), so tapping Pay doesn't wait on it. */
+export const warmWrites = () => Promise.all([walletClient(), writeActions()]).catch(() => undefined) // a real write reports it
 
 /** MetaMask's in-app browser deep link, for members who open the pool inside WhatsApp. */
 export const metamaskDeepLink = (url: string) => `https://metamask.app.link/dapp/${url.replace(/^https?:\/\//, '')}`

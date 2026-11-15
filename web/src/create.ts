@@ -3,7 +3,7 @@
  * PayeeChanged if the name moves before it mines), then a share sheet (WhatsApp text + copy link) for the new pool.
  */
 import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError, parseEventLogs, type Address } from 'viem'
-import { ADDR, clientFor, explorerTx, hasExplorer, loadDeployments, type Deployment } from './chain'
+import { ADDR, NOT_LOADED, clientFor, explorerTx, hasExplorer, loadDeployments, type Deployment } from './chain'
 import { zoneAbi } from './abi'
 import { MAX_SEATS, MAX_TITLE_BYTES, MIN_SEATS, checkCreate, type CreateChecked, isAddress, isBadChecksum, shareText, unixToWib, whatsappLink } from './create-logic'
 import { fmtQusdc, shortAddr } from './format'
@@ -172,7 +172,7 @@ export async function renderCreate(root: HTMLElement) {
       const { request } = await client.simulateContract(req)
       const gas = ((await client.estimateContractGas(req)) * 5n) / 4n
       msg.textContent = 'Confirm in your wallet…'
-      const hash = await walletFor(account).writeContract({ ...(request as object), gas } as never)
+      const hash = await (await walletFor(account)).writeContract({ ...(request as object), gas } as never)
       sentHash = hash
       msg.innerHTML = `Sent, waiting for a QIE block… ${txLink(dep, hash)}`
       const r = await client.waitForTransactionReceipt({ hash })
@@ -234,6 +234,7 @@ function txLink(dep: Deployment, hash: string) {
 function createError(e: unknown): string {
   if (e instanceof Error && e.message === 'NoWallet') return 'Open this page in a wallet app (QIE Wallet or MetaMask) to create a pool.'
   if (e instanceof Error && e.message === 'WalletPickCancelled') return 'No wallet chosen. Nothing was sent.'
+  if (e instanceof Error && e.message === NOT_LOADED) return "Part of the app didn't download, so nothing was sent. Check the connection and reload the page."
   if (e instanceof BaseError) {
     if (e.walk((x) => x instanceof UserRejectedRequestError)) return 'You cancelled in the wallet. Nothing was sent.'
     const rev = e.walk((x) => x instanceof ContractFunctionRevertedError)

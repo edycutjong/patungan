@@ -168,6 +168,7 @@ export function revertSentence(errorName: string | undefined, maxDevBps: number,
     ERC20InsufficientBalance: "This wallet doesn't hold enough QUSDC for that.",
     ERC20InsufficientAllowance: 'Approve QUSDC first, then pay.',
     UserRejected: 'You cancelled in the wallet. Nothing was sent.',
+    AppNotLoaded: "Part of the app didn't download, so nothing was sent. Check the connection and reload the page.",
   }
   return (errorName && map[errorName]) || fallback || 'The transaction failed. Nothing moved except, if it was mined, the network fee.'
 }

@@ -10,9 +10,7 @@ import { oracleAbi, routerAbi } from './abi'
 import { fmtQusdc, poolKind } from './format'
 import { ageHours } from './names'
 import { patunganAbi } from './patungan-abi'
-import { renderCreate } from './create'
 import { renderPool } from './pool'
-import { renderVerify } from './verify'
 import { NOTHING_SENT, whenSlow } from './slow'
 
 const app = document.querySelector<HTMLElement>('#app')!
@@ -24,11 +22,16 @@ let generation = 0 // a Retry re-renders the page; reads from an earlier render 
 if (route) {
   void renderPool(app, route[1], BigInt(route[2]))
 } else if (path === '/new') {
-  void renderCreate(app)
+  void import('./create').then((m) => m.renderCreate(app), () => notLoaded(app))
 } else if (path === '/verify') {
-  void renderVerify(app)
+  void import('./verify').then((m) => m.renderVerify(app), () => notLoaded(app))
 } else {
   void home()
+}
+
+/** /new and /verify load their own code; if that download fails (offline, a deploy swapped the files), say so. */
+function notLoaded(root: HTMLElement) {
+  root.innerHTML = `<section class="notice"><h1>This page didn't load</h1><p>Part of the app couldn't be downloaded. Check the connection and <a href="${location.pathname}">reload</a>. ${NOTHING_SENT}</p></section>`
 }
 
 const STAMP: Record<string, string> = {

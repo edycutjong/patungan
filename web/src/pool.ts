@@ -11,7 +11,7 @@ import {
   type Address,
   type Hash,
 } from 'viem'
-import { ADDR, clientFor, explorerAddress, explorerTx, hasExplorer, loadDeployments, type Deployment } from './chain'
+import { ADDR, NOT_LOADED, clientFor, explorerAddress, explorerTx, hasExplorer, loadDeployments, type Deployment } from './chain'
 import {
   fmtLeft,
   fmtQie,
@@ -31,7 +31,7 @@ import { ageHours } from './names'
 import { NOTHING_SENT, whenSlow } from './slow'
 import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
-import { QIE_WALLET_URL, connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets } from './wallet'
+import { QIE_WALLET_URL, connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets, warmWrites } from './wallet'
 
 const POLL_MS = 4_000 // ≈ one QIE block (~3.6 s)
 const REFUND_CHUNK = 25n
@@ -346,7 +346,7 @@ class PoolPage {
         const account = await this.ensureAccount()
         if (account.toLowerCase() !== d.organizer.toLowerCase()) throw new Error('NotOrganizerWallet')
         out.textContent = 'Confirm in your wallet…'
-        const hash = await walletFor(account).sendTransaction({ to: to as Address, value: GAS_DRIP_WEI })
+        const hash = await (await walletFor(account)).sendTransaction({ to: to as Address, value: GAS_DRIP_WEI })
         out.innerHTML = `Sent, waiting for a QIE block… ${this.txLink(hash)}`
         const r = await this.client.waitForTransactionReceipt({ hash })
         if (r.status !== 'success') return void (out.textContent = 'The transfer reverted.')
@@ -354,7 +354,7 @@ class PoolPage {
         out.textContent = `✓ Sent 0.02 QIE for gas to ${shortAddr(to)}. `
         out.insertAdjacentHTML('beforeend', this.txLink(hash))
       } catch (e) {
-        out.textContent = e instanceof Error && e.message === 'NotOrganizerWallet' ? "The connected wallet is not this pool's organizer. Switch to the organizer wallet." : e instanceof BaseError && e.walk((x) => x instanceof UserRejectedRequestError) ? 'You cancelled in the wallet. Nothing was sent.' : 'Could not send the QIE. Nothing moved except, if it was mined, the network fee.'
+        out.textContent = e instanceof Error && e.message === 'NotOrganizerWallet' ? "The connected wallet is not this pool's organizer. Switch to the organizer wallet." : e instanceof Error && e.message === NOT_LOADED ? revertSentence(NOT_LOADED, this.maxDevBps) : e instanceof BaseError && e.walk((x) => x instanceof UserRejectedRequestError) ? 'You cancelled in the wallet. Nothing was sent.' : 'Could not send the QIE. Nothing moved except, if it was mined, the network fee.'
       } finally {
         btn.disabled = false
       }
@@ -485,7 +485,7 @@ class PoolPage {
       // → member) then run out of gas under the 63/64 rule (seen on the fork). Send our estimate + 25%.
       const gas = ((await this.client.estimateContractGas(call)) * 5n) / 4n
       this.setMsg('Confirm in your wallet…')
-      const hash = await walletFor(account).writeContract({ ...(request as object), gas } as never)
+      const hash = await (await walletFor(account)).writeContract({ ...(request as object), gas } as never)
       this.setMsg(`Sent, waiting for a QIE block… ${this.txLink(hash)}`)
       const r = await this.client.waitForTransactionReceipt({ hash })
       if (r.status !== 'success') throw new Error('Reverted')
@@ -508,6 +508,8 @@ class PoolPage {
       return this.openSheet()
     } else if (e instanceof Error && e.message === 'WalletPickCancelled') {
       return this.paint()
+    } else if (e instanceof Error && e.message === NOT_LOADED) {
+      name = NOT_LOADED
     }
     this.setMsg(esc(revertSentence(name, this.maxDevBps)))
     console.warn(e)
@@ -528,6 +530,7 @@ class PoolPage {
       s.showModal()
       return
     }
+    void warmWrites()
     let n = 1
     let tab: 'qie' | 'qusdc' = 'qie'
     let gen = 0 // only the newest render may attach handlers (stepper clicks can overlap slow reads)
@@ -709,7 +712,7 @@ class PoolPage {
               const a = await this.ensureAccount()
               if (!current()) return
               sheetMsg('Confirm the approval in your wallet…')
-              const hash = await walletFor(a).writeContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'approve', args: [this.dep.address, amount] })
+              const hash = await (await walletFor(a)).writeContract({ address: ADDR.qusdc, abi: erc20Abi, functionName: 'approve', args: [this.dep.address, amount] })
               await this.client.waitForTransactionReceipt({ hash })
               this.busy = false
               if (current()) void render()

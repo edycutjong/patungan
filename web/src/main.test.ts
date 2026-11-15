@@ -68,6 +68,19 @@ describe('routing on location.pathname', () => {
     await open('/verify')
     expect(m.renderVerify).toHaveBeenCalledTimes(1)
   })
+  it.each([
+    ['/new', './create'],
+    ['/verify', './verify'],
+  ])('says %s did not load when its code fails to download', async (path, mod) => {
+    vi.doMock(mod, () => {
+      throw new Error('Failed to fetch dynamically imported module')
+    })
+    const app = await open(path)
+    expect(app.querySelector('h1')!.textContent).toBe("This page didn't load")
+    expect(app.querySelector('a')!.getAttribute('href')).toBe(path)
+    expect(app.textContent).toContain('Nothing was sent and no money moved')
+    vi.doUnmock(mod)
+  })
   it('falls back to the pools home for any other path', async () => {
     const app = await open('/pools')
     expect(app.querySelector('h1')!.textContent).toBe('Patungan')

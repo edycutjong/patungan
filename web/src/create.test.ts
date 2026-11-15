@@ -386,6 +386,7 @@ describe('creating a pool', () => {
       ['revert without data', revert(), 'Could not create the pool. Nothing moved except, if it was mined, the network fee.'],
       ['other viem error', new BaseError('rpc'), 'Could not create the pool. Nothing moved except, if it was mined, the network fee.'],
       ['anything else', new Error('boom'), 'Could not create the pool. Nothing moved except, if it was mined, the network fee.'],
+      ['the write code failing to download', new Error('AppNotLoaded'), "Part of the app didn't download, so nothing was sent. Check the connection and reload the page."],
     ]
     it.each(cases)('%s', async (_name, error, sentence) => {
       const c = fakeClient()
