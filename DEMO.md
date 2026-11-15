@@ -21,7 +21,7 @@ Builder-wallet pools are labelled "builder wallet". They are not users, and dist
 ```sh
 git submodule update --init --recursive
 forge test -vv            # 74 tests; 24 of them (8 Patungan fork + 16 spike) read live QIE mainnet state (QUSDC, QIEDEX, Zone, Oracle)
-cd web && npm ci && npm test && npm run build     # 211 web tests
+cd web && npm ci && npm test && npm run build     # 227 web tests
 script/mutation-check.sh  # 5 injected bugs, all must be caught
 script/local-flow.sh      # deploy + seed on an anvil fork, prints the receipts
 python3 script/bench.py   # gas and swap-cost tables (header of the file lists the setup)

@@ -1,13 +1,13 @@
 
-> patungan-web@0.8.0 test
+> patungan-web@0.8.1 test
 > vitest run
 
 
  RUN  v5.1.0 ~/Hackathon/others/qie-mainnet-hackathon-3-2026/patungan/build/web
 
 
- Test Files  11 passed (11)
-      Tests  211 passed (211)
-   Start at  17:26:06
-   Duration  2.50s (tests 36%, environment 33%, import 29%, transform 2%, worker 1%)
+ Test Files  13 passed (13)
+      Tests  227 passed (227)
+   Start at  17:52:46
+   Duration  2.53s (import 36%, tests 35%, environment 26%, transform 3%, worker 1%)
 
