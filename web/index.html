@@ -376,7 +376,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
   /* the map keeps legible labels: 640 px wide inside a sideways scroller, with a fade on the edge that still has more */
   .map-scroll { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent) }
   .map-scroll.end { -webkit-mask-image: none; mask-image: none }
-  .map-scroll img { width: 640px; max-width: none }
+  .map-scroll img { width: 960px; max-width: none }
   .map-swipe { display: inline }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -605,8 +605,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px }
           <p>Member to escrow, escrow to the payee or back to the member. Patungan has no admin key and no withdraw function.</p>
         </div>
         <figure class="map">
-          <div class="map-scroll" role="region" tabindex="0" aria-label="Architecture diagram (scrolls sideways on a narrow screen)"><img src="/architecture.svg" width="960" height="470" alt="Architecture: a member joins with QUSDC or QIE; QIE is swapped through QIEDEX within the Oracle bound; Patungan escrows QUSDC; the last seat pays the payee resolved from Zone; past the deadline members are refunded" loading="lazy" /></div>
-          <figcaption><span class="map-swipe" aria-hidden="true">Swipe sideways ⟷</span><a class="ext" href="/architecture.svg" target="_blank" rel="noopener">Open full size</a></figcaption>
+          <div class="map-scroll" role="region" tabindex="0" aria-label="Architecture diagram (scrolls sideways on a narrow screen)"><img src="/architecture.png" width="1600" height="900" alt="Architecture: a member joins with QUSDC or QIE; QIE is swapped through QIEDEX within the Oracle bound; Patungan escrows QUSDC; the last seat pays the payee resolved from Zone; past the deadline members are refunded" loading="lazy" /></div>
+          <figcaption><span class="map-swipe" aria-hidden="true">Swipe sideways ⟷</span><a class="ext" href="/architecture.png" target="_blank" rel="noopener">Open full size</a></figcaption>
         </figure>
       </article>
     </div>
