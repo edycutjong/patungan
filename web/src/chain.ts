@@ -20,9 +20,16 @@ export const ADDR = {
   oracle: '0x3Bc617cF3A4Bb77003e4c556B87b13D556903D17',
 } as const satisfies Record<string, Address>
 
+// viem's fallback runs each endpoint with retryCount 0 (a per-http retryCount is ignored) and retries the whole
+// walk instead: by default 3 more walks, 20 requests and ~1 s of backoff per failed call. One more walk is still
+// 10 attempts across 5 endpoints. With every RPC answering 500 the pool page now says so in ~0.6 s; before, the
+// walk was still running when the 4 s notice fired.
 export const client = createPublicClient({
   chain: qieMainnet,
-  transport: fallback(QIE_RPCS.map((url) => http(url, { timeout: 8_000, retryCount: 1 }))),
+  transport: fallback(
+    QIE_RPCS.map((url) => http(url, { timeout: 8_000 })),
+    { retryCount: 1 },
+  ),
 })
 
 export const explorerTx = (hash: string) => `${qieMainnet.blockExplorers.default.url}/tx/${hash}`
