@@ -10,6 +10,8 @@
 
   [![Live Demo](https://img.shields.io/badge/🚀_Live-Demo-06b6d4?style=for-the-badge)](https://patungan.edycu.dev)
   [![Demo Video](https://img.shields.io/badge/▶️_Demo-Video-ef4444?style=for-the-badge)](https://youtu.be/3zRlpNRRk2M)
+  [![Launch thread on X](https://img.shields.io/badge/𝕏_Launch-Thread-000000?style=for-the-badge)](https://x.com/edycutjong/status/2121898812113604722)
+  [![Write-up on dev.to](https://img.shields.io/badge/DEV-Write--up-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white)](https://dev.to/edycutjong/the-last-seat-pays-the-seller-one-transaction-that-swaps-seats-and-pays-on-qie-mainnet-4h48)
   [![For Judges](https://img.shields.io/badge/⚖️_For-Judges-2ea44f?style=for-the-badge)](https://patungan.edycu.dev/judge)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://patungan.edycu.dev/pitch/)
   [![Built for QIE Mainnet Hackathon 3](https://img.shields.io/badge/QIE-Mainnet_Hackathon_3-8b5cf6?style=for-the-badge)](https://hackathon.qie.digital/)
