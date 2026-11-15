@@ -28,7 +28,7 @@ Live on QIE mainnet: contract [`0x2f4646D52a5393E239f5b880411dC2CA2D945F31`](htt
 | Last seat in QIE (swap + seat + payout, one tx) | 267,557 gas on mainnet |
 | QIE out of the deployer | 20.003668 QIE: 20 funded five builder wallets, 0.003668 was gas |
 | Contract tests | 74 passed (unit, fuzz, invariants, and mainnet-fork tests on the real QUSDC, QIEDEX, Zone and Oracle); `src/` coverage 100% lines, statements, branches and functions |
-| Web tests | 204 unit tests at 100% coverage, plus Playwright end-to-end tests against live mainnet reads |
+| Web tests | 211 unit tests at 100% coverage, plus Playwright end-to-end tests against live mainnet reads |
 | Mutation check | 5 of 5 injected bugs caught |
 
 ## Reproduce

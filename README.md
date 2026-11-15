@@ -31,7 +31,7 @@
   ![Vitest](https://img.shields.io/badge/Vitest-5-6E9F18?style=flat&logo=vitest&logoColor=white)
   ![Playwright](https://img.shields.io/badge/Playwright-1.65-2EAD33?style=flat&logo=playwright&logoColor=white)
   [![Vercel](https://img.shields.io/badge/Vercel-hosted-000000?style=flat&logo=vercel&logoColor=white)](https://patungan.edycu.dev)
-  ![Tests](https://img.shields.io/badge/tests-74_forge_·_204_web-2ea44f?style=flat)
+  ![Tests](https://img.shields.io/badge/tests-74_forge_·_211_web-2ea44f?style=flat)
   ![Coverage](https://img.shields.io/badge/coverage-100%25-2ea44f?style=flat)
   [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat)](LICENSE)
   [![Release](https://img.shields.io/github/v/release/edycutjong/patungan?sort=semver)](https://github.com/edycutjong/patungan/releases/latest)
@@ -119,8 +119,8 @@ Numbers (all from [`evidence/`](evidence/)):
 |---|---|---|
 | Contract tests (`forge test`) | 74 passed: 50 on mocks (45 unit, 4 fuzz, 1 invariant suite of 3 properties); 24 read live mainnet state (8 Patungan fork, 16 day-one spike) | `evidence/forge-test-run.txt` |
 | Contract coverage (`forge coverage`, `src/`) | 100% lines (166/166), statements (229/229), branches (41/41), functions (25/25) | CI Stage 1 |
-| Web tests (`npm test`) | 204 passed | `evidence/web-test-run.txt` |
-| Web coverage (`npm run test:coverage`, `web/src`) | 100% statements (1036/1036), branches (624/624), functions (182/182), lines (873/873) | CI Stage 1 |
+| Web tests (`npm test`) | 211 passed | `evidence/web-test-run.txt` |
+| Web coverage (`npm run test:coverage`, `web/src`) | 100% statements (1090/1090), branches (647/647), functions (198/198), lines (911/911) | CI Stage 1 |
 | Mutation check | 5 of 5 injected bugs caught | `evidence/mutation-run.txt` |
 | Last-seat `joinWithQIE` (swap + payout), fork | 267,557 gas | `evidence/local-flow-run.txt` |
 | QIE join vs Oracle fair value, 12 joins on a fork | median +564 bps (guard 1,500 bps) | `evidence/bench.md` |
