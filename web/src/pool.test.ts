@@ -259,7 +259,10 @@ describe('pool page: loading', () => {
     m.hasWallet.mockReturnValue(false)
     await renderPool(root, 'mainnet-1', 7n)
     await flush()
-    expect(root.querySelector('.ghosttext')).not.toBeNull()
+    expect(root.querySelector('h1')!.textContent).toBe("Can't reach QIE mainnet")
+    expect(root.querySelector('.status')!.textContent).toContain('Nothing was sent and no money moved')
+    expect(root.querySelector('[data-act="retry"]')).not.toBeNull()
+    expect(root.querySelector('.kuitansi')!.hasAttribute('aria-busy')).toBe(false)
     expect(console.warn).toHaveBeenCalled()
     poll()
     await flush()
@@ -269,6 +272,72 @@ describe('pool page: loading', () => {
     poll()
     await flush()
     expect(root.querySelector('h1')!.textContent).toBe('Futsal Kamis')
+  })
+
+  it('Retry re-runs the read: a failed retry shows the notice again, a later one paints the receipt and loads tx links', async () => {
+    st = baseState()
+    client = fakeClient(st)
+    client.getBlock.mockRejectedValueOnce(new Error('500')).mockRejectedValueOnce(new Error('500'))
+    m.loadDeployments.mockResolvedValue([MAIN])
+    m.clientFor.mockReturnValue(client)
+    m.hasWallet.mockReturnValue(false)
+    await renderPool(root, 'mainnet-1', 7n)
+    await flush()
+    const first = $<HTMLButtonElement>('[data-act="retry"]')!
+    // a failed poll while the notice is up leaves the same button (and the keyboard focus on it) in place
+    client.getBlock.mockRejectedValueOnce(new Error('500'))
+    poll()
+    await flush()
+    expect($('[data-act="retry"]')).toBe(first)
+    const scans = client.getBlockNumber.mock.calls.length
+    first.click()
+    expect(first.disabled).toBe(true)
+    expect(first.textContent).toBe('Reading…')
+    await flush()
+    expect($('h1')!.textContent).toBe("Can't reach QIE mainnet") // the second rejection: the notice again, Retry enabled
+    expect($<HTMLButtonElement>('[data-act="retry"]')!.disabled).toBe(false)
+    $<HTMLButtonElement>('[data-act="retry"]')!.click()
+    await flush()
+    expect($('h1')!.textContent).toBe('Futsal Kamis')
+    expect(client.getBlockNumber.mock.calls.length).toBeGreaterThan(scans) // the log scan runs again after a retry
+  })
+
+  it('says it cannot reach QIE after a few seconds when the RPCs hang, then paints the receipt if the read lands', async () => {
+    const realTimeout = globalThis.setTimeout
+    let slow: (() => void) | undefined
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(((fn: () => void, ms?: number) => {
+      if (ms === 4_000) {
+        slow = fn
+        return 0
+      }
+      return realTimeout(fn, ms)
+    }) as never)
+    st = baseState()
+    client = fakeClient(st)
+    const hang = deferred<{ number: bigint; timestamp: bigint }>()
+    client.getBlock.mockReturnValueOnce(hang.promise)
+    m.loadDeployments.mockResolvedValue([MAIN])
+    m.clientFor.mockReturnValue(client)
+    m.hasWallet.mockReturnValue(false)
+    const done = renderPool(root, 'mainnet-1', 7n)
+    await flush()
+    expect(root.querySelector('.ghosttext')).not.toBeNull() // the skeleton while the first read is in flight
+    slow!()
+    expect($('h1')!.textContent).toBe("Can't reach QIE mainnet")
+    hang.resolve({ number: st.block, timestamp: BigInt(st.ts) })
+    await done
+    await flush()
+    expect($('h1')!.textContent).toBe('Futsal Kamis')
+    slow!() // a late timer never paints over a receipt
+    expect($('h1')!.textContent).toBe('Futsal Kamis')
+  })
+
+  it('a failed read after the pool page was replaced (pool not found) touches nothing', async () => {
+    await open({ state: { organizer: ZERO } })
+    client.getBlock.mockRejectedValueOnce(new Error('500'))
+    poll()
+    await flush()
+    expect(root.querySelector('h1')!.textContent).toBe('Pool #7 not found')
   })
 
   it('shows the receipt: title, .qie payee with address, amount in words, deadline, status line, contract link', async () => {

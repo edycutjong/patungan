@@ -200,6 +200,67 @@ describe('verify page', () => {
     expect(root.textContent).toContain('Contract reads unavailable right now.')
     expect(root.textContent).toContain('Events unavailable right now.')
     expect(root.textContent).not.toContain('Wired at deploy')
+    expect(root.querySelector('#vbody')!.textContent).toMatch(/^Can't reach QIE mainnet right now.*Nothing was sent and no money moved/)
+    // Retry re-runs the page; this time the RPC answers
+    chain.clientFor.mockReturnValue(fakeClient())
+    root.querySelector<HTMLButtonElement>('[data-act="retry"]')!.click()
+    await vi.waitFor(() => expect(root.textContent).toContain('Wired at deploy'))
+    expect(root.querySelector('[data-act="retry"]')).toBeNull()
+    expect(root.querySelectorAll('.notes')).toHaveLength(1)
+  })
+
+  it('adds the static notes only once the live reads settle, so nothing on screen moves when they land', async () => {
+    chain.loadDeployments.mockResolvedValue([FORK])
+    let release!: () => void
+    const gate = new Promise<void>((r) => (release = r))
+    const c = fakeClient()
+    c.getBlockNumber.mockImplementation(async () => (await gate, 200_000n))
+    chain.clientFor.mockReturnValue(c)
+    const done = renderVerify(root)
+    await vi.waitFor(() => expect(root.querySelector('#vbody')!.textContent).toBe('Reading…'))
+    expect(root.querySelector('.notes')).toBeNull()
+    release()
+    await done
+    const section = root.querySelector('section')!
+    expect(section.lastElementChild!.className).toBe('notes')
+    expect(section.querySelector('#vbody')!.compareDocumentPosition(section.querySelector('.notes')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('says it cannot reach QIE after a few seconds while the reads hang; a Retry drops the hung run', async () => {
+    const realTimeout = globalThis.setTimeout
+    const slow: (() => void)[] = []
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(((fn: () => void, ms?: number) => {
+      if (ms === 4_000) {
+        slow.push(fn)
+        return 0
+      }
+      return realTimeout(fn, ms)
+    }) as never)
+    chain.loadDeployments.mockResolvedValue([FORK])
+    let release!: () => void
+    const gate = new Promise<void>((r) => (release = r))
+    const hung = fakeClient()
+    hung.getBlockNumber.mockImplementation(async () => (await gate, 200_000n))
+    hung.readContract.mockImplementation(async () => {
+      await gate
+      throw new Error('timeout')
+    })
+    chain.clientFor.mockReturnValue(hung)
+    const first = renderVerify(root)
+    await vi.waitFor(() => expect(slow).toHaveLength(1))
+    slow[0]()
+    expect(root.querySelector('#vbody')!.textContent).toMatch(/^Can't reach QIE mainnet right now/)
+    expect(root.querySelector('.notes')).not.toBeNull()
+    chain.clientFor.mockReturnValue(fakeClient())
+    root.querySelector<HTMLButtonElement>('[data-act="retry"]')!.click()
+    await vi.waitFor(() => expect(root.textContent).toContain('Wired at deploy'))
+    // the first run lands late (and its timer fires late): it writes nothing over the fresh page
+    release()
+    await first
+    slow[0]()
+    expect(root.textContent).toContain('Wired at deploy')
+    expect(root.querySelector('[data-act="retry"]')).toBeNull()
+    vi.restoreAllMocks()
   })
 
   it('keeps the page up when one deployment cannot be read at all', async () => {

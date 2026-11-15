@@ -28,6 +28,7 @@ import {
 } from './format'
 import { GAS_DRIP_WEI, isAddress, isBadChecksum } from './create-logic'
 import { ageHours } from './names'
+import { NOTHING_SENT, whenSlow } from './slow'
 import { oracleAbi } from './abi'
 import { patunganAbi } from './patungan-abi'
 import { QIE_WALLET_URL, connect, forgetWallet, hasWallet, metamaskDeepLink, provider, walletFor, wallets } from './wallet'
@@ -126,7 +127,9 @@ class PoolPage {
       // Guide, Step 6: reload on a network change so every client re-initialises on the right chain.
       provider()!.on?.('chainChanged', () => window.location.reload())
     }
-    await this.refresh()
+    const first = this.refresh()
+    whenSlow(first, () => this.unreachable())
+    await first
     void this.loadActivity()
     setInterval(() => {
       if (++this.polls % 5 === 0) void this.loadActivity()
@@ -241,8 +244,27 @@ class PoolPage {
       this.data = d
       this.paint()
     } catch (e) {
-      if (!this.data) this.setMsg("QIE's RPCs aren't answering. Retrying every few seconds.")
+      if (!this.data) this.unreachable()
       console.warn(e)
+    }
+  }
+
+  /** No receipt yet and the RPCs are failing or slow: say so in the receipt itself, with a Retry, until a read lands. */
+  private unreachable() {
+    const card = this.root.querySelector<HTMLElement>('#card')
+    if (this.data || !card) return
+    if (card.querySelector('[data-act="retry"]:not(:disabled)')) return // already shown: a failed poll keeps focus where it is
+    card.parentElement!.removeAttribute('aria-busy')
+    card.innerHTML = `<p class="label">Group payment receipt <span class="data">#${this.id}</span></p>
+      <h1>Can't reach QIE mainnet</h1>
+      <p class="status" role="status">None of QIE's five public RPCs answered, so this receipt can't be read yet. ${NOTHING_SENT}</p>
+      <div class="actions"><button class="cta" data-act="retry">Retry</button></div>
+      <p class="data">The page also tries again every few seconds on its own.</p>`
+    const retry = card.querySelector<HTMLButtonElement>('[data-act="retry"]')!
+    retry.onclick = () => {
+      retry.disabled = true
+      retry.textContent = 'Reading…'
+      void this.refresh().then(() => this.loadActivity())
     }
   }
 
@@ -408,8 +430,7 @@ class PoolPage {
 
   private setMsg(m: string) {
     this.msg = m
-    const el = this.root.querySelector('.msg')
-    if (el) el.innerHTML = m
+    this.root.querySelector('.msg')!.innerHTML = m // only actions call this, and they live on the painted card beside .msg
   }
 
   // ------------------------------------------------------------------ writes

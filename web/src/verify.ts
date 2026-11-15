@@ -7,6 +7,7 @@ import { parseEventLogs, type Abi, type Address, type Hex } from 'viem'
 import { ADDR, clientFor, explorerAddress, explorerTx, hasExplorer, loadDeployments, qieMainnet, type Deployment } from './chain'
 import { fmtQusdc, shortAddr } from './format'
 import { patunganAbi } from './patungan-abi'
+import { NOTHING_SENT, whenSlow } from './slow'
 
 const API = `${qieMainnet.blockExplorers.default.url}/api/v2`
 const WATCH = ['PoolCreated', 'Joined', 'PoolPaid', 'Refunded'] as const
@@ -101,7 +102,21 @@ function toRows(logs: { address: Address; topics: Hex[]; data: Hex; transactionH
     .sort((a, b) => Number(b.block - a.block))
 }
 
+/** Static text, appended once the live reads settle: nothing already on screen moves when the reads land (CLS). */
+const NOTES = `<h2 class="label">Honest notes</h2>
+    <ul class="notes">
+      <li>QIE blocks arrive about every 3.6 s (measured), not every 2 s.</li>
+      <li>Distinct wallets are not distinct people: a roster counts wallets, not humans.</li>
+      <li>Wallets the builders control are labelled "builder wallet" on every roster and never counted as users.</li>
+      <li>The QIE Oracle is a sanity bound on the swap, not the price paid. The price paid is QIEDEX's.</li>
+      <li>QUSDC has an issuer-controlled VAULT_ROLE that sits outside Patungan and can burn QUSDC (README, honest limits). Patungan itself has no owner, pause, upgrade or withdraw.</li>
+    </ul>`
+const UNREACHABLE = `<p class="localnote">Can't reach QIE mainnet right now, so the contract can't be read. ${NOTHING_SENT} <button class="link" data-act="retry">Retry</button></p>`
+
+let generation = 0 // a Retry re-renders the page; reads from an earlier render never write into the new one
+
 export async function renderVerify(root: HTMLElement) {
+  const gen = ++generation
   let deps: Deployment[] = []
   let loadFailed = false
   try {
@@ -112,34 +127,35 @@ export async function renderVerify(root: HTMLElement) {
   root.innerHTML = `<section class="home verify"><div class="topline"><a class="link" href="/pools">← Patungan</a></div>
     <h1>Verify</h1>
     <p class="lede">What a juror can check in two minutes. The contract, its four components, solvency and the events below are read live from ${deps.length && deps.every((d) => d.rpc) ? 'this local fork of QIE mainnet (it has no explorer)' : 'QIE mainnet and its explorer'} when the page opens. The notes at the bottom are static text.</p>
-    <div id="vbody"><p class="data">Reading…</p></div>
-    <h2 class="label">Honest notes</h2>
-    <ul class="notes">
-      <li>QIE blocks arrive about every 3.6 s (measured), not every 2 s.</li>
-      <li>Distinct wallets are not distinct people: a roster counts wallets, not humans.</li>
-      <li>Wallets the builders control are labelled "builder wallet" on every roster and never counted as users.</li>
-      <li>The QIE Oracle is a sanity bound on the swap, not the price paid. The price paid is QIEDEX's.</li>
-      <li>QUSDC has an issuer-controlled VAULT_ROLE that sits outside Patungan and can burn QUSDC (README, honest limits). Patungan itself has no owner, pause, upgrade or withdraw.</li>
-    </ul></section>`
+    <div id="vbody"><p class="data">Reading…</p></div></section>`
+  const section = root.querySelector<HTMLElement>('section')!
   const body = root.querySelector<HTMLElement>('#vbody')!
+  let notes = false
+  const settle = (html: string) => {
+    if (gen !== generation) return
+    body.innerHTML = html
+    body.querySelector('[data-act="retry"]')?.addEventListener('click', () => void renderVerify(root))
+    if (!notes) section.insertAdjacentHTML('beforeend', NOTES)
+    notes = true
+  }
   const comp = (label: string, addr: string) =>
     `<dt>${label}</dt><dd><a class="data" href="${explorerAddress(addr)}" target="_blank" rel="noopener">${addr}</a></dd>`
   const components = `<h2 class="label">The four QIE components it calls</h2><dl>
     ${comp('QUSDC (escrow token)', ADDR.qusdc)}${comp('QIEDEX Router (swap)', ADDR.router)}${comp('Zone (.qie names)', ADDR.zone)}${comp('QIE Oracle (QIE/USDT feed)', ADDR.oracle)}</dl>`
-  if (loadFailed) {
-    body.innerHTML = '<p class="localnote">Could not load the deployment list. Reload the page.</p>'
-    return
-  }
+  if (loadFailed) return settle('<p class="localnote">Could not load the deployment list. Reload the page.</p>')
   if (deps.length === 0) {
-    body.innerHTML = `<p class="localnote">The Patungan contract is not deployed on QIE mainnet yet, so there is nothing to verify. The four components it will call are live:</p>${components}`
-    return
+    return settle(`<p class="localnote">The Patungan contract is not deployed on QIE mainnet yet, so there is nothing to verify. The four components it will call are live:</p>${components}`)
   }
-  const sections: string[] = []
-  for (const dep of deps) sections.push(await deployment(dep).catch(() => `<h2 class="label">${esc(dep.label)}</h2><p class="data">Could not read this deployment right now.</p>`))
-  body.innerHTML = sections.join('') + components
+  const work = Promise.all(
+    deps.map((dep) => deployment(dep).catch(() => ({ html: `<h2 class="label">${esc(dep.label)}</h2><p class="data">Could not read this deployment right now.</p>`, down: true }))),
+  )
+  whenSlow(work, () => settle(UNREACHABLE))
+  const sections = await work
+  settle((sections.every((s) => s.down) ? UNREACHABLE : '') + sections.map((s) => s.html).join('') + components)
 }
 
-async function deployment(dep: Deployment): Promise<string> {
+/** One deployment's section; `down` = no contract read and no event source answered. */
+async function deployment(dep: Deployment): Promise<{ html: string; down: boolean }> {
   const c = clientFor(dep)
   const link = hasExplorer(dep)
     ? `<a class="data" href="${explorerAddress(dep.address)}" target="_blank" rel="noopener">${dep.address}</a>`
@@ -170,11 +186,12 @@ async function deployment(dep: Deployment): Promise<string> {
         return `<li><b>${e.name}</b> ${pool} <span class="data">${shortAddr(e.who)}</span> ${e.detail} ${tx}</li>`
       })
       .join('') ?? ''
-  return `<h2 class="label">${esc(dep.label)}</h2>
+  const html = `<h2 class="label">${esc(dep.label)}</h2>
     <p class="vaddr">${link}</p><p>${badge}</p>
     ${solvency ? `<dl><dt>Solvent (QUSDC balance ≥ held)</dt><dd>${solvency[0] ? 'yes' : 'NO'}</dd><dt>QUSDC held for open pools</dt><dd>${fmtQusdc(solvency[1])}</dd><dt>Pools created</dt><dd>${solvency[2]}</dd><dt>Oracle guard (maxDevBps)</dt><dd>${solvency[3]} (${Number(solvency[3]) / 100}%)</dd></dl>` : '<p class="data">Contract reads unavailable right now.</p>'}
     ${wired ? `<h3 class="label">Wired at deploy (read from the contract's immutables)</h3><dl><dt>QUSDC</dt><dd class="data">${wired[0]}</dd><dt>Router</dt><dd class="data">${wired[1]}</dd><dt>Zone</dt><dd class="data">${wired[2]}</dd><dt>Oracle</dt><dd class="data">${wired[3]}</dd></dl><p class="data">${[ADDR.qusdc, ADDR.router, ADDR.zone, ADDR.oracle].every((x, i) => x.toLowerCase() === String(wired[i]).toLowerCase()) ? 'These match the addresses linked below.' : 'These do NOT all match the addresses linked below.'}</p>` : ''}
     <h3 class="label">Latest events${events ? ` · via ${esc(events.source)}` : ''}</h3>
     ${events ? `<ul class="events">${rows || '<li class="data">No events yet.</li>'}</ul>` : '<p class="data">Events unavailable right now.</p>'}`
+  return { html, down: !solvency && !wired && !events }
 }
 

@@ -13,11 +13,13 @@ import { patunganAbi } from './patungan-abi'
 import { renderCreate } from './create'
 import { renderPool } from './pool'
 import { renderVerify } from './verify'
+import { NOTHING_SENT, whenSlow } from './slow'
 
 const app = document.querySelector<HTMLElement>('#app')!
 const route = location.pathname.match(/^\/p\/([a-z0-9-]+)\/(\d+)\/?$/i)
 
 const path = location.pathname.replace(/\/+$/, '')
+let generation = 0 // a Retry re-renders the page; reads from an earlier render never write into the new one
 
 if (route) {
   void renderPool(app, route[1], BigInt(route[2]))
@@ -40,15 +42,25 @@ const STAMP: Record<string, string> = {
 }
 
 /** App home at /pools (the landing page is index.html at /): live QIE component reads + every pool on each known deployment, newest first. */
+/** The pools line when QIE's RPCs fail or hang, with a Retry that re-runs every read on the page. */
+function unreachable(ul: Element, label: string, listed = '') {
+  ul.innerHTML = `${listed}<li class="data">${label}: not answering. ${NOTHING_SENT} <button class="link" data-act="retry">Retry</button></li>`
+  ul.querySelector('[data-act="retry"]')!.addEventListener('click', () => void home())
+}
+
 async function home() {
+  const gen = ++generation
+  const live = () => gen === generation
   app.innerHTML = `<section class="home">
     <h1>Patungan</h1>
     <p class="lede">Group payments with a deadline, on QIE mainnet. The last seat pays the seller; a missed deadline refunds everyone.</p>
     <p class="homecta"><a class="cta" href="/new">Start a pool</a> <a class="link" href="/verify">Verify the contract →</a></p>
     <h2 class="label">Pools</h2><ul class="pools" id="pools"><li class="data">Reading…</li></ul>
     <h2 class="label">QIE mainnet, live</h2><dl id="status"></dl></section>`
-  void pools()
+  const listed = pools(live)
+  whenSlow(listed, () => live() && unreachable(document.querySelector('#pools')!, 'QIE mainnet'))
   const row = (label: string, value: string) => {
+    if (!live()) return
     const dl = document.querySelector('#status')!
     const dt = document.createElement('dt')
     const dd = document.createElement('dd')
@@ -75,9 +87,10 @@ async function home() {
   }
 }
 
-async function pools() {
+async function pools(live: () => boolean) {
   const ul = document.querySelector('#pools')!
   const items: string[] = []
+  const down: string[] = []
   for (const dep of await loadDeployments()) {
     try {
       const c = clientFor(dep)
@@ -96,8 +109,10 @@ async function pools() {
           <span class="mini ${kind}">${STAMP[kind]}</span></a> <span class="data">${dep.rpc ? 'local fork' : dep.label}</span></li>`)
       }
     } catch {
-      items.push(`<li class="data">${dep.label}: not answering</li>`)
+      down.push(dep.label)
     }
   }
+  if (!live()) return
+  if (down.length) return unreachable(ul, down.join(', '), items.join(''))
   ul.innerHTML = items.join('') || '<li class="data">No pools yet. The mainnet contract is not deployed yet.</li>'
 }

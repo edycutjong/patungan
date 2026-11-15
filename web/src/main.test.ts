@@ -116,7 +116,54 @@ describe('pools home', () => {
     expect(items[1].querySelector('b')!.textContent).toBe('Pool #2')
     expect(items[2].textContent).toContain('0/5 · 2.00 QUSDC')
     expect(items[2].textContent).toContain('QIE mainnet')
-    expect(items[3].textContent).toBe('Fork: not answering')
+    expect(items[3].textContent).toBe('Fork: not answering. Nothing was sent and no money moved: this page only reads the chain. Retry')
+    expect(items[3].querySelector('button[data-act="retry"]')).not.toBeNull()
+  })
+
+  it('Retry re-runs every read on the page and lists the pools once QIE answers', async () => {
+    m.loadDeployments.mockResolvedValue([MAIN])
+    m.clientFor.mockReturnValue({ readContract: vi.fn().mockRejectedValue(new Error('500')), getBlock: vi.fn().mockRejectedValue(new Error('500')) })
+    const app = await open('/pools')
+    expect(app.querySelector('#pools')!.textContent).toContain('QIE mainnet: not answering. Nothing was sent')
+    m.clientFor.mockReturnValue(poolsClient(1n, () => pool({ title: 'Futsal' })))
+    app.querySelector<HTMLButtonElement>('[data-act="retry"]')!.click()
+    await flush()
+    expect(app.querySelector('#pools b')!.textContent).toBe('Futsal')
+    expect(app.querySelector('#pools [data-act="retry"]')).toBeNull()
+    expect(app.querySelectorAll('#status dt')).toHaveLength(3) // one set of live rows, from the new render only
+  })
+
+  it('says QIE is not answering after a few seconds while the pool reads hang, and drops the hung run after a Retry', async () => {
+    const realTimeout = globalThis.setTimeout
+    const slow: (() => void)[] = []
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(((fn: () => void, ms?: number) => {
+      if (ms === 4_000) {
+        slow.push(fn)
+        return 0
+      }
+      return realTimeout(fn, ms)
+    }) as never)
+    let land!: (deps: Deployment[]) => void
+    m.loadDeployments.mockReturnValueOnce(new Promise((r) => (land = r)))
+    let block!: (n: bigint) => void
+    m.client.getBlockNumber.mockReturnValueOnce(new Promise<bigint>((r) => (block = r)))
+    const app = await open('/pools')
+    expect(app.querySelector('#pools')!.textContent).toBe('Reading…')
+    slow[0]()
+    expect(app.querySelector('#pools')!.textContent).toContain('QIE mainnet: not answering. Nothing was sent')
+    m.loadDeployments.mockResolvedValue([])
+    app.querySelector<HTMLButtonElement>('[data-act="retry"]')!.click()
+    await flush()
+    expect(app.querySelector('#pools')!.textContent).toBe('No pools yet. The mainnet contract is not deployed yet.')
+    const status = app.querySelector('#status')!.textContent
+    // the first render's hung reads land now: they write nothing, and its late timer paints no notice
+    land([MAIN])
+    block(1n)
+    await flush()
+    slow[0]()
+    expect(app.querySelector('#pools')!.textContent).toBe('No pools yet. The mainnet contract is not deployed yet.')
+    expect(app.querySelector('#status')!.textContent).toBe(status)
+    vi.restoreAllMocks()
   })
 
   it('shows at most the ten newest pools per deployment and labels a local fork', async () => {
